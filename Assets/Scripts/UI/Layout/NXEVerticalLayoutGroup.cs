@@ -18,6 +18,7 @@ public class NXEVerticalLayoutGroup : LayoutGroup
     [SerializeField] private int focusedIndex = 0;
     [FormerlySerializedAs("transitionSpeed")] [SerializeField] private float transitionTime = 8f;
 
+    public RectTransform RectTransform => transform as RectTransform;
 
     public int FocusedIndex
     {
@@ -33,12 +34,15 @@ public class NXEVerticalLayoutGroup : LayoutGroup
     {
         //TODO Find a way to make this rise from the below
         Rows[^1].transform.SetAsFirstSibling();
+        Rows[^1].RectTransform.anchoredPosition = new Vector3(0, -titleOffset * (1 / titleDownscale), 0);
         Layout();
     }
 
     public void MoveUp()
     {
         Rows[FocusedIndex].transform.SetAsLastSibling();
+        float textScale = Mathf.Pow(titleDownscale, Rows.Count);
+        Rows[FocusedIndex].RectTransform.anchoredPosition = new Vector3(0, targetPositions[^1].y + (titleOffset * textScale), 0);
         Layout();
     }
 

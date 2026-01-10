@@ -80,7 +80,11 @@ public class NXEBlade : MonoBehaviour
         
         canvasGroup.DOKill();
         if (Application.isPlaying)
-            canvasGroup.DOFade(1, fadeInTransitionTime).SetDelay(fadeOutTransitionTime);
+        {
+            canvasGroup
+                .DOFade(1, fadeInTransitionTime)
+                .SetDelay(fadeOutTransitionTime);
+        }
         else
             canvasGroup.alpha = 1;
 

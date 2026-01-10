@@ -21,6 +21,8 @@ public class NXEBladeLayoutGroup : LayoutGroup
     private Vector2[] targetSizes;
     
     public List<RectTransform> Tiles => tiles;
+    
+    public RectTransform RectTransform => transform as RectTransform;
 
     public int FocusedIndex
     {
