@@ -31,12 +31,15 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public void MoveDown()
     {
-        FocusedIndex = Mathf.Max(0, focusedIndex - 1);
+        //TODO Find a way to make this rise from the below
+        Rows[^1].transform.SetAsFirstSibling();
+        Layout();
     }
 
     public void MoveUp()
     {
-        FocusedIndex = Mathf.Min(rows.Count - 1, focusedIndex + 1);
+        Rows[FocusedIndex].transform.SetAsLastSibling();
+        Layout();
     }
 
     public override void CalculateLayoutInputVertical()
