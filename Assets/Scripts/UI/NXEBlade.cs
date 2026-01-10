@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,14 +16,15 @@ public class NXEBlade : MonoBehaviour
     [SerializeField] private NXETile[] tiles;
 
     [SerializeField] private Text titleText;
+    [SerializeField] private Text pagerText;
     [SerializeField] private NXEBladeLayoutGroup layoutGroup;
     [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private float transitionSpeed = 8f;
+    [SerializeField] private float fadeOutTransitionTime = 0.25f;
+    [SerializeField] private float fadeInTransitionTime = 0.125f;
 
     public RectTransform TitleTransform => titleText.rectTransform;
     public RectTransform RectTransform => transform as RectTransform;
 
-    private float targetOpacity;
     private int lastValidatedTilesLength;
 
     public void MoveLeft()
@@ -37,6 +39,8 @@ public class NXEBlade : MonoBehaviour
             previousTile.OnUnFocus();
             newTile.OnFocus();
         }
+        
+        UpdatePagerText();
     }
 
     public void MoveRight()
@@ -51,6 +55,13 @@ public class NXEBlade : MonoBehaviour
             previousTile.OnUnFocus();
             newTile.OnFocus();
         }
+
+        UpdatePagerText();
+    }
+
+    private void UpdatePagerText()
+    {
+        pagerText.text = $"{layoutGroup.FocusedIndex + 1} of {tiles.Length}";
     }
 
     public void Select()
@@ -65,26 +76,28 @@ public class NXEBlade : MonoBehaviour
 
     public void Focus()
     {
-        targetOpacity = 1;
         titleText.color = Color.white;
+        
+        canvasGroup.DOKill();
+        if (Application.isPlaying)
+            canvasGroup.DOFade(1, fadeInTransitionTime).SetDelay(fadeOutTransitionTime);
+        else
+            canvasGroup.alpha = 1;
+
+        UpdatePagerText();
     }
 
     public void UnFocus(int focalIndex, NXEBladeUnfocusParams param = NXEBladeUnfocusParams.None)
     {
-        targetOpacity = 0;
-        canvasGroup.alpha = targetOpacity;
-
+        canvasGroup.DOKill();
+        if (Application.isPlaying)
+            canvasGroup.DOFade(0, fadeOutTransitionTime);
+        else
+            canvasGroup.alpha = 0;
+        
         titleText.color = param == NXEBladeUnfocusParams.FullHide
             ? new Color(1, 1, 1, 0.0f)
             : new Color(1, 1, 1, 0.5f / focalIndex);
-    }
-
-    private void Update()
-    {
-        if (Application.isPlaying)
-            canvasGroup.alpha = Mathf.Lerp(canvasGroup.alpha, targetOpacity, Time.deltaTime * transitionSpeed);
-        else
-            canvasGroup.alpha = targetOpacity;
     }
 
     private void OnValidate()

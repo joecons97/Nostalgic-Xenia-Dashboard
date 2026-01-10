@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [ExecuteAlways]
@@ -14,7 +16,7 @@ public class NXEVerticalLayoutGroup : LayoutGroup
     [SerializeField] private float titleOffset = -50;
 
     [SerializeField] private int focusedIndex = 0;
-    [SerializeField] private float transitionSpeed = 8f;
+    [FormerlySerializedAs("transitionSpeed")] [SerializeField] private float transitionTime = 8f;
 
 
     public int FocusedIndex
@@ -74,43 +76,35 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
         if (rows.Count == 0) return;
 
-        var currentY = 0.0f;
         int count = rows.Count;
 
         targetPositions = new Vector3[count];
 
         for (int i = 0; i < count; i++)
         {
+            var currentY = 0.0f;
             var tile = rows[i];
 
             // Calculate how many steps this tile is from the focused one
             int stepsFromFocus = i - focusedIndex;
-            var scalePower = stepsFromFocus;
-            if(scalePower < 0)
-                scalePower = count + stepsFromFocus;
             
-            float textScale = Mathf.Pow(titleDownscale, scalePower);
+            float textScale = Mathf.Pow(titleDownscale, stepsFromFocus);
             tile.TitleTransform.localScale = new Vector3(textScale, textScale, 1);
 
-            if (stepsFromFocus != 0)
+            if (stepsFromFocus > 0)
             {
                 var index = i - 1;
-                if (index < 0)
-                {
-                    index = count + index;
-                    Debug.Log(index);
-                }
-
                 currentY = targetPositions[index].y + (titleOffset * textScale);
-                if ((i - 1) < 0)
-                    Debug.Log(currentY);
                 
                 tile.UnFocus(stepsFromFocus);
             }
             else
             {
                 currentY = 0;
-                tile.Focus();
+                if(stepsFromFocus < 0)
+                    tile.UnFocus(stepsFromFocus, NXEBladeUnfocusParams.FullHide);
+                else
+                    tile.Focus();
             }
 
             targetPositions[i] = new Vector3(0, currentY, 0f);
@@ -125,12 +119,13 @@ public class NXEVerticalLayoutGroup : LayoutGroup
         {
             var tile = rows[i];
 
-            //if (Application.isPlaying)
-            //{
-            //    // Smooth transitions during play
-            //    tile.RectTransform.anchoredPosition = Vector2.Lerp(tile.RectTransform.anchoredPosition, targetPositions[i], Time.deltaTime * transitionSpeed);
-            //}
-            //else
+            if (Application.isPlaying)
+            {
+                // Smooth transitions during play
+                tile.RectTransform.DOKill();
+                tile.RectTransform.DOAnchorPos(targetPositions[i], transitionTime);
+            }
+            else
             {
                 // Immediate positioning in editor
                 tile.RectTransform.anchoredPosition = targetPositions[i];
@@ -142,8 +137,6 @@ public class NXEVerticalLayoutGroup : LayoutGroup
     {
         if (Application.isPlaying)
         {
-            ApplyLayout();
-
             if (Input.GetKeyDown(KeyCode.UpArrow)) MoveUp();
             if (Input.GetKeyDown(KeyCode.DownArrow)) MoveDown();
         }
