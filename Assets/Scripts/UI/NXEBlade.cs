@@ -81,6 +81,11 @@ public class NXEBlade : MonoBehaviour
         canvasGroup.DOKill();
         if (Application.isPlaying)
         {
+            //Comment for later self: this is a hack to prevent the blade from moving up and the with the focus animation
+            //Should reset when play mode ends
+            if(layoutGroup.transform.parent == transform)
+                layoutGroup.transform.SetParent(transform.parent, false);
+            
             canvasGroup
                 .DOFade(1, fadeInTransitionTime)
                 .SetDelay(fadeOutTransitionTime);
@@ -95,7 +100,14 @@ public class NXEBlade : MonoBehaviour
     {
         canvasGroup.DOKill();
         if (Application.isPlaying)
+        {
+            //Comment for later self: this is a hack to prevent the blade from moving up and the with the unfocus animation
+            //Should reset when play mode ends
+            if(layoutGroup.transform.parent == transform)
+                layoutGroup.transform.SetParent(transform.parent, false);
+
             canvasGroup.DOFade(0, fadeOutTransitionTime);
+        }
         else
             canvasGroup.alpha = 0;
         
