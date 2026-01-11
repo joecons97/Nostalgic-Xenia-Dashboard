@@ -103,6 +103,8 @@ public class NXEBladeLayoutGroup : LayoutGroup
         for (int i = 0; i < count; i++)
         {
             RectTransform tile = tiles[i];
+            if (tile == null)
+                continue;
             
             // Calculate how many steps this tile is from the focused one
             int stepsFromFocus = i - focusedIndex;

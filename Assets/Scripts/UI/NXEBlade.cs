@@ -139,6 +139,9 @@ public class NXEBlade : MonoBehaviour
     [ContextMenu("Rebuild")]
     private void Rebuild()
     {
+        if (layoutGroup == null)
+            return;
+        
         List<GameObject> toDestroy = new();
         for (int i = 0; i < layoutGroup.transform.childCount; i++)
         {
@@ -146,6 +149,7 @@ public class NXEBlade : MonoBehaviour
             toDestroy.Add(child.gameObject);
         }
 
+        #if UNITY_EDITOR
         UnityEditor.EditorApplication.delayCall += () =>
         {
             foreach (var o in toDestroy)
@@ -155,8 +159,19 @@ public class NXEBlade : MonoBehaviour
 
             foreach (var nxeTile in tiles)
             {
-                var p = Instantiate(nxeTile, layoutGroup.transform);
+                Instantiate(nxeTile, layoutGroup.transform);
             }
         };
+        #else
+        foreach (var o in toDestroy)
+        {
+            Destroy(o);
+        }
+        
+        foreach (var nxeTile in tiles)
+        {
+            Instantiate(nxeTile, layoutGroup.transform);
+        }
+        #endif
     }
 }
