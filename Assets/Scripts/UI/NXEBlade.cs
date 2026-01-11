@@ -88,7 +88,8 @@ public class NXEBlade : MonoBehaviour
             
             canvasGroup
                 .DOFade(1, fadeInTransitionTime)
-                .SetDelay(fadeOutTransitionTime);
+                .SetDelay(fadeOutTransitionTime)
+                .SetEase(Ease.OutQuad);
         }
         else
             canvasGroup.alpha = 1;
@@ -106,7 +107,9 @@ public class NXEBlade : MonoBehaviour
             if(layoutGroup.transform.parent == transform)
                 layoutGroup.transform.SetParent(transform.parent, false);
 
-            canvasGroup.DOFade(0, fadeOutTransitionTime);
+            canvasGroup.DOFade(0, fadeOutTransitionTime)
+                .SetEase(Ease.OutQuad)
+                .OnComplete(() => layoutGroup.ResetPosition());
         }
         else
             canvasGroup.alpha = 0;

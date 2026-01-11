@@ -143,7 +143,7 @@ public class NXEVerticalLayoutGroup : LayoutGroup
             {
                 // Smooth transitions during play
                 tile.RectTransform.DOKill();
-                tile.RectTransform.DOAnchorPos(targetPositions[i], transitionTime);
+                tile.RectTransform.DOAnchorPos(targetPositions[i], transitionTime).SetEase(Ease.OutQuad);
             }
             else
             {

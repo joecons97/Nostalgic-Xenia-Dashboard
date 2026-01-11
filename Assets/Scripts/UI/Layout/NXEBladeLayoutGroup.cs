@@ -1,6 +1,9 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Linq;
+using DG.Tweening;
 
 [ExecuteAlways]
 public class NXEBladeLayoutGroup : LayoutGroup
@@ -14,7 +17,8 @@ public class NXEBladeLayoutGroup : LayoutGroup
     
     [Header("Selection")]
     [SerializeField] private int focusedIndex = 0;
-    [SerializeField] private float transitionSpeed = 8f;
+    [SerializeField] private float transitionTime = 8f;
+    [SerializeField] private Ease transitionEase = Ease.OutQuad;
     
     private List<RectTransform> tiles = new List<RectTransform>();
     private Vector3[] targetPositions;
@@ -87,11 +91,14 @@ public class NXEBladeLayoutGroup : LayoutGroup
         if (tiles.Count == 0) return;
 
         int count = tiles.Count;
+        var previous = targetPositions?.ToArray() ?? Array.Empty<Vector3>();
         targetPositions = new Vector3[count];
         targetSizes = new Vector2[count];
 
         float currentX = leftPadding;
         float currentY = 0f;
+
+        bool reApplyLayout = false;
 
         for (int i = 0; i < count; i++)
         {
@@ -135,11 +142,14 @@ public class NXEBladeLayoutGroup : LayoutGroup
             }
 
             targetPositions[i] = new Vector3(currentX, currentY, 0f);
+            if(previous.ElementAtOrDefault(i) != targetPositions[i])
+                reApplyLayout = true;
 
             // Size will be applied in ApplyLayout for smooth transitions
         }
 
-        ApplyLayout();
+        if(reApplyLayout)
+            ApplyLayout();
     }
 
     private void ApplyLayout()
@@ -151,14 +161,14 @@ public class NXEBladeLayoutGroup : LayoutGroup
             if (Application.isPlaying)
             {
                 // Smooth transitions during play
-                //TODO Replace with DOTween
-                tile.anchoredPosition = Vector2.Lerp(tile.anchoredPosition, targetPositions[i], Time.deltaTime * transitionSpeed);
+                tile.DOKill();
+                    
+                tile.DOAnchorPos(targetPositions[i], transitionTime)
+                    .SetEase(transitionEase);
                 
                 // Smoothly interpolate size
-                Vector2 currentSize = tile.localScale;
-                //TODO Replace with DOTween
-                Vector2 newSize = Vector2.Lerp(currentSize, targetSizes[i], Time.deltaTime * transitionSpeed);
-                tile.localScale = new Vector3(newSize.x, newSize.y, 1);
+                tile.DOScale(new Vector3(targetSizes[i].x, targetSizes[i].y, 1), transitionTime)
+                    .SetEase(transitionEase);
             }
             else
             {
@@ -166,14 +176,6 @@ public class NXEBladeLayoutGroup : LayoutGroup
                 tile.anchoredPosition = targetPositions[i];
                 tile.localScale = new Vector3(targetSizes[i].x, targetSizes[i].y, 1);
             }
-        }
-    }
-
-    private void Update()
-    {
-        if (Application.isPlaying)
-        {
-            ApplyLayout();
         }
     }
 
@@ -189,6 +191,11 @@ public class NXEBladeLayoutGroup : LayoutGroup
     public void MoveLeft()
     {
         FocusedIndex = Mathf.Max(0, focusedIndex - 1);
+    }
+
+    public void ResetPosition()
+    {
+        FocusedIndex = 0;
     }
 
     public void MoveRight()
