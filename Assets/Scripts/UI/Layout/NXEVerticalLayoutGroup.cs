@@ -32,7 +32,6 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public void MoveDown()
     {
-        //TODO Find a way to make this rise from the below
         Rows[^1].transform.SetAsFirstSibling();
         Rows[^1].RectTransform.anchoredPosition = new Vector3(0, -titleOffset * (1 / titleDownscale), 0);
         Layout();
@@ -46,6 +45,20 @@ public class NXEVerticalLayoutGroup : LayoutGroup
         Layout();
     }
 
+    public void MoveLeft()
+    {
+        CollectRows();
+        Rows[focusedIndex].MoveLeft();
+        Layout();
+    }
+
+    public void MoveRight()
+    {
+        CollectRows();
+        Rows[focusedIndex].MoveRight();
+        Layout();
+    }
+    
     public override void CalculateLayoutInputVertical()
     {
         Layout();
@@ -137,15 +150,6 @@ public class NXEVerticalLayoutGroup : LayoutGroup
                 // Immediate positioning in editor
                 tile.RectTransform.anchoredPosition = targetPositions[i];
             }
-        }
-    }
-
-    private void Update()
-    {
-        if (Application.isPlaying)
-        {
-            if (Input.GetKeyDown(KeyCode.UpArrow)) MoveUp();
-            if (Input.GetKeyDown(KeyCode.DownArrow)) MoveDown();
         }
     }
 

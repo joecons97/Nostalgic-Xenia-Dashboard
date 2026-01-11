@@ -151,10 +151,12 @@ public class NXEBladeLayoutGroup : LayoutGroup
             if (Application.isPlaying)
             {
                 // Smooth transitions during play
+                //TODO Replace with DOTween
                 tile.anchoredPosition = Vector2.Lerp(tile.anchoredPosition, targetPositions[i], Time.deltaTime * transitionSpeed);
                 
                 // Smoothly interpolate size
                 Vector2 currentSize = tile.localScale;
+                //TODO Replace with DOTween
                 Vector2 newSize = Vector2.Lerp(currentSize, targetSizes[i], Time.deltaTime * transitionSpeed);
                 tile.localScale = new Vector3(newSize.x, newSize.y, 1);
             }
