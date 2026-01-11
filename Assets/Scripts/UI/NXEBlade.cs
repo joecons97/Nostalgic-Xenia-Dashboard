@@ -21,6 +21,7 @@ public class NXEBlade : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private float fadeOutTransitionTime = 0.25f;
     [SerializeField] private float fadeInTransitionTime = 0.125f;
+    [SerializeField] private Ease transitionEase = Ease.OutQuad;
 
     public RectTransform TitleTransform => titleText.rectTransform;
     public RectTransform RectTransform => transform as RectTransform;
@@ -89,7 +90,7 @@ public class NXEBlade : MonoBehaviour
             canvasGroup
                 .DOFade(1, fadeInTransitionTime)
                 .SetDelay(fadeOutTransitionTime)
-                .SetEase(Ease.OutQuad);
+                .SetEase(transitionEase);
         }
         else
             canvasGroup.alpha = 1;
@@ -108,7 +109,7 @@ public class NXEBlade : MonoBehaviour
                 layoutGroup.transform.SetParent(transform.parent, false);
 
             canvasGroup.DOFade(0, fadeOutTransitionTime)
-                .SetEase(Ease.OutQuad)
+                .SetEase(transitionEase)
                 .OnComplete(() => layoutGroup.ResetPosition());
         }
         else

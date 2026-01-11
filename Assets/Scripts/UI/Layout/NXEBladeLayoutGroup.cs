@@ -148,7 +148,7 @@ public class NXEBladeLayoutGroup : LayoutGroup
             // Size will be applied in ApplyLayout for smooth transitions
         }
 
-        if(reApplyLayout)
+        if(reApplyLayout || Application.isPlaying == false)
             ApplyLayout();
     }
 

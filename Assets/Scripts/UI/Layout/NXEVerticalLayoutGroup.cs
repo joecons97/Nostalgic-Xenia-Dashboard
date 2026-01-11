@@ -17,6 +17,7 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     [SerializeField] private int focusedIndex = 0;
     [FormerlySerializedAs("transitionSpeed")] [SerializeField] private float transitionTime = 8f;
+    [SerializeField] private Ease transitionEase = Ease.OutQuad;
 
     public RectTransform RectTransform => transform as RectTransform;
 
@@ -143,7 +144,9 @@ public class NXEVerticalLayoutGroup : LayoutGroup
             {
                 // Smooth transitions during play
                 tile.RectTransform.DOKill();
-                tile.RectTransform.DOAnchorPos(targetPositions[i], transitionTime).SetEase(Ease.OutQuad);
+                tile.RectTransform
+                    .DOAnchorPos(targetPositions[i], transitionTime)
+                    .SetEase(transitionEase);
             }
             else
             {
