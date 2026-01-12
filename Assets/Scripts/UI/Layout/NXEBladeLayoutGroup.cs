@@ -81,6 +81,12 @@ public class NXEBladeLayoutGroup : LayoutGroup
         }
     }
 
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        CalculateLayout();
+    }
+
     private void CalculateLayout()
     {
         if (tiles.Count == 0)
@@ -121,26 +127,29 @@ public class NXEBladeLayoutGroup : LayoutGroup
             var overlap = 1 - Mathf.Pow(1 - overlapAmount, stepsFromFocus);
             if (stepsFromFocus == 1)
                 overlap = 0.01f;
-            
-            // Position calculation
-            if (i == focusedIndex)
+
+            if (enabled)
             {
-                // Focused tile is at the left
-                currentX = leftPadding;
-            }
-            else if (stepsFromFocus > 0)
-            {
-                // Tiles to the right of focus
-                // Previous tile's right edge minus the overlap
-                Vector2 prevSize = Vector2.Scale(baseTileSize, targetSizes[i - 1]);
-                currentX = currentX + prevSize.x * (1f - overlap);
-                currentY = -(heightLowerAmount * (1 - scale));
-            }
-            else
-            {
-                // Tiles to the left of focus (if focus isn't at index 0)
-                // These would be off-screen or handled differently
-                currentX = leftPadding - (baseTileSize.x * (-stepsFromFocus * 2));
+                // Position calculation
+                if (i == focusedIndex)
+                {
+                    // Focused tile is at the left
+                    currentX = leftPadding;
+                }
+                else if (stepsFromFocus > 0)
+                {
+                    // Tiles to the right of focus
+                    // Previous tile's right edge minus the overlap
+                    Vector2 prevSize = Vector2.Scale(baseTileSize, targetSizes[i - 1]);
+                    currentX = currentX + prevSize.x * (1f - overlap);
+                    currentY = -(heightLowerAmount * (1 - scale));
+                }
+                else
+                {
+                    // Tiles to the left of focus (if focus isn't at index 0)
+                    // These would be off-screen or handled differently
+                    currentX = leftPadding - (baseTileSize.x * (-stepsFromFocus * 2));
+                }
             }
 
             targetPositions[i] = new Vector3(currentX, currentY, 0f);
@@ -192,7 +201,8 @@ public class NXEBladeLayoutGroup : LayoutGroup
     // Helper methods for navigation
     public void MoveLeft()
     {
-        FocusedIndex = Mathf.Max(0, focusedIndex - 1);
+        if(enabled)
+            FocusedIndex = Mathf.Max(0, focusedIndex - 1);
     }
 
     public void ResetPosition()
@@ -202,7 +212,8 @@ public class NXEBladeLayoutGroup : LayoutGroup
 
     public void MoveRight()
     {
-        FocusedIndex = Mathf.Min(tiles.Count - 1, focusedIndex + 1);
+        if(enabled)
+            FocusedIndex = Mathf.Min(tiles.Count - 1, focusedIndex + 1);
     }
 
     public RectTransform GetFocusedTile()

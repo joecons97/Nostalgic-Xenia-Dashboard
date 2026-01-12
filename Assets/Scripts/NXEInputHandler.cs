@@ -4,41 +4,52 @@ using UnityEngine.InputSystem;
 public class NXEInputHandler : MonoBehaviour
 {
     InputAction navigateAction;
-    
-    [Header("References")]
-    [SerializeField] private NXEVerticalLayoutGroup verticalLayout;
-    
-    [Header("Repeat Settings")]
-    [SerializeField] private float initialDelay = 0.5f; // Time before repeat starts
+
+    [Header("References")] [SerializeField]
+    private NXEVerticalLayoutGroup verticalLayout;
+
+    [Header("Repeat Settings")] [SerializeField]
+    private float initialDelay = 0.5f; // Time before repeat starts
+
     [SerializeField] private float repeatRate = 0.1f; // Time between repeats
-    
+
     private Vector2 currentInput = Vector2.zero;
     private Vector2 lastExecutedDirection = Vector2.zero;
     private float holdTime = 0f;
     private float nextRepeatTime = 0f;
     private bool wasHolding = false;
-    
+
     void Start()
     {
         navigateAction = InputSystem.actions.FindAction("Navigate");
-        
-        //navigateAction.performed += OnNavigate;
-       // navigateAction.canceled += OnNavigate;
+
+        InputSystem.actions.FindAction("Submit").performed += OnSubmitPerformed;
+        InputSystem.actions.FindAction("Cancel").performed += OnCancelPerformed;
     }
 
-   private void Update()
+    private void OnSubmitPerformed(InputAction.CallbackContext obj)
+    {
+        verticalLayout.Select();
+    }
+    
+    private void OnCancelPerformed(InputAction.CallbackContext obj)
+    {
+        verticalLayout.Cancel();
+    }
+
+    private void Update()
     {
         if (navigateAction != null)
         {
             currentInput = navigateAction.ReadValue<Vector2>();
         }
-        
+
         bool isHolding = currentInput.sqrMagnitude > 0.1f;
 
         if (isHolding)
         {
             Vector2 currentDirection = GetDiscreteDirection(currentInput);
-            
+
             // Check if this is a new press or direction change
             if (!wasHolding || currentDirection != lastExecutedDirection)
             {
@@ -75,7 +86,7 @@ public class NXEInputHandler : MonoBehaviour
     {
         // Convert analog input to discrete direction
         Vector2 direction = Vector2.zero;
-        
+
         if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
         {
             direction.x = Mathf.Sign(input.x);
@@ -84,7 +95,7 @@ public class NXEInputHandler : MonoBehaviour
         {
             direction.y = Mathf.Sign(input.y);
         }
-        
+
         return direction;
     }
 

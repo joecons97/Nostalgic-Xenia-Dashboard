@@ -16,7 +16,10 @@ public class NXEVerticalLayoutGroup : LayoutGroup
     [SerializeField] private float titleOffset = -50;
 
     [SerializeField] private int focusedIndex = 0;
-    [FormerlySerializedAs("transitionSpeed")] [SerializeField] private float transitionTime = 8f;
+
+    [FormerlySerializedAs("transitionSpeed")] [SerializeField]
+    private float transitionTime = 8f;
+
     [SerializeField] private Ease transitionEase = Ease.OutQuad;
 
     public RectTransform RectTransform => transform as RectTransform;
@@ -33,6 +36,9 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public void MoveDown()
     {
+        if (enabled == false)
+            return;
+
         Rows[^1].transform.SetAsFirstSibling();
         Rows[^1].RectTransform.anchoredPosition = new Vector3(0, -titleOffset * (1 / titleDownscale), 0);
         Layout();
@@ -40,14 +46,46 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public void MoveUp()
     {
+        if (enabled == false)
+            return;
+
         Rows[FocusedIndex].transform.SetAsLastSibling();
         float textScale = Mathf.Pow(titleDownscale, Rows.Count);
         Rows[FocusedIndex].RectTransform.anchoredPosition = new Vector3(0, targetPositions[^1].y + (titleOffset * textScale), 0);
         Layout();
     }
 
+    public void Hide()
+    {
+        Rows[FocusedIndex].enabled = false;
+        transform.parent.GetComponent<CanvasGroup>().DOFade(0, transitionTime).SetDelay(transitionTime);
+        enabled = false;
+    }
+
+    public void Show()
+    {
+        transform.parent.GetComponent<CanvasGroup>().DOFade(1, transitionTime)
+            .OnComplete(() =>
+                Rows[FocusedIndex].enabled = true);
+
+        enabled = true;
+    }
+
+    public void Select()
+    {
+        Rows[FocusedIndex].Select();
+    }
+
+    public void Cancel()
+    {
+        Rows[FocusedIndex].Cancel();
+    }
+
     public void MoveLeft()
     {
+        if (enabled == false)
+            return;
+
         CollectRows();
         Rows[focusedIndex].MoveLeft();
         Layout();
@@ -55,11 +93,14 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public void MoveRight()
     {
+        if (enabled == false)
+            return;
+        
         CollectRows();
         Rows[focusedIndex].MoveRight();
         Layout();
     }
-    
+
     public override void CalculateLayoutInputVertical()
     {
         Layout();
@@ -108,7 +149,7 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
             // Calculate how many steps this tile is from the focused one
             int stepsFromFocus = i - focusedIndex;
-            
+
             float textScale = Mathf.Pow(titleDownscale, stepsFromFocus);
             tile.TitleTransform.localScale = new Vector3(textScale, textScale, 1);
 
@@ -116,13 +157,13 @@ public class NXEVerticalLayoutGroup : LayoutGroup
             {
                 var index = i - 1;
                 currentY = targetPositions[index].y + (titleOffset * textScale);
-                
+
                 tile.UnFocus(stepsFromFocus);
             }
             else
             {
                 currentY = 0;
-                if(stepsFromFocus < 0)
+                if (stepsFromFocus < 0)
                     tile.UnFocus(stepsFromFocus, NXEBladeUnfocusParams.FullHide);
                 else
                     tile.Focus();

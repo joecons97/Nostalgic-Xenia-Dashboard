@@ -70,9 +70,9 @@ public class NXEBlade : MonoBehaviour
         tiles[layoutGroup.FocusedIndex].OnSelect();
     }
 
-    public void AltSelect()
+    public void Cancel()
     {
-        tiles[layoutGroup.FocusedIndex].OnAltSelect();
+        tiles[layoutGroup.FocusedIndex].OnCancel();
     }
 
     public void Focus()
@@ -159,6 +159,9 @@ public class NXEBlade : MonoBehaviour
 
             foreach (var nxeTile in tiles)
             {
+                if (nxeTile == null)
+                    return;
+                
                 Instantiate(nxeTile, layoutGroup.transform);
             }
         };

@@ -114,14 +114,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7779528913578956953, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_Text
-      value: Settings
+      value: System Settings
       objectReference: {fileID: 0}
     - target: {fileID: 7779528913578956953, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_FontData.m_MinSize
       value: 3
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4578750056896060869, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5353531884984750672, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6121601330744613643}
   m_SourcePrefab: {fileID: 100100000, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+--- !u!1 &6188972313291874573 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5353531884984750672, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+  m_PrefabInstance: {fileID: 2281131922799407965}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-6121601330744613643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6188972313291874573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b222129d2b450f4f81a4082cf0e8124, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NXEModalOpenerTile
+  modal: {fileID: 2058949782104086260, guid: feff8486f869deb42a91877a8281bc8d, type: 3}
