@@ -9,8 +9,11 @@ public class NXEModal : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Text titleText;
 
-    [Header("Timings")] [SerializeField] private float textTransitionTime = 0.25f;
+    [Header("Timings")] 
+    [SerializeField] private float textTransitionTime = 0.25f;
+    [SerializeField] private Ease textTransitionEase = Ease.OutQuad;
     [SerializeField] private float fadeTransitionTime = 0.25f;
+    [SerializeField] private Ease fadeTransitionEase = Ease.OutQuad;
 
     public static NXEModal CreateAndShow(NXEModal modal)
     {
@@ -27,9 +30,10 @@ public class NXEModal : MonoBehaviour
     {
         var rectTransform = titleText.transform as RectTransform;
         
-        rectTransform.DOScale(new Vector3(1, 1, 1), textTransitionTime);
+        rectTransform.DOScale(new Vector3(1, 1, 1), textTransitionTime).SetEase(textTransitionEase);
         
         canvasGroup.DOFade(1, fadeTransitionTime)
+            .SetEase(fadeTransitionEase)
             .SetDelay(textTransitionTime);
     }
 
@@ -37,8 +41,13 @@ public class NXEModal : MonoBehaviour
     {
         var rectTransform = titleText.transform as RectTransform;
 
-        var scaleTween = rectTransform.DOScale(new Vector3(1, 0, 1), textTransitionTime);
-        var fadeTween = canvasGroup.DOFade(0, fadeTransitionTime);
+        var scaleTween = rectTransform
+            .DOScale(new Vector3(1, 0, 1), textTransitionTime)
+            .SetEase(textTransitionEase);
+        
+        var fadeTween = canvasGroup
+            .DOFade(0, fadeTransitionTime)
+            .SetEase(fadeTransitionEase);
 
         if (fadeTransitionTime > textTransitionTime)
             fadeTween.OnComplete(() => Destroy(gameObject));

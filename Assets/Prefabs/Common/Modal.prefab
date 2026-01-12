@@ -415,7 +415,9 @@ MonoBehaviour:
   canvasGroup: {fileID: 3583723812889040543}
   titleText: {fileID: 9001988935828003495}
   textTransitionTime: 0.25
+  textTransitionEase: 18
   fadeTransitionTime: 0.25
+  fadeTransitionEase: 6
 --- !u!114 &4342844428959216396
 MonoBehaviour:
   m_ObjectHideFlags: 0
