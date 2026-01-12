@@ -1,0 +1,16 @@
+{
+    "name": "TestLibraryPlugin",
+    "rootNamespace": "TestLibraryPlugin",
+    "references": [
+        "GUID:4bb9374f36eef984383b2b673de73ff9"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

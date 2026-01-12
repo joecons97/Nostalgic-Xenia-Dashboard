@@ -1,0 +1,14 @@
+{
+    "name": "LibraryPlugin",
+    "rootNamespace": "NXD.Plugins.Libraries",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

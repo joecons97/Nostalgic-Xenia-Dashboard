@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -10,18 +9,19 @@ public class NXEModal : MonoBehaviour
     public bool isOpen;
 
     [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private Text titleText;
+    [SerializeField] protected Text titleText;
 
-    [Header("Timings")] 
+    [Header("Timings")]
     [SerializeField] private float textTransitionTime = 0.25f;
     [SerializeField] private Ease textTransitionEase = Ease.OutQuad;
     [SerializeField] private float fadeTransitionTime = 0.25f;
     [SerializeField] private Ease fadeTransitionEase = Ease.OutQuad;
-    
-    [Header("Input")] [CanBeNull, SerializeField] private Selectable defaultSelectable;
+
+    [Header("Input")][CanBeNull, SerializeField] private Selectable defaultSelectable;
 
     private NXEModal subModal;
-    
+
+    public NXEModal SubModal => subModal;
 
     public static NXEModal CreateAndShow(NXEModal modal)
     {
@@ -33,27 +33,38 @@ public class NXEModal : MonoBehaviour
         return instance;
     }
 
+    public static NXEModal Create(NXEModal modal)
+    {
+        var instance = Instantiate(modal);
+        instance.titleText.transform.localScale = new Vector3(1, 0, 1);
+        instance.canvasGroup.alpha = 0;
+
+        return instance;
+    }
+
     [ContextMenu("Show")]
     public void Show()
     {
         var rectTransform = titleText.transform as RectTransform;
-        
+
         titleText.DOFade(1, textTransitionTime).SetEase(textTransitionEase);
         rectTransform.DOScale(new Vector3(1, 1, 1), textTransitionTime).SetEase(textTransitionEase);
-        
+
         canvasGroup.DOFade(1, fadeTransitionTime)
             .SetEase(fadeTransitionEase)
             .SetDelay(textTransitionTime);
-        
-        if(defaultSelectable)
+
+        if (defaultSelectable)
             EventSystem.current.SetSelectedGameObject(defaultSelectable.gameObject);
     }
 
     public void OpenSubModal(NXEModal modal)
     {
+        subModal = Create(modal);
         Hide(() =>
         {
-            subModal = CreateAndShow(modal);
+            subModal.Show();
+            gameObject.SetActive(false);
         });
     }
 
@@ -61,12 +72,18 @@ public class NXEModal : MonoBehaviour
     {
         if (subModal != null)
         {
-            subModal.Hide(() =>
+            if (subModal.subModal != null)
+                subModal.Close();
+            else
             {
-                Destroy(subModal.gameObject);
-                subModal = null;
-                Show();
-            });
+                subModal.Hide(() =>
+                {
+                    Destroy(subModal.gameObject);
+                    subModal = null;
+                    gameObject.SetActive(true);
+                    Show();
+                });
+            }
 
             return NXEModalCloseResult.SubModalClosed;
         }
@@ -83,11 +100,11 @@ public class NXEModal : MonoBehaviour
 
         titleText.DOFade(0, textTransitionTime)
             .SetEase(textTransitionEase);
-        
+
         var scaleTween = rectTransform
             .DOScale(new Vector3(1, 0, 1), textTransitionTime)
             .SetEase(textTransitionEase);
-        
+
         var fadeTween = canvasGroup
             .DOFade(0, fadeTransitionTime)
             .SetEase(fadeTransitionEase);

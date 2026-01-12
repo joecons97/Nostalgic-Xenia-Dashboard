@@ -1,0 +1,48 @@
+using System.Linq;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class LibariesButtonsBuilder : MonoBehaviour
+{
+    [SerializeField] private NXEModal parentModal;
+    [SerializeField] private LibraryPluginModal libraryModal;
+    [SerializeField] private Transform parent;
+    [SerializeField] private GameObject buttonPrefab;
+    [SerializeField] private Button existingButton;
+    [SerializeField] private Text libraryDescriptionText;
+
+    private void Start()
+    {
+        var source = FindFirstObjectByType<LibrariesManager>();
+        foreach (var sourceLibrary in source.Libraries)
+        {
+            var button = Instantiate(buttonPrefab, parent).GetComponent<Button>();
+            button.GetComponentInChildren<Text>().text = sourceLibrary.Name;
+
+            button.StartCoroutine(sourceLibrary.GetIconLazy(icon =>
+            {
+                button.transform.Find("Icon").GetComponent<Image>().sprite = icon;
+            }));
+
+            button.onClick.AddListener(() =>
+            {
+                parentModal.OpenSubModal(libraryModal);
+                if (parentModal.SubModal is LibraryPluginModal libModal)
+                    libModal.SetLibrary(sourceLibrary);
+            });
+
+            var ev = new EventTrigger.TriggerEvent();
+            ev.AddListener(_ =>
+            {
+                libraryDescriptionText.text = sourceLibrary.Description;
+            });
+
+            button.GetComponent<EventTrigger>().triggers.Add(new EventTrigger.Entry()
+            {
+                eventID = EventTriggerType.Select,
+                callback = ev
+            });
+        }
+    }
+}

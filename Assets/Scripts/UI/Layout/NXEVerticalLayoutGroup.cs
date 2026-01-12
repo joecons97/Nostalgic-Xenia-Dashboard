@@ -39,6 +39,9 @@ public class NXEVerticalLayoutGroup : LayoutGroup
         if (enabled == false)
             return;
 
+        if(Rows.Count < 2)
+            return;
+
         Rows[^1].transform.SetAsFirstSibling();
         Rows[^1].RectTransform.anchoredPosition = new Vector3(0, -titleOffset * (1 / titleDownscale), 0);
         Layout();
@@ -47,6 +50,9 @@ public class NXEVerticalLayoutGroup : LayoutGroup
     public void MoveUp()
     {
         if (enabled == false)
+            return;
+
+        if (Rows.Count < 2)
             return;
 
         Rows[FocusedIndex].transform.SetAsLastSibling();
