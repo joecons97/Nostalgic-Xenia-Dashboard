@@ -1,5 +1,8 @@
+using System;
 using DG.Tweening;
+using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class NXEModal : MonoBehaviour
@@ -14,6 +17,11 @@ public class NXEModal : MonoBehaviour
     [SerializeField] private Ease textTransitionEase = Ease.OutQuad;
     [SerializeField] private float fadeTransitionTime = 0.25f;
     [SerializeField] private Ease fadeTransitionEase = Ease.OutQuad;
+    
+    [Header("Input")] [CanBeNull, SerializeField] private Selectable defaultSelectable;
+
+    private NXEModal subModal;
+    
 
     public static NXEModal CreateAndShow(NXEModal modal)
     {
@@ -30,17 +38,52 @@ public class NXEModal : MonoBehaviour
     {
         var rectTransform = titleText.transform as RectTransform;
         
+        titleText.DOFade(1, textTransitionTime).SetEase(textTransitionEase);
         rectTransform.DOScale(new Vector3(1, 1, 1), textTransitionTime).SetEase(textTransitionEase);
         
         canvasGroup.DOFade(1, fadeTransitionTime)
             .SetEase(fadeTransitionEase)
             .SetDelay(textTransitionTime);
+        
+        if(defaultSelectable)
+            EventSystem.current.SetSelectedGameObject(defaultSelectable.gameObject);
     }
 
-    public void Close()
+    public void OpenSubModal(NXEModal modal)
+    {
+        Hide(() =>
+        {
+            subModal = CreateAndShow(modal);
+        });
+    }
+
+    public NXEModalCloseResult Close()
+    {
+        if (subModal != null)
+        {
+            subModal.Hide(() =>
+            {
+                Destroy(subModal.gameObject);
+                subModal = null;
+                Show();
+            });
+
+            return NXEModalCloseResult.SubModalClosed;
+        }
+        else
+        {
+            Hide(() => Destroy(gameObject));
+            return NXEModalCloseResult.NormalClose;
+        }
+    }
+
+    private void Hide(TweenCallback onComplete = null)
     {
         var rectTransform = titleText.transform as RectTransform;
 
+        titleText.DOFade(0, textTransitionTime)
+            .SetEase(textTransitionEase);
+        
         var scaleTween = rectTransform
             .DOScale(new Vector3(1, 0, 1), textTransitionTime)
             .SetEase(textTransitionEase);
@@ -49,9 +92,19 @@ public class NXEModal : MonoBehaviour
             .DOFade(0, fadeTransitionTime)
             .SetEase(fadeTransitionEase);
 
-        if (fadeTransitionTime > textTransitionTime)
-            fadeTween.OnComplete(() => Destroy(gameObject));
-        else
-            scaleTween.OnComplete(() => Destroy(gameObject));
+        if (onComplete != null)
+        {
+            if (fadeTransitionTime > textTransitionTime)
+                fadeTween.OnComplete(onComplete);
+            else
+                scaleTween.OnComplete(onComplete);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        canvasGroup.DOKill();
+        titleText.DOKill();
+        titleText.transform.DOKill();
     }
 }

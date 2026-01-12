@@ -18,7 +18,9 @@ public class NXEModalOpenerTile : NXETile
 
     public override void OnCancel()
     {
-        currentModal?.Close();
-        FindFirstObjectByType<NXEVerticalLayoutGroup>()?.Show();
+        var result = currentModal?.Close();
+        
+        if(result == NXEModalCloseResult.NormalClose)
+            FindFirstObjectByType<NXEVerticalLayoutGroup>()?.Show();
     }
 }

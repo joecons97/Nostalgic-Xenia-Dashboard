@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.gilzoide.flex-ui": "https://github.com/gilzoide/unity-flex-ui.git#1.2.4",
     "com.unity.2d.enhancers": "1.0.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ai.assistant": "1.0.0-pre.12",
