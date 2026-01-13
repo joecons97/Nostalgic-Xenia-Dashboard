@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UI.Extensions;
 
 public enum NXEBladeUnfocusParams
 {
@@ -23,8 +24,12 @@ public class NXEBlade : MonoBehaviour
     [SerializeField] private float fadeInTransitionTime = 0.125f;
     [SerializeField] private Ease transitionEase = Ease.OutQuad;
 
+    [SerializeField, ReadOnly] private List<NXETile> tileInstances = new();
+
     public RectTransform TitleTransform => titleText.rectTransform;
     public RectTransform RectTransform => transform as RectTransform;
+
+    public IReadOnlyList<NXETile> Tiles => tileInstances;
 
     private int lastValidatedTilesLength;
 
@@ -33,6 +38,12 @@ public class NXEBlade : MonoBehaviour
         title = newTitle;
         if (titleText)
             titleText.text = title;
+    }
+
+    public void SetTiles(NXETile[] newTiles)
+    {
+        tiles = newTiles;
+        Rebuild();
     }
 
     public void MoveLeft()
@@ -154,7 +165,7 @@ public class NXEBlade : MonoBehaviour
 
     private void OnDestroy()
     {
-        if(Application.isPlaying)
+        if (Application.isPlaying)
             Destroy(layoutGroup.gameObject);
     }
 
@@ -171,32 +182,47 @@ public class NXEBlade : MonoBehaviour
             toDestroy.Add(child.gameObject);
         }
 
+        tileInstances.Clear();
+
 #if UNITY_EDITOR
-        UnityEditor.EditorApplication.delayCall += () =>
+        if (Application.isPlaying)
+            ExecuteImmediate();
+        else
+            ExecuteDelayed();
+#else
+        ExecuteImmediate();
+#endif
+
+        void ExecuteDelayed()
+        {
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                foreach (var o in toDestroy)
+                {
+                    DestroyImmediate(o);
+                }
+
+                foreach (var nxeTile in tiles)
+                {
+                    if (nxeTile == null)
+                        return;
+
+                    tileInstances.Add(Instantiate(nxeTile, layoutGroup.transform));
+                }
+            };
+        }
+
+        void ExecuteImmediate()
         {
             foreach (var o in toDestroy)
             {
-                DestroyImmediate(o);
+                Destroy(o);
             }
 
             foreach (var nxeTile in tiles)
             {
-                if (nxeTile == null)
-                    return;
-
-                Instantiate(nxeTile, layoutGroup.transform);
+                tileInstances.Add(Instantiate(nxeTile, layoutGroup.transform));
             }
-        };
-#else
-        foreach (var o in toDestroy)
-        {
-            Destroy(o);
         }
-        
-        foreach (var nxeTile in tiles)
-        {
-            Instantiate(nxeTile, layoutGroup.transform);
-        }
-#endif
     }
 }

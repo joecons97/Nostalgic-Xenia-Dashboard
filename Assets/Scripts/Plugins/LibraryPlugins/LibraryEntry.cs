@@ -11,8 +11,6 @@ namespace NXD.Plugins.Libraries
         public string Genre { get; set; }
         public string Rating { get; set; }
 
-        public string Source { get; set; }
-
         public string CoverImagePath { get; set; }
         public string IconPath { get; set; }
         public string BannerImagePath { get; set; }

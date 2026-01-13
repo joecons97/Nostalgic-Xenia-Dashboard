@@ -2,9 +2,11 @@ using Assets.Scripts.PersistentData.Models;
 using Cysharp.Threading.Tasks;
 using LiteDB;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class LibrariesManager : MonoBehaviour
 {
@@ -47,6 +49,11 @@ public class LibrariesManager : MonoBehaviour
 
             foreach (var entry in library.Entries)
             {
+                var paths = await UniTask.WhenAll(
+                    DownloadImage(entry.CoverImagePath, Path.Combine(entry.Name, "CoverImage"), token),
+                    DownloadImage(entry.IconPath, Path.Combine(entry.Name, "Icon"), token),
+                    DownloadImage(entry.BannerImagePath, Path.Combine(entry.Name, "BannerImage"), token));
+
                 var libraryEntry = new LibraryEntry()
                 {
                     Id = ObjectId.NewObjectId(),
@@ -58,12 +65,14 @@ public class LibrariesManager : MonoBehaviour
                     Genre = entry.Genre,
                     Rating = entry.Rating,
                     Source = library.Name,
-                    CoverImagePath = entry.CoverImagePath,
-                    IconPath = entry.IconPath,
-                    BannerImagePath = entry.BannerImagePath
+                    CoverImagePath = paths.Item1,
+                    IconPath = paths.Item2,
+                    BannerImagePath = paths.Item3
                 };
 
                 databaseManager.LibraryEntries.Insert(libraryEntry);
+                databaseManager.LibraryEntries.EnsureIndex(x => x.Name);
+
                 await UniTask.WaitForEndOfFrame(token);
             }
 
@@ -82,5 +91,25 @@ public class LibrariesManager : MonoBehaviour
             OnLibraryImportEnd?.Invoke(library);
             ActivelyImportingLibrary = null;
         }
+    }
+
+    public async UniTask<string> DownloadImage(string url, string outputName, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(url))
+            return "";
+
+        using UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(url);
+        await uwr.SendWebRequest().WithCancellation(token);
+
+        var tex = DownloadHandlerTexture.GetContent(uwr);
+
+        var outputPath = Path.Combine(DatabaseManager.DatabasePath, "Images", $"{outputName}.png");
+        var directory = Path.GetDirectoryName(outputPath);
+        if (Directory.Exists(directory) == false)
+            Directory.CreateDirectory(directory);
+
+        await File.WriteAllBytesAsync(outputPath, tex.EncodeToPNG(), token);
+
+        return outputPath;
     }
 }

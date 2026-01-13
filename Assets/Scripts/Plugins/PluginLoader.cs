@@ -12,7 +12,7 @@ public class PluginLoader : MonoBehaviour
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "NXD",
         "Plugins");
-    
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
