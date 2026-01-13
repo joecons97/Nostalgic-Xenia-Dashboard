@@ -2577,9 +2577,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d5be7a38e19ff445b2fa41cf3f3da72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DashboardEntriesBuilder
-  BladePrefab: {fileID: 356460709020352793, guid: 15675ce33c98b9e44a6b2f8ff48b9533, type: 3}
+  bladePrefab: {fileID: 356460709020352793, guid: 15675ce33c98b9e44a6b2f8ff48b9533, type: 3}
+  libraryEntriesBladePrefab: {fileID: 356460709020352793, guid: 54a6d4d9b2c718d438ae9518fec6ebdd, type: 3}
   defaultTilePrefab: {fileID: 4578750056896060869, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
-  libraryEntryTile: {fileID: 7074221897583276204, guid: 36929b55ea1eb494380e087fed86f47f, type: 3}
+  libraryEntryTilePrefab: {fileID: 7074221897583276204, guid: 36929b55ea1eb494380e087fed86f47f, type: 3}
 --- !u!1 &1391012053
 GameObject:
   m_ObjectHideFlags: 0
@@ -3912,6 +3913,7 @@ MonoBehaviour:
   fadeOutTransitionTime: 0.15
   fadeInTransitionTime: 0.15
   transitionEase: 4
+  tileInstances: []
 --- !u!1 &848222154820174071
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,9 +5,11 @@ using UnityEngine;
 
 public class DashboardEntriesBuilder : MonoBehaviour
 {
-    [SerializeField] private NXEBlade BladePrefab;
+    [Header("Blade"), SerializeField] private NXEBlade bladePrefab;
+    [SerializeField] private NXEBlade libraryEntriesBladePrefab;
+
     [Header("Tiles"), SerializeField] private NXETile defaultTilePrefab;
-    [SerializeField] private NXELibraryEntryTile libraryEntryTile;
+    [SerializeField] private NXELibraryEntryTile libraryEntryTilePrefab;
 
     private DatabaseManager databaseManager;
     private List<NXEBlade> spawnedBlades = new();
@@ -30,17 +32,18 @@ public class DashboardEntriesBuilder : MonoBehaviour
 
         foreach (var entry in databaseManager.DashboardEntries.FindAll())
         {
-            var blade = Instantiate(BladePrefab, transform);
-            spawnedBlades.Add(blade);
-            blade.SetTitle(entry.Name);
-
             switch (entry.Type)
             {
                 case DashboardEntryType:
+
+                    var blade = Instantiate(libraryEntriesBladePrefab, transform);
+                    spawnedBlades.Add(blade);
+                    blade.SetTitle(entry.Name);
+
                     var entries = databaseManager.LibraryEntries.Find(x => x.Source == entry.Data)
                         .ToArray();
 
-                    blade.SetTiles(entries.Select(x => libraryEntryTile).ToArray());
+                    blade.SetTiles(entries.Select(x => libraryEntryTilePrefab).ToArray());
 
                     int index = 0;
                     foreach (var tile in blade.Tiles)

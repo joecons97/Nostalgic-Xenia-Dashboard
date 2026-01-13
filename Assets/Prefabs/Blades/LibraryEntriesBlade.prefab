@@ -150,7 +150,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  baseTileSize: {x: 464.3, y: 353.6}
+  baseTileSize: {x: 235.7333, y: 353.6}
   scaleMultiplier: 0.79
   overlapAmount: 0.12
   heightLowerAmount: 145
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 1587928315804313776}
   - component: {fileID: 356460709020352793}
   m_Layer: 5
-  m_Name: DefaultBlade
+  m_Name: LibraryEntriesBlade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

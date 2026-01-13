@@ -28,6 +28,7 @@ public class NXEBlade : MonoBehaviour
 
     public RectTransform TitleTransform => titleText.rectTransform;
     public RectTransform RectTransform => transform as RectTransform;
+    public NXEBladeLayoutGroup LayoutGroup => layoutGroup;
 
     public IReadOnlyList<NXETile> Tiles => tileInstances;
 
@@ -189,9 +190,6 @@ public class NXEBlade : MonoBehaviour
             ExecuteImmediate();
         else
             ExecuteDelayed();
-#else
-        ExecuteImmediate();
-#endif
 
         void ExecuteDelayed()
         {
@@ -211,6 +209,10 @@ public class NXEBlade : MonoBehaviour
                 }
             };
         }
+#else
+        ExecuteImmediate();
+#endif
+
 
         void ExecuteImmediate()
         {
