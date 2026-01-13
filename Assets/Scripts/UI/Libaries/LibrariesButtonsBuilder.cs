@@ -1,9 +1,9 @@
-using System.Linq;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class LibariesButtonsBuilder : MonoBehaviour
+public class LibrariesButtonsBuilder : MonoBehaviour
 {
     [SerializeField] private NXEModal parentModal;
     [SerializeField] private LibraryPluginModal libraryModal;
@@ -20,10 +20,10 @@ public class LibariesButtonsBuilder : MonoBehaviour
             var button = Instantiate(buttonPrefab, parent).GetComponent<Button>();
             button.GetComponentInChildren<Text>().text = sourceLibrary.Name;
 
-            button.StartCoroutine(sourceLibrary.GetIconLazy(icon =>
+            _ = sourceLibrary.GetIconAsync().ContinueWith(icon =>
             {
                 button.transform.Find("Icon").GetComponent<Image>().sprite = icon;
-            }));
+            });
 
             button.onClick.AddListener(() =>
             {

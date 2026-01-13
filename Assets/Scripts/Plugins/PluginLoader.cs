@@ -35,7 +35,7 @@ public class PluginLoader : MonoBehaviour
             if (entry != null)
             {
                 var plugin = (LibraryPlugin)Activator.CreateInstance(entry);
-                plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(Path.GetDirectoryName(dll) ?? string.Empty, plugin.IconPath), plugin.GetEntries()));
+                plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(Path.GetDirectoryName(dll) ?? string.Empty, plugin.IconPath), dll, plugin.GetEntries()));
             }
         }
 

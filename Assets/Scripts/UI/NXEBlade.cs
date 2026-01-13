@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using DG.Tweening;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,6 +28,13 @@ public class NXEBlade : MonoBehaviour
 
     private int lastValidatedTilesLength;
 
+    public void SetTitle(string newTitle)
+    {
+        title = newTitle;
+        if (titleText)
+            titleText.text = title;
+    }
+
     public void MoveLeft()
     {
         var previousTile = tiles[layoutGroup.FocusedIndex];
@@ -40,7 +47,7 @@ public class NXEBlade : MonoBehaviour
             previousTile.OnUnFocus();
             newTile.OnFocus();
         }
-        
+
         UpdatePagerText();
     }
 
@@ -62,6 +69,15 @@ public class NXEBlade : MonoBehaviour
 
     private void UpdatePagerText()
     {
+        if (pagerText == null)
+        {
+            var obj = GameObject.Find("PagerText");
+
+            if (obj != null)
+                pagerText = obj.GetComponent<Text>();
+            else
+                return;
+        }
         pagerText.text = $"{layoutGroup.FocusedIndex + 1} of {tiles.Length}";
     }
 
@@ -78,15 +94,15 @@ public class NXEBlade : MonoBehaviour
     public void Focus()
     {
         titleText.color = Color.white;
-        
+
         canvasGroup.DOKill();
         if (Application.isPlaying)
         {
             //Comment for later self: this is a hack to prevent the blade from moving up and the with the focus animation
             //Should reset when play mode ends
-            if(layoutGroup.transform.parent == transform)
+            if (layoutGroup.transform.parent == transform)
                 layoutGroup.transform.SetParent(transform.parent, false);
-            
+
             canvasGroup
                 .DOFade(1, fadeInTransitionTime)
                 .SetDelay(fadeOutTransitionTime)
@@ -105,7 +121,7 @@ public class NXEBlade : MonoBehaviour
         {
             //Comment for later self: this is a hack to prevent the blade from moving up and the with the unfocus animation
             //Should reset when play mode ends
-            if(layoutGroup.transform.parent == transform)
+            if (layoutGroup.transform.parent == transform)
                 layoutGroup.transform.SetParent(transform.parent, false);
 
             canvasGroup.DOFade(0, fadeOutTransitionTime)
@@ -114,7 +130,7 @@ public class NXEBlade : MonoBehaviour
         }
         else
             canvasGroup.alpha = 0;
-        
+
         titleText.color = param == NXEBladeUnfocusParams.FullHide
             ? new Color(1, 1, 1, 0.0f)
             : new Color(1, 1, 1, 0.5f / focalIndex);
@@ -136,12 +152,18 @@ public class NXEBlade : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if(Application.isPlaying)
+            Destroy(layoutGroup.gameObject);
+    }
+
     [ContextMenu("Rebuild")]
     private void Rebuild()
     {
         if (layoutGroup == null)
             return;
-        
+
         List<GameObject> toDestroy = new();
         for (int i = 0; i < layoutGroup.transform.childCount; i++)
         {
@@ -149,7 +171,7 @@ public class NXEBlade : MonoBehaviour
             toDestroy.Add(child.gameObject);
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         UnityEditor.EditorApplication.delayCall += () =>
         {
             foreach (var o in toDestroy)
@@ -161,11 +183,11 @@ public class NXEBlade : MonoBehaviour
             {
                 if (nxeTile == null)
                     return;
-                
+
                 Instantiate(nxeTile, layoutGroup.transform);
             }
         };
-        #else
+#else
         foreach (var o in toDestroy)
         {
             Destroy(o);
@@ -175,6 +197,6 @@ public class NXEBlade : MonoBehaviour
         {
             Instantiate(nxeTile, layoutGroup.transform);
         }
-        #endif
+#endif
     }
 }
