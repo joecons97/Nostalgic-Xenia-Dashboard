@@ -51,6 +51,9 @@ namespace SteamLibraryPlugin
 
             UnityEngine.Debug.Log($"Game Started");
 
+            //Wait a couple of seconds incase the game launched from a low launcher (like skyrim)
+            await UniTask.Delay(2000, cancellationToken: cancellationToken);
+
             // Monitor until all processes close (with polling interval)
             while (HasProcessesInDirectory(installDir))
             {
