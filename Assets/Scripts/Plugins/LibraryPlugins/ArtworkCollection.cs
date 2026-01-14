@@ -1,4 +1,4 @@
-﻿namespace SteamLibraryPlugin
+﻿namespace LibraryPlugin
 {
     public class ArtworkCollection
     {

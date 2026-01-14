@@ -1,22 +1,28 @@
 using Cysharp.Threading.Tasks;
-using NXD.Plugins.Libraries;
+using LibraryPlugin;
 using System.Collections.Generic;
 using System.Threading;
 
 namespace TestLibraryPlugin
 {
-    public class TestLibraryPlugin : LibraryPlugin
+    public class TestLibraryPlugin : LibraryPlugin.LibraryPlugin
     {
         public override string Name { get; } = "My Test Library";
         public override string Description { get; } = "This is just a test plugin for testing purposes. It loads two games and that's it.";
         public override string IconPath { get; } = "applogo.png";
-        
+
+        public override UniTask<ArtworkCollection> GetArtworkCollection(string entryId, CancellationToken cancellationToken)
+        {
+            return UniTask.FromResult(new ArtworkCollection());
+        }
+
         public override UniTask<List<LibraryEntry>> GetEntriesAsync(CancellationToken cancellationToken)
         {
             return UniTask.FromResult(new List<LibraryEntry>
             {
                 new LibraryEntry
                 {
+                    EntryId = "1",
                     Name = "Sundermead",
                     Developer = "Josephus",
                     Publisher = "Josephus",
@@ -27,6 +33,7 @@ namespace TestLibraryPlugin
                 },
                 new LibraryEntry
                 {
+                    EntryId = "2",
                     Name = "Moonlight",
                     Developer = "Moonlight",
                     Publisher = "Moonlight",

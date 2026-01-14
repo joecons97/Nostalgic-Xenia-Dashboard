@@ -1,4 +1,4 @@
-namespace NXD.Plugins.Libraries
+namespace LibraryPlugin
 {
     public class LibraryEntry
     {

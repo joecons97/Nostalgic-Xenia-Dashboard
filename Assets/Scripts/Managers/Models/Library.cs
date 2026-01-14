@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using NXD.Plugins.Libraries;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -9,10 +8,10 @@ public class Library
     public string Description { get; }
     public string IconPath { get; }
     public string AssemblyPath { get; }
-    public LibraryPlugin Plugin { get; }
+    public LibraryPlugin.LibraryPlugin Plugin { get; }
     private Sprite icon;
 
-    public Library(string name, string description, string iconPath, string assemblyPath, LibraryPlugin libraryPlugin)
+    public Library(string name, string description, string iconPath, string assemblyPath, LibraryPlugin.LibraryPlugin libraryPlugin)
     {
         Name = name;
         Description = description;

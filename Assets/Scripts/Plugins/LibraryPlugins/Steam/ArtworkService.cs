@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using LibraryPlugin;
 using System.Threading;
 
 namespace SteamLibraryPlugin

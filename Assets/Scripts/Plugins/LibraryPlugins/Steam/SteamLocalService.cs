@@ -1,5 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
-using NXD.Plugins.Libraries;
+using LibraryPlugin;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -185,11 +185,6 @@ namespace SteamLibraryPlugin
                         {
                             continue;
                         }
-
-                        var collection = await artworkService.GetArtworkAsync(a.EntryId, cancellationToken);
-                        a.CoverImagePath = collection.Cover;
-                        a.IconPath = collection.Icon;
-                        a.BannerImagePath = collection.Banner;
 
                         if (!games.ContainsKey(a.EntryId))
                         {

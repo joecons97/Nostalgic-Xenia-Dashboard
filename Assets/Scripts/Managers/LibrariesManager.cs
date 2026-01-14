@@ -73,14 +73,17 @@ public class LibrariesManager : MonoBehaviour
             var index = 0;
             foreach (var entry in entries)
             {
+                if (string.IsNullOrEmpty(entry.EntryId))
+                    continue;
+
                 ImportProgress.ReportProgress((float)index / entries.Count, $"({index}/{entries.Count}) Importing {entry.Name}");
 
-                //await Plugin.GetArtworkCollection(entry.EntryId);
+                var artwork = await library.Plugin.GetArtworkCollection(entry.EntryId, token);
 
                 var paths = await UniTask.WhenAll(
-                    DownloadImage(entry.CoverImagePath, Path.Combine(entry.EntryId, "CoverImage"), token),
-                    DownloadImage(entry.IconPath, Path.Combine(entry.EntryId, "Icon"), token),
-                    DownloadImage(entry.BannerImagePath, Path.Combine(entry.EntryId, "BannerImage"), token));
+                    DownloadImage(artwork.Cover, Path.Combine(entry.EntryId, "CoverImage"), token),
+                    DownloadImage(artwork.Icon, Path.Combine(entry.EntryId, "Icon"), token),
+                    DownloadImage(artwork.Banner, Path.Combine(entry.EntryId, "BannerImage"), token));
 
                 var libraryEntry = new LibraryEntry()
                 {
@@ -101,8 +104,6 @@ public class LibrariesManager : MonoBehaviour
 
                 databaseManager.LibraryEntries.Insert(libraryEntry);
                 databaseManager.LibraryEntries.EnsureIndex(x => x.Name);
-
-                await UniTask.WaitForEndOfFrame(token);
                 index++;
             }
 

@@ -1,5 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
+using LibraryPlugin;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -18,22 +20,24 @@ namespace SteamLibraryPlugin
             if (collection.IsComplete)
                 return collection;
 
-            if (string.IsNullOrEmpty(collection.Cover))
-            {
-                collection.Cover = await GetFirstResultAsync(COVER_URL, appId, cancellationToken);
-            }
+            var result = await UniTask.WhenAll(
+                GetArtworkAsync(collection.Cover, COVER_URL, appId, cancellationToken),
+                GetArtworkAsync(collection.Banner, BANNER_URL, appId, cancellationToken),
+                GetArtworkAsync(collection.Icon, ICON_URL, appId, cancellationToken));
 
-            if (string.IsNullOrEmpty(collection.Banner))
-            {
-                collection.Banner = await GetFirstResultAsync(BANNER_URL, appId, cancellationToken);
-            }
-
-            if (string.IsNullOrEmpty(collection.Icon))
-            {
-                collection.Icon = await GetFirstResultAsync(ICON_URL, appId, cancellationToken);
-            }
+            collection.Cover = result.Item1;
+            collection.Banner = result.Item2;
+            collection.Icon = result.Item3;
 
             return collection;
+        }
+
+        private async UniTask<string> GetArtworkAsync(string originalUrl, string url, string appId, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(originalUrl) == false)
+                return originalUrl;
+
+            return await GetFirstResultAsync(url, appId, cancellationToken);
         }
 
         private async UniTask<string> GetFirstResultAsync(string url, string appId, CancellationToken cancellationToken = default)
