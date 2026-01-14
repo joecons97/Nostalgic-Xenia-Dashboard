@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using UnityEngine;
 
 namespace SteamLibraryPlugin
 {

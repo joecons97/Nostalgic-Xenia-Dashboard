@@ -35,29 +35,55 @@ public class DashboardEntriesBuilder : MonoBehaviour
             switch (entry.Type)
             {
                 case DashboardEntryType:
-
-                    var blade = Instantiate(libraryEntriesBladePrefab, transform);
-                    spawnedBlades.Add(blade);
-                    blade.SetTitle(entry.Name);
-
-                    var entries = databaseManager.LibraryEntries.Query()
-                        .Where(x => x.Source == entry.Data)
-                        .OrderByDescending(x => x.LastPlayed)
-                        .ToArray();
-
-                    blade.SetTiles(entries.Select(x => libraryEntryTilePrefab).ToArray());
-
-                    int index = 0;
-                    foreach (var tile in blade.Tiles)
-                    {
-                        if (tile is NXELibraryEntryTile libEntry)
-                        {
-                            libEntry.SetLibraryEntry(entries[index]);
-                            index++;
-                        }
-                    }
+                    BuildDashboardEntryType(entry);
                     break;
             }
         }
+    }
+
+    private NXEBlade BuildDashboardEntryType(DashboardEntry entry)
+    {
+        var blade = Instantiate(libraryEntriesBladePrefab, transform);
+        blade.name = $"{entry.Name}";
+        spawnedBlades.Add(blade);
+        blade.SetTitle(entry.Name);
+
+        var entries = databaseManager.LibraryEntries.Query()
+            .Where(x => x.Source == entry.Data)
+            .OrderByDescending(x => x.LastPlayed)
+            .ToArray();
+
+        blade.SetTiles(entries.Select(x => libraryEntryTilePrefab).ToArray());
+
+        int index = 0;
+        foreach (var tile in blade.Tiles)
+        {
+            if (tile is NXELibraryEntryTile libEntry)
+            {
+                libEntry.SetLibraryEntry(entries[index]);
+                index++;
+            }
+        }
+
+        return blade;
+    }
+
+    public void RebuildDashboardEntry(string name)
+    {
+        var entry = databaseManager.DashboardEntries.FindOne(x => x.Name == name);
+        if (entry == null)
+            return;
+
+        int index = 0;
+        var existingBlade = transform.Find(name);
+        if (existingBlade != null)
+            index = existingBlade.GetSiblingIndex();
+
+        spawnedBlades.Remove(existingBlade.GetComponent<NXEBlade>());
+        Destroy(existingBlade.gameObject);
+
+        var newBlade = BuildDashboardEntryType(entry);
+        spawnedBlades.Add(newBlade);
+        newBlade.transform.SetSiblingIndex(index);
     }
 }

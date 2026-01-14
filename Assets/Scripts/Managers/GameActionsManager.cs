@@ -11,6 +11,9 @@ public class GameActionsManager : MonoBehaviour
     [SerializeField] private CanvasGroup[] fadeCanvasGroups;
     [SerializeField] private NXEVerticalLayoutGroup layoutGroup;
     [SerializeField] private LibrariesManager libraryManager;
+    [SerializeField] private DatabaseManager databaseManager;
+    [SerializeField] private DashboardEntriesBuilder dashboardEntriesBuilder;
+
 
     private int activeEntries;
 
@@ -22,6 +25,9 @@ public class GameActionsManager : MonoBehaviour
         var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == entry.Source);
         if (lib == null)
             return;
+
+        entry.LastPlayed = DateTimeOffset.Now;
+        databaseManager.LibraryEntries.Update(entry);
 
         var pluginEntry = new LibraryPlugin.LibraryEntry()
         {
@@ -47,6 +53,11 @@ public class GameActionsManager : MonoBehaviour
                 layoutGroup.enabled = false;
                 activeEntries++;
             }
+        });
+
+        _ = UniTask.WaitForSeconds(2).ContinueWith(() =>
+        {
+            dashboardEntriesBuilder.RebuildDashboardEntry(lib.Name);
         });
     }
 

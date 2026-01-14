@@ -27,6 +27,7 @@ public class NXEBlade : MonoBehaviour
 
     [SerializeField, ReadOnly] private List<NXETile> tileInstances = new();
 
+    public string Title => title;
     public RectTransform TitleTransform => titleText.rectTransform;
     public RectTransform RectTransform => transform as RectTransform;
     public NXEBladeLayoutGroup LayoutGroup => layoutGroup;
@@ -183,7 +184,7 @@ public class NXEBlade : MonoBehaviour
     }
 
     [ContextMenu("Rebuild")]
-    private void Rebuild()
+    public void Rebuild()
     {
         if (layoutGroup == null)
             return;
