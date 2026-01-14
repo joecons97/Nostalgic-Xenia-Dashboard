@@ -23,6 +23,7 @@ public class NXEBladeLayoutGroup : LayoutGroup
     private List<RectTransform> tiles = new List<RectTransform>();
     private Vector3[] targetPositions;
     private Vector2[] targetSizes;
+    private float transitionSpeedMultiplier = 1;
     
     public List<RectTransform> Tiles => tiles;
     
@@ -172,13 +173,13 @@ public class NXEBladeLayoutGroup : LayoutGroup
             if (Application.isPlaying)
             {
                 // Smooth transitions during play
-                tile.DOKill();
-                    
-                tile.DOAnchorPos(targetPositions[i], transitionTime)
+                //tile.DOKill();
+
+                tile.DOAnchorPos(targetPositions[i], transitionTime / transitionSpeedMultiplier)
                     .SetEase(transitionEase);
                 
                 // Smoothly interpolate size
-                tile.DOScale(new Vector3(targetSizes[i].x, targetSizes[i].y, 1), transitionTime)
+                tile.DOScale(new Vector3(targetSizes[i].x, targetSizes[i].y, 1), transitionTime / transitionSpeedMultiplier)
                     .SetEase(transitionEase);
             }
             else
@@ -199,10 +200,13 @@ public class NXEBladeLayoutGroup : LayoutGroup
 #endif
 
     // Helper methods for navigation
-    public void MoveLeft()
+    public void MoveLeft(float speed = 1)
     {
-        if(enabled)
+        if (enabled)
+        {
+            transitionSpeedMultiplier = speed;
             FocusedIndex = Mathf.Max(0, focusedIndex - 1);
+        }
     }
 
     public void ResetPosition()
@@ -210,10 +214,13 @@ public class NXEBladeLayoutGroup : LayoutGroup
         FocusedIndex = 0;
     }
 
-    public void MoveRight()
+    public void MoveRight(float speed = 1)
     {
-        if(enabled)
+        if (enabled)
+        {
+            transitionSpeedMultiplier = speed;
             FocusedIndex = Mathf.Min(tiles.Count - 1, focusedIndex + 1);
+        }
     }
 
     public RectTransform GetFocusedTile()

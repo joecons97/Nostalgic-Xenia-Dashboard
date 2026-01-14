@@ -12,6 +12,7 @@ public class NXEInputHandler : MonoBehaviour
     private float initialDelay = 0.5f; // Time before repeat starts
 
     [SerializeField] private float repeatRate = 0.1f; // Time between repeats
+    [SerializeField] private float navigationHeldSpeedMultiplier = 4;
 
     private Vector2 currentInput = Vector2.zero;
     private Vector2 lastExecutedDirection = Vector2.zero;
@@ -107,10 +108,11 @@ public class NXEInputHandler : MonoBehaviour
             // Horizontal movement
             if (verticalLayout != null)
             {
+                var speed = holdTime > 0 ? navigationHeldSpeedMultiplier : 1;
                 if (input.x > 0)
-                    verticalLayout.MoveRight();
+                    verticalLayout.MoveRight(speed);
                 else if (input.x < 0)
-                    verticalLayout.MoveLeft();
+                    verticalLayout.MoveLeft(speed);
             }
         }
         else

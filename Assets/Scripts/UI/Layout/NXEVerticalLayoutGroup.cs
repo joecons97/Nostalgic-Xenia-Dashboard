@@ -87,23 +87,23 @@ public class NXEVerticalLayoutGroup : LayoutGroup
         Rows[FocusedIndex].Cancel();
     }
 
-    public void MoveLeft()
+    public void MoveLeft(float speed = 1)
     {
         if (enabled == false)
             return;
 
         CollectRows();
-        Rows[focusedIndex].MoveLeft();
+        Rows[focusedIndex].MoveLeft(speed);
         Layout();
     }
 
-    public void MoveRight()
+    public void MoveRight(float speed = 1)
     {
         if (enabled == false)
             return;
         
         CollectRows();
-        Rows[focusedIndex].MoveRight();
+        Rows[focusedIndex].MoveRight(speed);
         Layout();
     }
 

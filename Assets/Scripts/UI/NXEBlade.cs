@@ -48,11 +48,11 @@ public class NXEBlade : MonoBehaviour
         Rebuild();
     }
 
-    public void MoveLeft()
+    public void MoveLeft(float speed = 1)
     {
         var previousTile = tiles[layoutGroup.FocusedIndex];
 
-        layoutGroup.MoveLeft();
+        layoutGroup.MoveLeft(speed);
 
         var newTile = tiles[layoutGroup.FocusedIndex];
         if (previousTile != newTile)
@@ -64,11 +64,11 @@ public class NXEBlade : MonoBehaviour
         UpdatePagerText();
     }
 
-    public void MoveRight()
+    public void MoveRight(float speed = 1)
     {
         var previousTile = tiles[layoutGroup.FocusedIndex];
 
-        layoutGroup.MoveRight();
+        layoutGroup.MoveRight(speed);
 
         var newTile = tiles[layoutGroup.FocusedIndex];
         if (previousTile != newTile)
