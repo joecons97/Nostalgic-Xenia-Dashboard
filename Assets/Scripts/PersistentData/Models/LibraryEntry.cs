@@ -14,6 +14,7 @@ namespace Assets.Scripts.PersistentData.Models
         public string Genre { get; set; }
         public string Rating { get; set; }
 
+        public string SourceId { get; set; }
         public string Source { get; set; }
 
         public string CoverImagePath { get; set; }

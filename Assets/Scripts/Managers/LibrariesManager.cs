@@ -8,6 +8,22 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
+public class Progress
+{
+    public float PercentageComplete { get; private set; }
+    public string Status { get; private set;  }
+
+    public event Action<Progress> OnProgressed;
+
+    public void ReportProgress(float complete, string message)
+    {
+        PercentageComplete = complete;
+        Status = message;
+
+        OnProgressed?.Invoke(this);
+    }
+}
+
 public class LibrariesManager : MonoBehaviour
 {
     [SerializeField] private PluginLoader loader;
@@ -18,6 +34,8 @@ public class LibrariesManager : MonoBehaviour
     public event Action<Library> OnLibraryImportBegin;
     public event Action<Library> OnLibraryImportCancelled;
     public event Action<Library> OnLibraryImportEnd;
+
+    public Progress ImportProgress { get; private set; } = new Progress();
 
     public Library ActivelyImportingLibrary { get; private set; }
 
@@ -31,13 +49,15 @@ public class LibrariesManager : MonoBehaviour
         if (token == default)
             token = this.GetCancellationTokenOnDestroy();
 
+        ImportProgress.ReportProgress(0, "Initialising Import");
+
         ActivelyImportingLibrary = library;
         OnLibraryImportBegin?.Invoke(library);
 
-        await UniTask.WaitForSeconds(1, cancellationToken: token);
-
         try
         {
+            ImportProgress.ReportProgress(0, "Clearing Old Entries");
+
             var existingEntries = databaseManager.LibraryEntries
                 .Find(e => e.Source == library.Name);
 
@@ -47,12 +67,20 @@ public class LibrariesManager : MonoBehaviour
                 await UniTask.WaitForEndOfFrame(token);
             }
 
-            foreach (var entry in library.Entries)
+            ImportProgress.ReportProgress(0, "Gathering Entries");
+
+            var entries = await library.Plugin.GetEntriesAsync(token);
+            var index = 0;
+            foreach (var entry in entries)
             {
+                ImportProgress.ReportProgress((float)index / entries.Count, $"({index}/{entries.Count}) Importing {entry.Name}");
+
+                //await Plugin.GetArtworkCollection(entry.EntryId);
+
                 var paths = await UniTask.WhenAll(
-                    DownloadImage(entry.CoverImagePath, Path.Combine(entry.Name, "CoverImage"), token),
-                    DownloadImage(entry.IconPath, Path.Combine(entry.Name, "Icon"), token),
-                    DownloadImage(entry.BannerImagePath, Path.Combine(entry.Name, "BannerImage"), token));
+                    DownloadImage(entry.CoverImagePath, Path.Combine(entry.EntryId, "CoverImage"), token),
+                    DownloadImage(entry.IconPath, Path.Combine(entry.EntryId, "Icon"), token),
+                    DownloadImage(entry.BannerImagePath, Path.Combine(entry.EntryId, "BannerImage"), token));
 
                 var libraryEntry = new LibraryEntry()
                 {
@@ -64,6 +92,7 @@ public class LibrariesManager : MonoBehaviour
                     Path = entry.Path,
                     Genre = entry.Genre,
                     Rating = entry.Rating,
+                    SourceId = entry.EntryId,
                     Source = library.Name,
                     CoverImagePath = paths.Item1,
                     IconPath = paths.Item2,
@@ -74,7 +103,10 @@ public class LibrariesManager : MonoBehaviour
                 databaseManager.LibraryEntries.EnsureIndex(x => x.Name);
 
                 await UniTask.WaitForEndOfFrame(token);
+                index++;
             }
+
+            ImportProgress.ReportProgress(1, "Finalising Import");
 
             OnLibraryImportEnd?.Invoke(library);
             ActivelyImportingLibrary = null;
@@ -86,7 +118,7 @@ public class LibrariesManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError($"Error importing library '{library.Name}': {ex.Message}");
+            Debug.LogError($"Error importing library '{library.Name}': {ex}");
 
             OnLibraryImportEnd?.Invoke(library);
             ActivelyImportingLibrary = null;

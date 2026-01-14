@@ -20,7 +20,6 @@
   <Project Path="Unity.RenderPipelines.Universal.Editor.csproj" />
   <Project Path="Unity.PerformanceTesting.Editor.csproj" />
   <Project Path="UnityEngine.TestRunner.csproj" />
-  <Project Path="MerryYellow.CodeAssist.Editor.csproj" />
   <Project Path="Unity.AppUI.Redux.csproj" />
   <Project Path="Unity.AI.Assistant.UI.Editor.csproj" />
   <Project Path="Unity.Burst.csproj" />
@@ -49,6 +48,7 @@
   <Project Path="Unity.Burst.CodeGen.csproj" />
   <Project Path="Unity.VisualScripting.Flow.csproj" />
   <Project Path="Unity.PerformanceTesting.csproj" />
+  <Project Path="SteamLibraryPlugin.csproj" />
   <Project Path="Unity.AI.Image.csproj" />
   <Project Path="LibraryPlugin.csproj" />
   <Project Path="Unity.TextMeshPro.csproj" />
@@ -70,8 +70,8 @@
   <Project Path="UnityEditor.UI.csproj" />
   <Project Path="Unity.RenderPipelines.Universal.2D.Editor.Overrides.csproj" />
   <Project Path="Unity.2D.Sprite.Editor.csproj" />
-  <Project Path="Unity.AI.Navigation.Editor.csproj" />
   <Project Path="NuGetForUnity.csproj" />
+  <Project Path="Unity.AI.Navigation.Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Unity.AppUI.MVVM.csproj" />
   <Project Path="Unity.Multiplayer.Center.Common.csproj" />

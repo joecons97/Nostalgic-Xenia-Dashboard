@@ -151,7 +151,7 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 0
   baseTileSize: {x: 235.7333, y: 353.6}
-  scaleMultiplier: 0.79
+  scaleMultiplier: 0.95
   overlapAmount: 0.12
   heightLowerAmount: 145
   leftPadding: 0

@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class NXEModal : MonoBehaviour
 {
     public bool isOpen;
+    public bool canBeClosed = true;
 
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] protected Text titleText;
@@ -73,24 +74,36 @@ public class NXEModal : MonoBehaviour
         if (subModal != null)
         {
             if (subModal.subModal != null)
-                subModal.Close();
+            {
+                if(subModal.subModal.canBeClosed)
+                    subModal.Close();
+            }
             else
             {
-                subModal.Hide(() =>
+                if (subModal.canBeClosed)
                 {
-                    Destroy(subModal.gameObject);
-                    subModal = null;
-                    gameObject.SetActive(true);
-                    Show();
-                });
+                    subModal.Hide(() =>
+                    {
+                        Destroy(subModal.gameObject);
+                        subModal = null;
+                        gameObject.SetActive(true);
+                        Show();
+                    });
+                }
+                return NXEModalCloseResult.SubModalClosed;
             }
 
-            return NXEModalCloseResult.SubModalClosed;
+            return NXEModalCloseResult.None;
         }
         else
         {
-            Hide(() => Destroy(gameObject));
-            return NXEModalCloseResult.NormalClose;
+            if (canBeClosed)
+            {
+                Hide(() => Destroy(gameObject));
+                return NXEModalCloseResult.NormalClose;
+            }
+
+            return NXEModalCloseResult.None;
         }
     }
 

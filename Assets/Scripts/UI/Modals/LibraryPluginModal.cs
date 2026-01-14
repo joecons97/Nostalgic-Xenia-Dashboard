@@ -2,7 +2,6 @@ using Assets.Scripts.PersistentData.Models;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using LiteDB;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,19 +13,32 @@ public class LibraryPluginModal : NXEModal
 
     [SerializeField] private Text infoText;
     [SerializeField] private Button importButton;
+    [SerializeField] private Text importText;
     [SerializeField] private Button toggleDashboardButton;
+
+    private string originalImportText;
 
     private void Start()
     {
         importButton.OnClickAsAsyncEnumerable().Subscribe(async (asyncUnit) => await DoReImporter());
         toggleDashboardButton.onClick.AddListener(ToggleDashboard);
 
+        originalImportText = importText.text;
+
         librariesManager.OnLibraryImportEnd += LibrariesManager_OnLibraryImportEnd;
+        librariesManager.ImportProgress.OnProgressed += ImportProgress_OnProgressed;
+    }
+
+    private void ImportProgress_OnProgressed(Progress obj)
+    {
+        importText.gameObject.SetActive(true);
+        importText.text = $"{Mathf.Floor(obj.PercentageComplete * 100)}% - {obj.Status}";
     }
 
     private void OnDestroy()
     {
         librariesManager.OnLibraryImportEnd -= LibrariesManager_OnLibraryImportEnd;
+        librariesManager.ImportProgress.OnProgressed -= ImportProgress_OnProgressed;
     }
 
     private void LibrariesManager_OnLibraryImportEnd(Library lib)
@@ -35,12 +47,16 @@ public class LibraryPluginModal : NXEModal
         {
             importButton.interactable = true;
             importButton.Select();
+            ResetDescriptions();
+            canBeClosed = true;
+
+            FindFirstObjectByType<DashboardEntriesBuilder>().Rebuild();
         }
     }
 
     public void SetLibrary(Library lib)
     {
-        if(lib == null)
+        if (lib == null)
         {
             Debug.LogWarning("LibraryPluginModal: SetLibrary called with null library.");
             return;
@@ -53,9 +69,7 @@ public class LibraryPluginModal : NXEModal
 
         titleText.text = library != null ? library.Name : "Library Plugin";
 
-        infoText.text = library != null
-            ? $"Name: {library.Name}\nGames Found: {library.Entries.Length}\nDescription: {library.Description}"
-            : "No library information available.";
+        ResetDescriptions();
 
         HandleImportButton();
 
@@ -63,6 +77,15 @@ public class LibraryPluginModal : NXEModal
             toggleDashboardButton.GetComponentInChildren<Text>().text = "Remove from Dashboard";
         else
             toggleDashboardButton.GetComponentInChildren<Text>().text = "Add to Dashboard";
+    }
+
+    void ResetDescriptions()
+    {
+        infoText.text = library != null
+            ? $"Name: {library.Name}\nDescription: {library.Description}"
+            : "No library information available.";
+
+        importText.text = originalImportText;
     }
 
     public void ToggleDashboard()
@@ -92,6 +115,7 @@ public class LibraryPluginModal : NXEModal
 
     public async UniTask DoReImporter()
     {
+        canBeClosed = false;
         _ = librariesManager.ImportLibraryAsync(library);
         HandleImportButton();
     }

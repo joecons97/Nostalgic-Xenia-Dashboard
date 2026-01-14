@@ -803,6 +803,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LibraryPluginModal
   isOpen: 0
+  canBeClosed: 1
   canvasGroup: {fileID: 3583723812889040543}
   titleText: {fileID: 9001988935828003495}
   textTransitionTime: 0.25
@@ -812,6 +813,7 @@ MonoBehaviour:
   defaultSelectable: {fileID: 163932815108257912}
   infoText: {fileID: 3645271499041562279}
   importButton: {fileID: 3978936355771684251}
+  importText: {fileID: 3972993262874245964}
   toggleDashboardButton: {fileID: 2882120464544921931}
 --- !u!1 &8138038971177212755
 GameObject:
