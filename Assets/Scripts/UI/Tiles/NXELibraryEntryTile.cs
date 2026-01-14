@@ -9,10 +9,20 @@ public class NXELibraryEntryTile : NXETile
     [SerializeField] private RawImage image;
     [SerializeField] private Text text;
 
+    private LibraryEntry libraryEntry;
+
     public void SetLibraryEntry(LibraryEntry entry)
     {
-        text.text = entry.Name;
-        _ = LoadImageAsync(entry.CoverImagePath)
+        if(entry == null)
+        {
+            Debug.LogWarning("SetLibraryEntry null?");
+            return;
+        }
+
+        libraryEntry = entry;
+
+        text.text = libraryEntry.Name;
+        _ = LoadImageAsync(libraryEntry.CoverImagePath)
             .ContinueWith(t =>
             {
                 if (t)
@@ -34,5 +44,10 @@ public class NXELibraryEntryTile : NXETile
         await uwr.SendWebRequest();
 
         return DownloadHandlerTexture.GetContent(uwr);
+    }
+
+    public override void OnSelect()
+    {
+        FindFirstObjectByType<GameActionsManager>().LaunchLibraryEntry(libraryEntry);
     }
 }

@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
@@ -95,12 +96,18 @@ public class NXEBlade : MonoBehaviour
 
     public void Select()
     {
-        tiles[layoutGroup.FocusedIndex].OnSelect();
+        if (tileInstances.Count == 0)
+            GatherExistingTiles();
+
+        tileInstances[layoutGroup.FocusedIndex].OnSelect();
     }
 
     public void Cancel()
     {
-        tiles[layoutGroup.FocusedIndex].OnCancel();
+        if (tileInstances.Count == 0)
+            GatherExistingTiles();
+
+        tileInstances[layoutGroup.FocusedIndex].OnCancel();
     }
 
     public void Focus()
@@ -168,6 +175,11 @@ public class NXEBlade : MonoBehaviour
     {
         if (Application.isPlaying)
             Destroy(layoutGroup.gameObject);
+    }
+
+    private void GatherExistingTiles()
+    {
+        tileInstances = layoutGroup.GetComponentsInChildren<NXETile>().ToList();
     }
 
     [ContextMenu("Rebuild")]

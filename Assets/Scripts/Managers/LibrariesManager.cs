@@ -3,26 +3,11 @@ using Cysharp.Threading.Tasks;
 using LiteDB;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-
-public class Progress
-{
-    public float PercentageComplete { get; private set; }
-    public string Status { get; private set;  }
-
-    public event Action<Progress> OnProgressed;
-
-    public void ReportProgress(float complete, string message)
-    {
-        PercentageComplete = complete;
-        Status = message;
-
-        OnProgressed?.Invoke(this);
-    }
-}
 
 public class LibrariesManager : MonoBehaviour
 {
@@ -64,7 +49,6 @@ public class LibrariesManager : MonoBehaviour
             foreach (var entry in existingEntries)
             {
                 databaseManager.LibraryEntries.Delete(entry.Id);
-                await UniTask.WaitForEndOfFrame(token);
             }
 
             ImportProgress.ReportProgress(0, "Gathering Entries");
@@ -99,11 +83,11 @@ public class LibrariesManager : MonoBehaviour
                     Source = library.Name,
                     CoverImagePath = paths.Item1,
                     IconPath = paths.Item2,
-                    BannerImagePath = paths.Item3
+                    BannerImagePath = paths.Item3,
+                    LastPlayed = entry.LastPlayed
                 };
 
                 databaseManager.LibraryEntries.Insert(libraryEntry);
-                databaseManager.LibraryEntries.EnsureIndex(x => x.Name);
                 index++;
             }
 

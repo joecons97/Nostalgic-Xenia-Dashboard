@@ -40,7 +40,9 @@ public class DashboardEntriesBuilder : MonoBehaviour
                     spawnedBlades.Add(blade);
                     blade.SetTitle(entry.Name);
 
-                    var entries = databaseManager.LibraryEntries.Find(x => x.Source == entry.Data)
+                    var entries = databaseManager.LibraryEntries.Query()
+                        .Where(x => x.Source == entry.Data)
+                        .OrderByDescending(x => x.LastPlayed)
                         .ToArray();
 
                     blade.SetTiles(entries.Select(x => libraryEntryTilePrefab).ToArray());

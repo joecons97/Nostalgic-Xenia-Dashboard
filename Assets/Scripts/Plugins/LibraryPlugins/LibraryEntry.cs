@@ -1,3 +1,5 @@
+using System;
+
 namespace LibraryPlugin
 {
     public class LibraryEntry
@@ -9,6 +11,7 @@ namespace LibraryPlugin
         public string Description { get; set; }
         public string Path { get; set; }
         public bool IsInstalled { get; set; }
+        public DateTimeOffset LastPlayed { get; set; }
 
         public string Genre { get; set; }
         public string Rating { get; set; }

@@ -46,6 +46,7 @@ namespace SteamLibraryPlugin
             }
 
             var gameId = kv["appID"].AsUnsignedInteger();
+            var lastPlayedTimestamp = kv["LastPlayed"].AsInteger();
             var installDir = Path.Combine((new FileInfo(path)).Directory.FullName, "common", kv["installDir"].Value);
             if (!Directory.Exists(installDir))
             {
@@ -61,7 +62,8 @@ namespace SteamLibraryPlugin
                 EntryId = gameId.ToString(),
                 Name = name.Trim(),
                 Path = installDir,
-                IsInstalled = true
+                IsInstalled = true,
+                LastPlayed = DateTimeOffset.FromUnixTimeSeconds(lastPlayedTimestamp)
             };
 
             return game;
