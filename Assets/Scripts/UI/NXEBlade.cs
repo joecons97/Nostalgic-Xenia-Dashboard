@@ -100,12 +100,15 @@ public class NXEBlade : MonoBehaviour
 
     private void UpdateActions()
     {
-        FindFirstObjectByType<NXEActionsDisplay>().SetConfig(tiles[layoutGroup.FocusedIndex].DisplayActions);
+        if (tileInstances.Count != tiles.Length)
+            GatherExistingTiles();
+
+        FindFirstObjectByType<NXEActionsDisplay>().SetConfig(tileInstances[layoutGroup.FocusedIndex].DisplayActions);
     }
 
     public void Select()
     {
-        if (tileInstances.Count == 0)
+        if (tileInstances.Count != tiles.Length)
             GatherExistingTiles();
 
         tileInstances[layoutGroup.FocusedIndex].OnSelect();
@@ -113,7 +116,7 @@ public class NXEBlade : MonoBehaviour
 
     public void SelectAlt()
     {
-        if (tileInstances.Count == 0)
+        if (tileInstances.Count != tiles.Length)
             GatherExistingTiles();
 
         tileInstances[layoutGroup.FocusedIndex].OnSelectAlt();
@@ -121,7 +124,7 @@ public class NXEBlade : MonoBehaviour
 
     public void Cancel()
     {
-        if (tileInstances.Count == 0)
+        if (tileInstances.Count != tiles.Length)
             GatherExistingTiles();
 
         tileInstances[layoutGroup.FocusedIndex].OnCancel();

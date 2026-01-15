@@ -247,9 +247,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NXELibraryEntryTile
   DisplayActions:
     showSelectAction: 1
-    selectActionText: Play Game
+    selectActionText: Select
     showSelectAltAction: 1
-    selectAltActionText: Game Details
+    selectAltActionText: Details
     showCancelAction: 0
     cancelActionText: 
   image: {fileID: 8445853608550537976}
