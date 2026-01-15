@@ -42,16 +42,25 @@ public class NXEActionsEffects : MonoBehaviour
 
     public void ActionSelect() 
     {
+        if (selectActionButton.activeSelf == false)
+            return;
+
         AnimateAction(selectActionButton);
         audioSource.PlayOneShot(selectAudioClip);
     }
     public void ActionSelectAlt()
     {
+        if (selectAltActionButton.activeSelf == false)
+            return;
+
         AnimateAction(selectAltActionButton);
         audioSource.PlayOneShot(selectAudioClip);
     }
     public void ActionCancel()
     {
+        if (CancelActionButton.activeSelf == false)
+            return;
+
         AnimateAction(CancelActionButton);
         audioSource.PlayOneShot(cancelAudioClip);
     }
