@@ -50,13 +50,13 @@ public class NXEBlade : MonoBehaviour
         Rebuild();
     }
 
-    public void MoveLeft(float speed = 1)
+    public bool MoveLeft(float speed = 1)
     {
-        var previousTile = tiles[layoutGroup.FocusedIndex];
+        var previousTile = tileInstances[layoutGroup.FocusedIndex];
 
         layoutGroup.MoveLeft(speed);
 
-        var newTile = tiles[layoutGroup.FocusedIndex];
+        var newTile = tileInstances[layoutGroup.FocusedIndex];
         if (previousTile != newTile)
         {
             previousTile.OnUnFocus();
@@ -65,15 +65,17 @@ public class NXEBlade : MonoBehaviour
 
         UpdatePagerText();
         UpdateActions();
+
+        return previousTile != newTile;
     }
 
-    public void MoveRight(float speed = 1)
+    public bool MoveRight(float speed = 1)
     {
-        var previousTile = tiles[layoutGroup.FocusedIndex];
+        var previousTile = tileInstances[layoutGroup.FocusedIndex];
 
         layoutGroup.MoveRight(speed);
 
-        var newTile = tiles[layoutGroup.FocusedIndex];
+        var newTile = tileInstances[layoutGroup.FocusedIndex];
         if (previousTile != newTile)
         {
             previousTile.OnUnFocus();
@@ -82,6 +84,8 @@ public class NXEBlade : MonoBehaviour
 
         UpdatePagerText();
         UpdateActions();
+        
+        return previousTile != newTile;
     }
 
     private void UpdatePagerText()
@@ -103,7 +107,7 @@ public class NXEBlade : MonoBehaviour
         if (tileInstances.Count != tiles.Length)
             GatherExistingTiles();
 
-        FindFirstObjectByType<NXEActionsDisplay>().SetConfig(tileInstances[layoutGroup.FocusedIndex].DisplayActions);
+        FindFirstObjectByType<NXEActionsEffects>().SetConfig(tileInstances[layoutGroup.FocusedIndex].DisplayActions);
     }
 
     public void Select()

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -58,9 +59,15 @@ public class NXEModal : MonoBehaviour
             .SetDelay(textTransitionTime);
 
         if (defaultSelectable)
+        {
+            //Hacky but stops the selection sound from playing on modal open
+            var eventTrigger = defaultSelectable.GetComponent<EventTrigger>();
+            eventTrigger.enabled = false;
             EventSystem.current.SetSelectedGameObject(defaultSelectable.gameObject);
+            _ = UniTask.NextFrame().ContinueWith(() => eventTrigger.enabled = true);
+        }
 
-        FindFirstObjectByType<NXEActionsDisplay>().SetConfig(DisplayActions);
+        FindFirstObjectByType<NXEActionsEffects>().SetConfig(DisplayActions);
     }
 
     public void OpenSubModal(NXEModal modal)

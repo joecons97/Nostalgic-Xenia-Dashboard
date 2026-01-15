@@ -1,3 +1,4 @@
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,16 +33,28 @@ public class LibrariesButtonsBuilder : MonoBehaviour
                     libModal.SetLibrary(sourceLibrary);
             });
 
-            var ev = new EventTrigger.TriggerEvent();
+            var eventTrigger = button.GetComponent<EventTrigger>();
+            var selectEvent = eventTrigger.triggers.FirstOrDefault(x => x.eventID == EventTriggerType.Select);
+            EventTrigger.TriggerEvent ev;
+            
+            if (selectEvent != null)
+            {
+                ev = selectEvent.callback;
+            }
+            else
+            {
+                ev = new EventTrigger.TriggerEvent();
+
+                button.GetComponent<EventTrigger>().triggers.Add(new EventTrigger.Entry()
+                {
+                    eventID = EventTriggerType.Select,
+                    callback = ev
+                });
+            }
+            
             ev.AddListener(_ =>
             {
                 libraryDescriptionText.text = sourceLibrary.Description;
-            });
-
-            button.GetComponent<EventTrigger>().triggers.Add(new EventTrigger.Entry()
-            {
-                eventID = EventTriggerType.Select,
-                callback = ev
             });
         }
     }

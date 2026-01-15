@@ -1,7 +1,5 @@
 using System;
 using DG.Tweening;
-using Gilzoide.FlexUi;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +14,7 @@ public class ActionsConfig
     public string cancelActionText = "Back";
 }
 
-public class NXEActionsDisplay : MonoBehaviour
+public class NXEActionsEffects : MonoBehaviour
 {
     [SerializeField] private GameObject selectActionButton;
     [SerializeField] private GameObject selectAltActionButton;
@@ -37,19 +35,33 @@ public class NXEActionsDisplay : MonoBehaviour
     [SerializeField] private float selectionTransitionTime = 0.25f;
     [SerializeField] private Ease selectionTransitionEase = Ease.OutQuad;
 
-    public void ActionSelect()
-        => AnimateAction(selectActionButton);
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip selectAudioClip;
+    [SerializeField] private AudioClip cancelAudioClip;
 
+    public void ActionSelect() 
+    {
+        AnimateAction(selectActionButton);
+        audioSource.PlayOneShot(selectAudioClip);
+    }
     public void ActionSelectAlt()
-        => AnimateAction(selectAltActionButton);
-
+    {
+        AnimateAction(selectAltActionButton);
+        audioSource.PlayOneShot(selectAudioClip);
+    }
     public void ActionCancel()
-        => AnimateAction(CancelActionButton);
+    {
+        AnimateAction(CancelActionButton);
+        audioSource.PlayOneShot(cancelAudioClip);
+    }
     
     private void AnimateAction(GameObject obj)
     {
         var selectEffect = obj.transform.Find("Icon/PressEffect");
         var img = selectEffect.GetComponent<Image>();
+
+        selectEffect.DOKill();
 
         selectEffect
             .DOScale(2, selectionTransitionTime)
@@ -76,8 +88,12 @@ public class NXEActionsDisplay : MonoBehaviour
         var textComponent = obj.GetComponentInChildren<Text>();
         var image = obj.GetComponentInChildren<Image>();
             
+        textComponent.DOKill();
+        image.DOKill();
+            
         if (display)
         {
+
             obj.SetActive(true);
             if (wasActive)
             {
@@ -88,16 +104,17 @@ public class NXEActionsDisplay : MonoBehaviour
             else
             {
                 textComponent.text = text;
+                
+                image.transform.DOScale(Vector3.one, buttonTransitionTime)
+                    .ChangeStartValue(Vector3.zero)
+                    .SetEase(buttonScaleTransitionEase);
             }
 
             image.DOFade(1, buttonTransitionTime)
-                    .SetEase(buttonTransitionEase);
-
-            image.transform.DOScale(1, buttonTransitionTime)
-                    .SetEase(buttonScaleTransitionEase);
+                .SetEase(buttonTransitionEase);
 
             textComponent.DOFade(1, textTransitionTime)
-                    .SetEase(textTransitionEase);
+                .SetEase(textTransitionEase);
         }
         else if(wasActive)
         {
@@ -105,7 +122,8 @@ public class NXEActionsDisplay : MonoBehaviour
                 .SetEase(textTransitionEase)
                 .OnComplete(() => obj.SetActive(false));
 
-            image.transform.DOScale(0, buttonTransitionTime)
+            image.transform.DOScale(Vector3.zero, buttonTransitionTime)
+                    .ChangeStartValue(Vector3.one)
                     .SetEase(buttonScaleTransitionEase);
             
             image.DOFade(0, buttonTransitionTime)

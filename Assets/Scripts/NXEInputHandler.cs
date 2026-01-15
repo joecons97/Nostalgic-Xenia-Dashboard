@@ -9,7 +9,7 @@ public class NXEInputHandler : MonoBehaviour
     [SerializeField]
     private NXEVerticalLayoutGroup verticalLayout;
     [SerializeField]
-    private NXEActionsDisplay actionsDisplay;
+    private NXEActionsEffects actionsDisplay;
 
     [Header("Repeat Settings")] [SerializeField]
     private float initialDelay = 0.5f; // Time before repeat starts

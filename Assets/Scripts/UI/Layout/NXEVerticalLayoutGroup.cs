@@ -12,15 +12,24 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public List<NXEBlade> Rows => rows;
 
+    [Header("Layout")]
     [SerializeField] private float titleDownscale = 0.8f;
     [SerializeField] private float titleOffset = -50;
-
     [SerializeField] private int focusedIndex = 0;
 
-    [FormerlySerializedAs("transitionSpeed")] [SerializeField]
-    private float transitionTime = 8f;
 
-    [SerializeField] private Ease transitionEase = Ease.OutQuad;
+    [Header("Transitions")] 
+    [SerializeField]
+    private float transitionTime = 8f;
+    [SerializeField]
+    private Ease transitionEase = Ease.OutQuad;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip cycleUpAudio;
+    [SerializeField] private AudioClip cycleDownAudio;
+    [SerializeField] private AudioClip cycleLeftAudio;
+    [SerializeField] private AudioClip cycleRightAudio;
 
     public RectTransform RectTransform => transform as RectTransform;
 
@@ -45,6 +54,8 @@ public class NXEVerticalLayoutGroup : LayoutGroup
         Rows[^1].transform.SetAsFirstSibling();
         Rows[^1].RectTransform.anchoredPosition = new Vector3(0, -titleOffset * (1 / titleDownscale), 0);
         Layout();
+        
+        audioSource.PlayOneShot(cycleDownAudio);
     }
 
     public void MoveUp()
@@ -59,6 +70,8 @@ public class NXEVerticalLayoutGroup : LayoutGroup
         float textScale = Mathf.Pow(titleDownscale, Rows.Count);
         Rows[FocusedIndex].RectTransform.anchoredPosition = new Vector3(0, targetPositions[^1].y + (titleOffset * textScale), 0);
         Layout();
+
+        audioSource.PlayOneShot(cycleUpAudio);
     }
 
     public void Hide()
@@ -98,7 +111,9 @@ public class NXEVerticalLayoutGroup : LayoutGroup
             return;
 
         CollectRows();
-        Rows[focusedIndex].MoveLeft(speed);
+        if (Rows[focusedIndex].MoveLeft(speed))
+            audioSource.PlayOneShot(cycleLeftAudio);
+            
         Layout();
     }
 
@@ -108,7 +123,9 @@ public class NXEVerticalLayoutGroup : LayoutGroup
             return;
         
         CollectRows();
-        Rows[focusedIndex].MoveRight(speed);
+        if (Rows[focusedIndex].MoveRight(speed))
+            audioSource.PlayOneShot(cycleRightAudio);
+            
         Layout();
     }
 
