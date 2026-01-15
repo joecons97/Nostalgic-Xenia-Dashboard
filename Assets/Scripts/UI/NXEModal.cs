@@ -9,6 +9,8 @@ public class NXEModal : MonoBehaviour
     public bool isOpen;
     public bool canBeClosed = true;
 
+    public ActionsConfig DisplayActions;
+
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] protected Text titleText;
 
@@ -57,6 +59,8 @@ public class NXEModal : MonoBehaviour
 
         if (defaultSelectable)
             EventSystem.current.SetSelectedGameObject(defaultSelectable.gameObject);
+
+        FindFirstObjectByType<NXEActionsDisplay>().SetConfig(DisplayActions);
     }
 
     public void OpenSubModal(NXEModal modal)

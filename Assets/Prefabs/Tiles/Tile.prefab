@@ -563,6 +563,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc94efeec36e3074faaa4bb4cc336ec9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NXETile
+  DisplayActions:
+    showSelectAction: 1
+    selectActionText: Select
+    showSelectAltAction: 0
+    selectAltActionText: 
+    showCancelAction: 0
+    cancelActionText: 
 --- !u!1 &5459341435248420362
 GameObject:
   m_ObjectHideFlags: 0

@@ -25,6 +25,7 @@ public class NXEInputHandler : MonoBehaviour
         navigateAction = InputSystem.actions.FindAction("Navigate");
 
         InputSystem.actions.FindAction("Submit").performed += OnSubmitPerformed;
+        InputSystem.actions.FindAction("SubmitAlt").performed += OnSubmitAltPerformed;
         InputSystem.actions.FindAction("Cancel").performed += OnCancelPerformed;
     }
 
@@ -36,6 +37,11 @@ public class NXEInputHandler : MonoBehaviour
     private void OnCancelPerformed(InputAction.CallbackContext obj)
     {
         verticalLayout.Cancel();
+    }
+
+    private void OnSubmitAltPerformed(InputAction.CallbackContext obj)
+    {
+        verticalLayout.SelectAlt();
     }
 
     private void Update()

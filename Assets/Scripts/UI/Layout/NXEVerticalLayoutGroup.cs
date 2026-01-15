@@ -82,6 +82,11 @@ public class NXEVerticalLayoutGroup : LayoutGroup
         Rows[FocusedIndex].Select();
     }
 
+    public void SelectAlt()
+    {
+        Rows[FocusedIndex].SelectAlt();
+    }
+
     public void Cancel()
     {
         Rows[FocusedIndex].Cancel();

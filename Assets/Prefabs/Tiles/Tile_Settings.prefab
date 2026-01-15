@@ -146,4 +146,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b222129d2b450f4f81a4082cf0e8124, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NXEModalOpenerTile
+  DisplayActions:
+    showSelectAction: 1
+    selectActionText: Select
+    showSelectAltAction: 0
+    selectAltActionText: 
+    showCancelAction: 0
+    cancelActionText: 
   modal: {fileID: 2058949782104086260, guid: 4c7c7e9c4a29ce2419e0e24fcd74d505, type: 3}

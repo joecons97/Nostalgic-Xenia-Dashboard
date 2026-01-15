@@ -245,6 +245,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d25b069e10bc024cb9c9aa649cda248, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NXELibraryEntryTile
+  DisplayActions:
+    showSelectAction: 1
+    selectActionText: Play Game
+    showSelectAltAction: 1
+    selectAltActionText: Game Details
+    showCancelAction: 0
+    cancelActionText: 
   image: {fileID: 8445853608550537976}
   text: {fileID: 4610803573372853432}
 --- !u!224 &3446431714375862590 stripped

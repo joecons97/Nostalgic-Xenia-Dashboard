@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,6 +64,7 @@ public class NXEBlade : MonoBehaviour
         }
 
         UpdatePagerText();
+        UpdateActions();
     }
 
     public void MoveRight(float speed = 1)
@@ -79,6 +81,7 @@ public class NXEBlade : MonoBehaviour
         }
 
         UpdatePagerText();
+        UpdateActions();
     }
 
     private void UpdatePagerText()
@@ -95,12 +98,25 @@ public class NXEBlade : MonoBehaviour
         pagerText.text = $"{layoutGroup.FocusedIndex + 1} of {tiles.Length}";
     }
 
+    private void UpdateActions()
+    {
+        FindFirstObjectByType<NXEActionsDisplay>().SetConfig(tiles[layoutGroup.FocusedIndex].DisplayActions);
+    }
+
     public void Select()
     {
         if (tileInstances.Count == 0)
             GatherExistingTiles();
 
         tileInstances[layoutGroup.FocusedIndex].OnSelect();
+    }
+
+    public void SelectAlt()
+    {
+        if (tileInstances.Count == 0)
+            GatherExistingTiles();
+
+        tileInstances[layoutGroup.FocusedIndex].OnSelectAlt();
     }
 
     public void Cancel()
@@ -131,7 +147,11 @@ public class NXEBlade : MonoBehaviour
         else
             canvasGroup.alpha = 1;
 
-        UpdatePagerText();
+        _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
+        {
+            UpdatePagerText();
+            UpdateActions();
+        });
     }
 
     public void UnFocus(int focalIndex, NXEBladeUnfocusParams param = NXEBladeUnfocusParams.None)

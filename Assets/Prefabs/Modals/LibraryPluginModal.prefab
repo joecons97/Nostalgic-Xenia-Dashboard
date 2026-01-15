@@ -804,6 +804,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LibraryPluginModal
   isOpen: 0
   canBeClosed: 1
+  DisplayActions:
+    showSelectAction: 1
+    selectActionText: Select
+    showSelectAltAction: 0
+    selectAltActionText: 
+    showCancelAction: 1
+    cancelActionText: Close
   canvasGroup: {fileID: 3583723812889040543}
   titleText: {fileID: 9001988935828003495}
   textTransitionTime: 0.25
