@@ -5,8 +5,11 @@ public class NXEInputHandler : MonoBehaviour
 {
     InputAction navigateAction;
 
-    [Header("References")] [SerializeField]
+    [Header("References")]
+    [SerializeField]
     private NXEVerticalLayoutGroup verticalLayout;
+    [SerializeField]
+    private NXEActionsDisplay actionsDisplay;
 
     [Header("Repeat Settings")] [SerializeField]
     private float initialDelay = 0.5f; // Time before repeat starts
@@ -31,16 +34,19 @@ public class NXEInputHandler : MonoBehaviour
 
     private void OnSubmitPerformed(InputAction.CallbackContext obj)
     {
+        actionsDisplay.ActionSelect();
         verticalLayout.Select();
     }
     
     private void OnCancelPerformed(InputAction.CallbackContext obj)
     {
+        actionsDisplay.ActionCancel();
         verticalLayout.Cancel();
     }
 
     private void OnSubmitAltPerformed(InputAction.CallbackContext obj)
     {
+        actionsDisplay.ActionSelectAlt();
         verticalLayout.SelectAlt();
     }
 

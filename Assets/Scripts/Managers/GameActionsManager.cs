@@ -14,11 +14,13 @@ public class GameActionsManager : MonoBehaviour
     [SerializeField] private DatabaseManager databaseManager;
     [SerializeField] private DashboardEntriesBuilder dashboardEntriesBuilder;
 
-
     private int activeEntries;
 
     public void LaunchLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
     {
+        if (activeEntries > 0)
+            return;
+            
         if (entry == null)
             return;
 

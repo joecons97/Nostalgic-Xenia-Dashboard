@@ -22,13 +22,45 @@ public class NXEActionsDisplay : MonoBehaviour
     [SerializeField] private GameObject selectAltActionButton;
     [SerializeField] private GameObject CancelActionButton;
 
-    [FoldoutHeader("Transition Settings")]
+    [Header("Transition Settings")]
+
+    [Header("Text")]
     [SerializeField] private float textTransitionTime = 0.25f;
     [SerializeField] private Ease textTransitionEase = Ease.OutQuad;
+
+    [Header("Button")]
     [SerializeField] private float buttonTransitionTime = 0.25f;
     [SerializeField] private Ease buttonTransitionEase = Ease.OutQuad;
     [SerializeField] private Ease buttonScaleTransitionEase = Ease.OutQuad;
+
+    [Header("Selection")]
+    [SerializeField] private float selectionTransitionTime = 0.25f;
+    [SerializeField] private Ease selectionTransitionEase = Ease.OutQuad;
+
+    public void ActionSelect()
+        => AnimateAction(selectActionButton);
+
+    public void ActionSelectAlt()
+        => AnimateAction(selectAltActionButton);
+
+    public void ActionCancel()
+        => AnimateAction(CancelActionButton);
     
+    private void AnimateAction(GameObject obj)
+    {
+        var selectEffect = obj.transform.Find("Icon/PressEffect");
+        var img = selectEffect.GetComponent<Image>();
+
+        selectEffect
+            .DOScale(2, selectionTransitionTime)
+            .ChangeStartValue(Vector3.one)
+            .SetEase(selectionTransitionEase);
+
+        img.DOFade(0, selectionTransitionTime)
+            .ChangeStartValue(Color.white)
+            .SetEase(selectionTransitionEase);
+    }
+
 
     public void SetConfig(ActionsConfig config)
     {
