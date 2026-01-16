@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using LibraryPlugin;
 using QRCoder;
 using QRCoder.Unity;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -16,7 +17,6 @@ namespace SteamLibraryPlugin
         public override string Description => "Steam";
 
         public override string IconPath => "steam.png";
-
 
         private ModalService modalService = new();
         private ArtworkService artworkService = new();

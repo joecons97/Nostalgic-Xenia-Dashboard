@@ -35,8 +35,6 @@ public class NXEBlade : MonoBehaviour
 
     public IReadOnlyList<NXETile> Tiles => tileInstances;
 
-    private int lastValidatedTilesLength;
-
     public void SetTitle(string newTitle)
     {
         title = newTitle;
@@ -154,10 +152,13 @@ public class NXEBlade : MonoBehaviour
         else
             canvasGroup.alpha = 1;
 
-        _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
+        _ = UniTask.WaitForEndOfFrame(this.GetCancellationTokenOnDestroy()).ContinueWith(() =>
         {
-            UpdatePagerText();
-            UpdateActions();
+            if (Application.isPlaying)
+            {
+                UpdatePagerText();
+                UpdateActions();
+            }
         });
     }
 
@@ -191,9 +192,8 @@ public class NXEBlade : MonoBehaviour
         //TODO Tile Pooling
         if (Application.isPlaying == false)
         {
-            if (lastValidatedTilesLength != tiles.Length)
+            if (tileInstances.Count != tiles.Length)
             {
-                lastValidatedTilesLength = tiles.Length;
                 Rebuild();
             }
         }
@@ -235,6 +235,9 @@ public class NXEBlade : MonoBehaviour
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
+                if (layoutGroup == null)
+                    return;
+                    
                 foreach (var o in toDestroy)
                 {
                     DestroyImmediate(o);

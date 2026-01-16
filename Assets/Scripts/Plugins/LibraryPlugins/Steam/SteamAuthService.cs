@@ -45,7 +45,7 @@ namespace SteamLibraryPlugin
 
                     break;
                 }
-                else if(string.IsNullOrEmpty(pollResponse.Response.NewChallengeUrl) == false)
+                else if (string.IsNullOrEmpty(pollResponse.Response.NewChallengeUrl) == false)
                 {
                     beginLoginResponse.Response.ChallengeUrl = pollResponse.Response.NewChallengeUrl;
                     beginLoginResponse.Response.ClientId = pollResponse.Response.NewClientId;
@@ -55,7 +55,7 @@ namespace SteamLibraryPlugin
 
             return tokenResponse;
         }
-
+        
         public void SaveToken(SteamToken token)
         {
             var payload = JObject.Parse(GetPayload(token.AccessToken));

@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
@@ -34,7 +35,7 @@ namespace SteamLibraryPlugin
 
             var json = request.downloadHandler.text;
             Debug.Log(request.downloadHandler.text);
-            
+
             var response = JsonConvert.DeserializeObject<PollAuthSessionStatusResponse>(json);
 
             return response;
