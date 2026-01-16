@@ -95,6 +95,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 831703812949295136, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 831703812949295136, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 831703812949295136, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 831703812949295136, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 831703812949295136, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 630
+      objectReference: {fileID: 0}
+    - target: {fileID: 831703812949295136, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 480
+      objectReference: {fileID: 0}
+    - target: {fileID: 831703812949295136, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 831703812949295136, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1246878154835936909, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -182,6 +214,14 @@ PrefabInstance:
     - target: {fileID: 3050332351839012047, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 3288969214959857351, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 658ae533dd1f6004596f397574db6f57, type: 3}
+    - target: {fileID: 3288969214959857351, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5353531884984750672, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_Name

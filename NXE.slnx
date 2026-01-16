@@ -50,7 +50,6 @@
   <Project Path="Unity.PerformanceTesting.csproj" />
   <Project Path="SteamLibraryPlugin.csproj" />
   <Project Path="Unity.AI.Image.csproj" />
-  <Project Path="LibraryPlugin.csproj" />
   <Project Path="Unity.TextMeshPro.csproj" />
   <Project Path="UniTask.Linq.csproj" />
   <Project Path="Unity.2D.Enhancers.Editor.csproj" />
@@ -85,6 +84,7 @@
   <Project Path="UnityUIExtensions.editor.csproj" />
   <Project Path="Unity.Mathematics.Editor.csproj" />
   <Project Path="Unity.VisualScripting.SettingsProvider.Editor.csproj" />
+  <Project Path="LibraryPlugin.csproj" />
   <Project Path="Unity.AI.Toolkit.GenerationContextMenu.csproj" />
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Assets.Scripts.PersistentData.Models;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
@@ -15,6 +16,10 @@ public class LibraryPluginModal : NXEModal
     [SerializeField] private Button importButton;
     [SerializeField] private Text importText;
     [SerializeField] private Button toggleDashboardButton;
+    [SerializeField] private Transform buttonsParent;
+    [SerializeField] private Button buttonPrefab;
+
+    private List<Button> spawnedButtons = new List<Button>();
 
     private string originalImportText;
 
@@ -27,6 +32,33 @@ public class LibraryPluginModal : NXEModal
 
         librariesManager.OnLibraryImportEnd += LibrariesManager_OnLibraryImportEnd;
         librariesManager.ImportProgress.OnProgressed += ImportProgress_OnProgressed;
+
+        
+    }
+
+    void OnEnable()
+    {
+        _ =UniTask.WaitUntil(() => library != null).ContinueWith(() =>
+        {
+            foreach (var button in library.Plugin.GetButtons())
+            {
+                var newButton = Instantiate(buttonPrefab, buttonsParent);
+                newButton.GetComponentInChildren<Text>().text = button.Name;
+
+                if (button.Action != null)
+                    newButton.OnClickAsAsyncEnumerable().Subscribe(async (asyncUnit) => await button.Action(this.GetCancellationTokenOnDestroy()));
+                
+                spawnedButtons.Add(newButton);
+            }
+        });
+    }
+
+    void OnDisable()
+    {
+        foreach(var btn in spawnedButtons)
+        {
+            Destroy(btn.gameObject);
+        }
     }
 
     private void ImportProgress_OnProgressed(Progress obj)

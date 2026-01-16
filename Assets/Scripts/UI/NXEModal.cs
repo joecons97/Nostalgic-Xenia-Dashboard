@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using JetBrains.Annotations;
+using LibraryPlugin;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -24,8 +28,14 @@ public class NXEModal : MonoBehaviour
     [Header("Input")][CanBeNull, SerializeField] private Selectable defaultSelectable;
 
     private NXEModal subModal;
+    private NXEModal parentModal;
 
     public NXEModal SubModal => subModal;
+    public NXEModal ParentModal => parentModal;
+
+    public static NXEModal TopMostModal => topMostModal;
+
+    private static NXEModal topMostModal = null;
 
     public static NXEModal CreateAndShow(NXEModal modal)
     {
@@ -68,11 +78,14 @@ public class NXEModal : MonoBehaviour
         }
 
         FindFirstObjectByType<NXEActionsEffects>().SetConfig(DisplayActions);
+        topMostModal = this;
     }
 
     public void OpenSubModal(NXEModal modal)
     {
         subModal = Create(modal);
+        subModal.parentModal = this;
+
         Hide(() =>
         {
             subModal.Show();
@@ -96,6 +109,9 @@ public class NXEModal : MonoBehaviour
                     subModal.Hide(() =>
                     {
                         Destroy(subModal.gameObject);
+                        if (topMostModal == subModal)
+                            topMostModal = this;
+                            
                         subModal = null;
                         gameObject.SetActive(true);
                         Show();

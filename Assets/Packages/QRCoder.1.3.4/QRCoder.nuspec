@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>QRCoder</id>
+    <version>1.3.4</version>
+    <title>QRCoder</title>
+    <authors>Raffael Herrmann</authors>
+    <owners>Raffael Herrmann</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/codebude/QRCoder/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/codebude/QRCoder/</projectUrl>
+    <iconUrl>http://code-bude.net/downloads/qrcoder-logo.png</iconUrl>
+    <description>QRCoder is a simple library, written in C#.NET, which enables you to create QR Codes. It's licensed under the MIT-license.</description>
+    <releaseNotes>[Feature] Added new renderer: PostscriptQRCode
+[Enhancement] Added option to sort street/housenumber in VCard/Mecard (for American/European formatting)
+[Enhancement] Added region parameter to VCard/Mecard payload generator
+[Enhancement] Improved code quality
+[Enhancement] Improved Antilog table calculation
+[Bugfix] Fixed RGB/BGR order in BitmapByteQRCode renderer
+[Bugfix] Fixed possible OutOfRange exception in XamlQrCode renderer
+[Bugfix] Fixed type in OneTimePassword payload generator
+[Bugfix] Added AsciiQrCode to .NET 4.0 assembly
+[Note] Removed UnityQRCode renderer. It will be available soon in an own package.</releaseNotes>
+    <copyright>Copyright © www.code-bude.net / Raffael Herrmann.  All rights reserved.</copyright>
+    <tags>c# csharp qr qrcoder qrcode qr-generator qr-code-generator</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard1.6">
+        <dependency id="System.Drawing.Common" version="4.5.0-preview1-25914-04" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="System.Drawing.Common" version="4.5.0-preview1-25914-04" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

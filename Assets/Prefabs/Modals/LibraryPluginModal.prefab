@@ -822,6 +822,8 @@ MonoBehaviour:
   importButton: {fileID: 3978936355771684251}
   importText: {fileID: 3972993262874245964}
   toggleDashboardButton: {fileID: 2882120464544921931}
+  buttonsParent: {fileID: 1926968638136651430}
+  buttonPrefab: {fileID: 2535627335671739069, guid: 03e5ea3f93eca5e48afe5f4b2db74166, type: 3}
 --- !u!1 &8138038971177212755
 GameObject:
   m_ObjectHideFlags: 0
