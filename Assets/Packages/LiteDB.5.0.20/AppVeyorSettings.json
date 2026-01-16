@@ -98,7 +98,7 @@
     "name": "LiteDB",
     "slug": "litedb",
     "versionFormat": "5.0.{build}",
-    "nextBuildNumber": 845,
+    "nextBuildNumber": 788,
     "repositoryType": "gitHub",
     "repositoryScm": "git",
     "repositoryName": "mbdavid/LiteDB",

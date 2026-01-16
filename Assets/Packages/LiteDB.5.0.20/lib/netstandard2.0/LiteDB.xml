@@ -1612,7 +1612,7 @@
             Get property mapper between typed .NET class and BsonDocument - Cache results
             </summary>
         </member>
-        <member name="M:LiteDB.BsonMapper.BuildAddEntityMapper(System.Type)">
+        <member name="M:LiteDB.BsonMapper.BuildEntityMapper(System.Type)">
             <summary>
             Use this method to override how your class can be, by default, mapped from entity to Bson document.
             Returns an EntityMapper from each requested Type
@@ -1649,20 +1649,6 @@
         <member name="M:LiteDB.BsonMapper.RegisterDbRefList(LiteDB.BsonMapper,LiteDB.MemberMapper,LiteDB.ITypeNameBinder,System.String)">
             <summary>
             Register a property as a DbRefList - implement a custom Serialize/Deserialize actions to convert entity to $id, $ref only
-            </summary>
-        </member>
-        <member name="T:LiteDB.BsonMapper.DeserializationCallback">
-            <summary>
-            Delegate for deserialization callback.
-            </summary>
-            <param name="sender">The BsonMapper instance that triggered the deserialization.</param>
-            <param name="target">The target type for deserialization.</param>
-            <param name="value">The BsonValue to be deserialized.</param>
-            <returns>The deserialized BsonValue.</returns>
-        </member>
-        <member name="P:LiteDB.BsonMapper.OnDeserialization">
-            <summary>
-            Gets called before deserialization of a value
             </summary>
         </member>
         <member name="M:LiteDB.BsonMapper.ToObject(System.Type,LiteDB.BsonDocument)">
@@ -2011,11 +1997,6 @@
         <member name="M:LiteDB.Reflection.FriendlyTypeName(System.Type)">
             <summary>
             Get C# friendly primitive type names
-            </summary>
-        </member>
-        <member name="F:LiteDB.DefaultTypeNameBinder._disallowedTypeNames">
-            <summary>
-            Contains all well known vulnerable types according to ysoserial.net
             </summary>
         </member>
         <member name="M:LiteDB.SharedEngine.OpenDatabase">
@@ -2395,7 +2376,7 @@
             Get value from parsed connection string. Returns null if not found
             </summary>
         </member>
-        <member name="M:LiteDB.ConnectionString.CreateEngine(System.Action{LiteDB.Engine.EngineSettings})">
+        <member name="M:LiteDB.ConnectionString.CreateEngine">
             <summary>
             Create ILiteEngine instance according string connection parameters. For now, only Local/Shared are supported
             </summary>
@@ -3912,9 +3893,19 @@
             [ThreadSafe]
             </summary>
         </member>
+        <member name="P:LiteDB.Engine.DiskService.Queue">
+            <summary>
+            Get async queue writer
+            </summary>
+        </member>
         <member name="P:LiteDB.Engine.DiskService.Cache">
             <summary>
             Get memory cache instance
+            </summary>
+        </member>
+        <member name="M:LiteDB.Engine.DiskService.GetPool(LiteDB.Engine.FileOrigin)">
+            <summary>
+            Get Stream pool used inside disk service
             </summary>
         </member>
         <member name="M:LiteDB.Engine.DiskService.Initialize(System.IO.Stream,LiteDB.Collation,System.Int64)">
@@ -3949,14 +3940,15 @@
             Request for a empty, writable non-linked page.
             </summary>
         </member>
-        <member name="M:LiteDB.Engine.DiskService.WriteLogDisk(System.Collections.Generic.IEnumerable{LiteDB.Engine.PageBuffer})">
+        <member name="M:LiteDB.Engine.DiskService.WriteAsync(System.Collections.Generic.IEnumerable{LiteDB.Engine.PageBuffer})">
             <summary>
-            Write all pages inside log file in a thread safe operation
+            Write pages inside file origin using async queue - WORKS ONLY FOR LOG FILE - returns how many pages are inside "pages"
             </summary>
         </member>
-        <member name="M:LiteDB.Engine.DiskService.GetFileLength(LiteDB.Engine.FileOrigin)">
+        <member name="M:LiteDB.Engine.DiskService.GetVirtualLength(LiteDB.Engine.FileOrigin)">
             <summary>
-            Get file length based on data/log length variables (no direct on disk)
+            Get virtual file length: real file can be small because async thread can still writing on disk
+            and incrementing file size (Log file)
             </summary>
         </member>
         <member name="M:LiteDB.Engine.DiskService.MarkAsInvalidState">
@@ -3969,9 +3961,9 @@
             Read all database pages inside file with no cache using. PageBuffers dont need to be Released
             </summary>
         </member>
-        <member name="M:LiteDB.Engine.DiskService.WriteDataDisk(System.Collections.Generic.IEnumerable{LiteDB.Engine.PageBuffer})">
+        <member name="M:LiteDB.Engine.DiskService.Write(System.Collections.Generic.IEnumerable{LiteDB.Engine.PageBuffer},LiteDB.Engine.FileOrigin)">
             <summary>
-            Write pages DIRECT in disk. This pages are not cached and are not shared - WORKS FOR DATA FILE ONLY
+            Write pages DIRECT in disk with NO queue. This pages are not cached and are not shared - WORKS FOR DATA FILE ONLY
             </summary>
         </member>
         <member name="M:LiteDB.Engine.DiskService.SetLength(System.Int64,LiteDB.Engine.FileOrigin)">
@@ -3982,6 +3974,33 @@
         <member name="M:LiteDB.Engine.DiskService.GetName(LiteDB.Engine.FileOrigin)">
             <summary>
             Get file name (or Stream name)
+            </summary>
+        </member>
+        <member name="T:LiteDB.Engine.DiskWriterQueue">
+            <summary>
+            Implement disk write queue and async writer thread - used only for write on LOG file
+            [ThreadSafe]
+            </summary>
+        </member>
+        <member name="P:LiteDB.Engine.DiskWriterQueue.Length">
+            <summary>
+            Get how many pages are waiting for store
+            </summary>
+        </member>
+        <member name="M:LiteDB.Engine.DiskWriterQueue.EnqueuePage(LiteDB.Engine.PageBuffer)">
+            <summary>
+            Add page into writer queue and will be saved in disk by another thread. If page.Position = MaxValue, store at end of file (will get final Position)
+            After this method, this page will be available into reader as a clean page
+            </summary>
+        </member>
+        <member name="M:LiteDB.Engine.DiskWriterQueue.Wait">
+            <summary>
+            Wait until all queue be executed and no more pending pages are waiting for write - be sure you do a full lock database before call this
+            </summary>
+        </member>
+        <member name="M:LiteDB.Engine.DiskWriterQueue.ExecuteQueue">
+            <summary>
+            Execute all items in queue sync
             </summary>
         </member>
         <member name="T:LiteDB.Engine.MemoryCache">
@@ -4107,6 +4126,11 @@
             <summary>
             Clean all cache memory - moving back all readable pages into free list
             This command must be called inside an exclusive lock
+            </summary>
+        </member>
+        <member name="T:LiteDB.Engine.BufferPool">
+            <summary>
+            Implement similar as ArrayPool for byte array
             </summary>
         </member>
         <member name="T:LiteDB.Engine.BufferReader">
@@ -4601,12 +4625,7 @@
             If detect it's a older version (v4) do upgrade in datafile to new v5. A backup file will be keeped in same directory
             </summary>
         </member>
-        <member name="P:LiteDB.Engine.EngineSettings.ReadTransform">
-            <summary>
-            Is used to transform a <see cref="T:LiteDB.BsonValue"/> from the database on read. This can be used to upgrade data from older versions.
-            </summary>
-        </member>
-        <member name="M:LiteDB.Engine.EngineSettings.CreateDataFactory(System.Boolean)">
+        <member name="M:LiteDB.Engine.EngineSettings.CreateDataFactory">
             <summary>
             Create new IStreamFactory for datafile
             </summary>
@@ -6000,7 +6019,7 @@
             [ThreadSafe]
             </summary>
         </member>
-        <member name="M:LiteDB.Engine.RebuildService.ReadFirstBytes(System.Boolean)">
+        <member name="M:LiteDB.Engine.RebuildService.ReadFirstBytes">
             <summary>
             Read first 16kb (2 PAGES) in bytes
             </summary>
@@ -6025,17 +6044,17 @@
             Dispose stream readers and exit collection lock
             </summary>
         </member>
-        <member name="M:LiteDB.Engine.Snapshot.GetPage``1(System.UInt32,System.Boolean)">
+        <member name="M:LiteDB.Engine.Snapshot.GetPage``1(System.UInt32)">
             <summary>
-            Get a valid page for this snapshot (must consider local-index and wal-index)
+            Get a a valid page for this snapshot (must consider local-index and wal-index)
             </summary>
         </member>
-        <member name="M:LiteDB.Engine.Snapshot.GetPage``1(System.UInt32,LiteDB.Engine.FileOrigin@,System.Int64@,System.Int32@,System.Boolean)">
+        <member name="M:LiteDB.Engine.Snapshot.GetPage``1(System.UInt32,LiteDB.Engine.FileOrigin@,System.Int64@,System.Int32@)">
             <summary>
-            Get a valid page for this snapshot (must consider local-index and wal-index)
+            Get a a valid page for this snapshot (must consider local-index and wal-index)
             </summary>
         </member>
-        <member name="M:LiteDB.Engine.Snapshot.ReadPage``1(System.UInt32,LiteDB.Engine.FileOrigin@,System.Int64@,System.Int32@,System.Boolean)">
+        <member name="M:LiteDB.Engine.Snapshot.ReadPage``1(System.UInt32,LiteDB.Engine.FileOrigin@,System.Int64@,System.Int32@)">
             <summary>
             Read page from disk (dirty, wal or data)
             </summary>
