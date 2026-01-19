@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace SteamLibraryPlugin
 {
     public class StartEntryService
     {
+        private const int LAUNCH_TIMEOUT = 10000;
+        
         private HashSet<string> _cachedExecutables;
 
         public GameActionResult StartEntry(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)
@@ -19,7 +20,8 @@ namespace SteamLibraryPlugin
             _cachedExecutables = null;
             Process.Start(new ProcessStartInfo
             {
-                FileName = $"steam://rungameid/{entry.EntryId}",
+                FileName = Steam.ClientExecPath,
+                Arguments = $"-silent \"steam://rungameid/{entry.EntryId}\"",
                 UseShellExecute = true
             });
 
@@ -45,8 +47,17 @@ namespace SteamLibraryPlugin
             Debug.Log($"Monitoring {installDir}");
 
             // Wait for game to start (with polling interval)
+            var sw = Stopwatch.StartNew();
             while (!HasProcessesInDirectory(installDir))
             {
+                if (sw.ElapsedMilliseconds > LAUNCH_TIMEOUT)
+                {
+                    if(plugin.OnEntryProcessEnded != null)
+                        await plugin.OnEntryProcessEnded(entry.EntryId, plugin);
+                    
+                    Debug.LogWarning($"Game did not start in {LAUNCH_TIMEOUT}ms");
+                    return;
+                }
                 await UniTask.Delay(1000, cancellationToken: cancellationToken); // Check every second
                 if (cancellationToken.IsCancellationRequested) return;
             }

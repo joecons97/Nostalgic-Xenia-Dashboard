@@ -23,6 +23,9 @@ public class DashboardEntriesBuilder : MonoBehaviour
     {
         foreach (var blade in spawnedBlades)
         {
+            if (blade == null)
+                continue;
+            
             Destroy(blade.gameObject);
         }
 

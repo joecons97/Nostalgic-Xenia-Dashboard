@@ -12,6 +12,8 @@ namespace LibraryPlugin
         public abstract string IconPath { get; }
 
         public Func<string, LibraryPlugin, UniTask> OnEntryProcessEnded;
+        public Func<string, string, LibraryPlugin, UniTask> OnEntryInstallationComplete;
+        public Func<string, LibraryPlugin, UniTask> OnEntryInstallationCancelled;
 
         public abstract UniTask<List<LibraryEntry>> GetEntriesAsync(CancellationToken cancellationToken);
 

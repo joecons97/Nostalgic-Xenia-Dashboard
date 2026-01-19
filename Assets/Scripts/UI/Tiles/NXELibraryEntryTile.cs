@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Assets.Scripts.PersistentData.Models;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -19,6 +20,7 @@ public class NXELibraryEntryTile : NXETile
     private static UniTask activeQueueTask = UniTask.CompletedTask;
 
     private LibraryEntry libraryEntry;
+    private bool isInstalling;
 
     public void SetLibraryEntry(LibraryEntry entry)
     {
@@ -117,6 +119,37 @@ public class NXELibraryEntryTile : NXETile
 
     public override void OnSelect()
     {
-        FindFirstObjectByType<GameActionsManager>().LaunchLibraryEntry(libraryEntry);
+        var actionManager = FindFirstObjectByType<GameActionsManager>();
+
+        if (string.IsNullOrEmpty(libraryEntry.Path))
+        {
+            if (isInstalling == false)
+            {
+                actionManager.TryInstallLibraryEntry(libraryEntry);
+                actionManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
+                installedIcon.transform
+                    .DOScale(1.5f, 1)
+                    .SetEase(Ease.InOutSine)
+                    .SetLoops(-1, LoopType.Yoyo)
+                    .SetAutoKill(false);
+                isInstalling = true;
+            }
+        }
+        else
+        {
+            actionManager.LaunchLibraryEntry(libraryEntry);
+        }
+    }
+
+    private void ActionManagerOnOnInstallationCompleteOrCancelled(string obj)
+    {
+        FindFirstObjectByType<GameActionsManager>().OnInstallationCompleteOrCancelled -= ActionManagerOnOnInstallationCompleteOrCancelled;
+        if (libraryEntry.SourceId == obj)
+        {
+            installedIcon.transform.DOKill(complete: true);
+            var entry = FindFirstObjectByType<DatabaseManager>().LibraryEntries.FindOne(x => x.SourceId == obj);
+            SetLibraryEntry(entry);
+            isInstalling = false;
+        }
     }
 }

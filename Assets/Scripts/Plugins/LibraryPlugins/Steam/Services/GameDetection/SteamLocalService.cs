@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using UnityEngine;
 
 namespace SteamLibraryPlugin
 {
@@ -66,6 +67,63 @@ namespace SteamLibraryPlugin
 
             return game;
         }
+        
+        internal static ProgressEntry GetInstallingGameFromFile(string path)
+        {
+            var kv = new KeyValue();
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                kv.ReadAsText(fs);
+            }
+
+            if (!string.IsNullOrEmpty(kv["StateFlags"].Value) && Enum.TryParse<AppStateFlags>(kv["StateFlags"].Value, out var appState))
+            {
+                if (appState.HasFlag(AppStateFlags.FullyInstalled))
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+
+            var name = string.Empty;
+            if (string.IsNullOrEmpty(kv["name"].Value))
+            {
+                if (kv["UserConfig"]["name"].Value != null)
+                {
+                    name = kv["UserConfig"]["name"].Value;
+                }
+            }
+            else
+            {
+                name = kv["name"].Value;
+            }
+
+            var gameId = kv["appID"].AsUnsignedInteger();
+            var installDir = Path.Combine((new FileInfo(path)).Directory.FullName, "common", kv["installDir"].Value);
+            if (!Directory.Exists(installDir))
+            {
+                installDir = Path.Combine((new FileInfo(path)).Directory.FullName, "music", kv["installDir"].Value);
+                if (!Directory.Exists(installDir))
+                {
+                    installDir = string.Empty;
+                }
+            }
+            
+            var bytesToDownload = kv["BytesToDownload"].AsUnsignedInteger();
+            var bytesDownloaded = kv["BytesDownloaded"].AsUnsignedInteger();
+
+            var game = new ProgressEntry()
+            {
+                EntryId = gameId.ToString(),
+                Name = name.Trim(),
+                Progress = (float)bytesDownloaded/(float)bytesToDownload
+            };
+
+            return game;
+        }
 
         internal static List<LibraryEntry> GetInstalledGamesFromFolder(string path)
         {
@@ -88,7 +146,6 @@ namespace SteamLibraryPlugin
 
                     if (string.IsNullOrEmpty(game.Path) || game.Path.Contains(@"steamapps\music"))
                     {
-                        //logger.Info($"Steam game {game.Name} is not properly installed or it's a soundtrack, skipping.");
                         continue;
                     }
 
@@ -97,14 +154,47 @@ namespace SteamLibraryPlugin
                 catch (Exception exc)
                 {
                     // Steam can generate invalid acf file according to issue #37
-                    //logger.Error(exc, $"Failed to get information about installed game from: {file}");
+                    Debug.LogError($"Failed to get information about installed game from: {file}");
+                    Debug.LogException(exc);
                 }
             }
 
             return games;
         }
 
-        internal static HashSet<string> GetLibraryFolders()
+        internal static List<ProgressEntry> GetInstallingGamesFromFolder(string path)
+        {
+            var games = new List<ProgressEntry>();
+
+            foreach (var file in Directory.GetFiles(path, @"appmanifest*"))
+            {
+                if (file.EndsWith("tmp", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var game = GetInstallingGameFromFile(Path.Combine(path, file));
+                    if (game == null)
+                    {
+                        continue;
+                    }
+
+                    games.Add(game);
+                }
+                catch (Exception exc)
+                {
+                    // Steam can generate invalid acf file according to issue #37
+                    Debug.LogError($"Failed to get information about installed game from: {file}");
+                    Debug.LogException(exc);
+                }
+            }
+
+            return games;
+        }
+        
+        public static HashSet<string> GetLibraryFolders()
         {
             var dbs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { Steam.InstallationPath };
             var configPath = Path.Combine(Steam.InstallationPath, "steamapps", "libraryfolders.vdf");
@@ -163,8 +253,79 @@ namespace SteamLibraryPlugin
             return dbs;
         }
 
+        public static List<ProgressEntry> GetLibraryUpdateProgress(CancellationToken cancellationToken)
+        {
+            var games = new Dictionary<string, ProgressEntry>();
+            if (!Steam.IsInstalled)
+            {
+                throw new Exception("Steam installation not found.");
+            }
 
-        internal static async UniTask<List<LibraryEntry>> GetInstalledGamesAsync(CancellationToken cancellationToken, bool includeMods = true)
+            foreach (var folder in GetLibraryFolders())
+            {
+                var libFolder = Path.Combine(folder, "steamapps");
+                if (Directory.Exists(libFolder))
+                {
+                    var installingGames = GetInstallingGamesFromFolder(libFolder);
+                    foreach (var a in installingGames)
+                    {
+                        // Ignore redist
+                        if (a.EntryId == "228980")
+                        {
+                            continue;
+                        }
+
+                        if (!games.ContainsKey(a.EntryId))
+                        {
+                            games.Add(a.EntryId, a);
+                        }
+                    }
+                }
+            }
+
+            //if (includeMods)
+            //{
+            //    try
+            //    {
+            //        // In most cases, this will be inside the folder where Half-Life is installed.
+            //        var modInstallPath = Steam.ModInstallPath;
+            //        if (!string.IsNullOrEmpty(modInstallPath) && Directory.Exists(modInstallPath))
+            //        {
+            //            GetInstalledGoldSrcModsFromFolder(Steam.ModInstallPath).ForEach(a =>
+            //            {
+            //                if (!games.ContainsKey(a.GameId))
+            //                {
+            //                    games.Add(a.GameId, a);
+            //                }
+            //            });
+            //        }
+
+            //        // In most cases, this will be inside the library folder where Steam is installed.
+            //        var sourceModInstallPath = Steam.SourceModInstallPath;
+            //        if (!string.IsNullOrEmpty(sourceModInstallPath) && Directory.Exists(sourceModInstallPath))
+            //        {
+            //            GetInstalledSourceModsFromFolder(Steam.SourceModInstallPath).ForEach(a =>
+            //            {
+            //                if (!games.ContainsKey(a.GameId))
+            //                {
+            //                    games.Add(a.GameId, a);
+            //                }
+            //            });
+            //        }
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        logger.Error(e, "Failed to import Steam mods.");
+            //    }
+            //}
+
+            return games
+                .Select(x => x.Value)
+                .ToList();
+        }
+
+
+        public static async UniTask<List<LibraryEntry>> GetInstalledGamesAsync(CancellationToken cancellationToken)
         {
             var games = new Dictionary<string, LibraryEntry>();
             if (!Steam.IsInstalled)
@@ -191,10 +352,6 @@ namespace SteamLibraryPlugin
                             games.Add(a.EntryId, a);
                         }
                     }
-                }
-                else
-                {
-                    //logger.Warn($"Steam library {libFolder} not found.");
                 }
             }
 

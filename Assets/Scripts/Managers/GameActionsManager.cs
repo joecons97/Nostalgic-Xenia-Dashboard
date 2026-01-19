@@ -1,9 +1,10 @@
-﻿using Assets.Scripts.PersistentData.Models;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using LibraryPlugin;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using LiteDB;
 using UnityEngine;
 
 public class GameActionsManager : MonoBehaviour
@@ -13,8 +14,11 @@ public class GameActionsManager : MonoBehaviour
     [SerializeField] private LibrariesManager libraryManager;
     [SerializeField] private DatabaseManager databaseManager;
     [SerializeField] private DashboardEntriesBuilder dashboardEntriesBuilder;
+    
+    public event Action<string> OnInstallationCompleteOrCancelled;
 
     private bool isGameActive;
+    private List<ObjectId> installingGames = new();
 
     public void LaunchLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
     {
@@ -34,7 +38,7 @@ public class GameActionsManager : MonoBehaviour
         entry.LastPlayed = DateTimeOffset.Now;
         databaseManager.LibraryEntries.Update(entry);
 
-        var pluginEntry = new LibraryPlugin.LibraryEntry()
+        var pluginEntry = new LibraryEntry()
         {
             EntryId = entry.SourceId,
             Path = entry.Path
@@ -82,5 +86,79 @@ public class GameActionsManager : MonoBehaviour
             canvas.DOFade(fadeTo, 0.5f).SetDelay(delay);
             delay += 0.5f;
         }
+    }
+
+    public void TryInstallLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
+    {
+        if (isGameActive)
+            return;
+            
+        if (entry == null)
+            return;
+
+        if (string.IsNullOrEmpty(entry.Path) == false)
+            return;
+
+        if (installingGames.Contains(entry.Id))
+            return;
+
+        var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == entry.Source);
+        if (lib == null)
+            return;
+        
+        var pluginEntry = new LibraryEntry()
+        {
+            EntryId = entry.SourceId,
+            Path = entry.Path
+        };
+        
+        _ = lib.Plugin.TryInstallEntryAsync(pluginEntry, this.GetCancellationTokenOnDestroy()).ContinueWith(result =>
+        {
+            lib.Plugin.OnEntryInstallationComplete += OnEntryInstallationComplete;
+            lib.Plugin.OnEntryInstallationCancelled += OnEntryInstallationCancelled;
+            
+            if(result == GameActionResult.Success)
+                installingGames.Add(entry.Id);
+            else
+                OnInstallationCompleteOrCancelled?.Invoke(entry.SourceId);
+        });
+    }
+
+    private async UniTask OnEntryInstallationCancelled(string entryId, LibraryPlugin.LibraryPlugin libraryPlugin)
+    {
+        var entry = databaseManager.LibraryEntries
+            .Query()
+            .Where(x => x.SourceId == entryId && x.Source == libraryPlugin.Name)
+            .FirstOrDefault();
+
+        if (entry == null || installingGames.Contains(entry.Id) == false)
+            return;
+        
+        await UniTask.SwitchToMainThread();
+        
+        Debug.Log($"{entry.Name} Installation cancelled");
+        libraryPlugin.OnEntryInstallationCancelled -= OnEntryInstallationCancelled;
+        OnInstallationCompleteOrCancelled?.Invoke(entry.SourceId);
+    }
+
+    private async UniTask OnEntryInstallationComplete(string entryId, string path, LibraryPlugin.LibraryPlugin libraryPlugin)
+    {
+        var entry = databaseManager.LibraryEntries
+            .Query()
+            .Where(x => x.SourceId == entryId && x.Source == libraryPlugin.Name)
+            .FirstOrDefault();
+
+        if (entry == null || installingGames.Contains(entry.Id) == false)
+            return;
+
+        await UniTask.SwitchToMainThread();
+        
+        Debug.Log($"{entry.Name} Installed");
+        
+        entry.Path = path;
+        databaseManager.LibraryEntries.Update(entry);
+        
+        libraryPlugin.OnEntryInstallationComplete -= OnEntryInstallationComplete;
+        OnInstallationCompleteOrCancelled?.Invoke(entry.SourceId);
     }
 }
