@@ -148,18 +148,18 @@ public class NXEBlade : MonoBehaviour
                 .DOFade(1, fadeInTransitionTime)
                 .SetDelay(fadeOutTransitionTime)
                 .SetEase(transitionEase);
+                
+            _ = UniTask.WaitForEndOfFrame(this.GetCancellationTokenOnDestroy()).ContinueWith(() =>
+            {
+                if (Application.isPlaying)
+                {
+                    UpdatePagerText();
+                    UpdateActions();
+                }
+            });
         }
         else
             canvasGroup.alpha = 1;
-
-        _ = UniTask.WaitForEndOfFrame(this.GetCancellationTokenOnDestroy()).ContinueWith(() =>
-        {
-            if (Application.isPlaying)
-            {
-                UpdatePagerText();
-                UpdateActions();
-            }
-        });
     }
 
     public void UnFocus(int focalIndex, NXEBladeUnfocusParams param = NXEBladeUnfocusParams.None)

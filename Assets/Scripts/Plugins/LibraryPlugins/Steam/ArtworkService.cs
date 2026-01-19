@@ -15,7 +15,6 @@ namespace SteamLibraryPlugin
             if(steamArt.IsComplete == false)
                 steamArt = await fallbackArtworkService.FillMissingArtworkAsync(steamArt, appId, cancellationToken);
 
-
             return steamArt;
         }
     }

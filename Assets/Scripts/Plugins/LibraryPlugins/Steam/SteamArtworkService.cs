@@ -1,7 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using LibraryPlugin;
-using Newtonsoft.Json;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -25,16 +23,19 @@ namespace SteamLibraryPlugin
             var banner = string.Format(IMAGE_URLS[1], appId);
             var icon = string.Format(IMAGE_URLS[2], appId);
 
-            (bool isCoverValid, bool isBannerValid, bool isIconValid) results = await UniTask.WhenAll(
+            var validationTasks = UniTask.WhenAll(
                 IsValidSteamImageAsync(cover, cancellationToken),
                 IsValidSteamImageAsync(banner, cancellationToken),
-                IsValidSteamImageAsync(icon, cancellationToken));
+                IsValidSteamImageAsync(icon, cancellationToken)
+            );
+
+            var (isCoverValid, isBannerValid, isIconValid) = await validationTasks;
 
             return new ArtworkCollection
             {
-                Cover = results.isCoverValid ? cover : "",
-                Banner = results.isBannerValid ? banner : "",
-                Icon = results.isIconValid ? icon : "",
+                Cover = isCoverValid ? cover : "",
+                Banner = isBannerValid ? banner : "",
+                Icon = isIconValid ? icon : "",
             };
         }
 
@@ -46,7 +47,7 @@ namespace SteamLibraryPlugin
             
             // Only download first 50 KB
             request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Range", "bytes=0-51200");
+            request.SetRequestHeader("Range", "bytes=0-12800");
 
             try
             {

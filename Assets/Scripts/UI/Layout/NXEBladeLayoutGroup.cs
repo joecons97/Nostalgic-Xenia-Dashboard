@@ -72,7 +72,7 @@ public class NXEBladeLayoutGroup : LayoutGroup
         for (int i = 0; i < transform.childCount; i++)
         {
             RectTransform child = transform.GetChild(i) as RectTransform;
-            if (child != null && child.gameObject.activeSelf)
+            if (child != null)
             {
                 tiles.Add(child);
                 child.GetComponent<Canvas>().sortingOrder = transform.childCount - i;
@@ -173,10 +173,22 @@ public class NXEBladeLayoutGroup : LayoutGroup
             if (Application.isPlaying)
             {
                 // Smooth transitions during play
-                //tile.DOKill();
+                tile.DOKill();
 
+                int stepsFromFocus = i - focusedIndex;
+                bool isInViewRange = !(stepsFromFocus < 0 || stepsFromFocus > 15);
+
+                if (isInViewRange)
+                    tile.gameObject.SetActive(true);
+                            
                 tile.DOAnchorPos(targetPositions[i], transitionTime / transitionSpeedMultiplier)
-                    .SetEase(transitionEase);
+                    .SetEase(transitionEase)
+                    .OnComplete(() =>
+                    {
+                        if (!isInViewRange)
+                            tile.gameObject.SetActive(false);
+                    });
+                    
                 
                 // Smoothly interpolate size
                 tile.DOScale(new Vector3(targetSizes[i].x, targetSizes[i].y, 1), transitionTime / transitionSpeedMultiplier)

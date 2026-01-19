@@ -1,7 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using LibraryPlugin;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -20,14 +19,15 @@ namespace SteamLibraryPlugin
             if (collection.IsComplete)
                 return collection;
 
-            var result = await UniTask.WhenAll(
+            var (cover, banner, icon) = await UniTask.WhenAll(
                 GetArtworkAsync(collection.Cover, COVER_URL, appId, cancellationToken),
                 GetArtworkAsync(collection.Banner, BANNER_URL, appId, cancellationToken),
-                GetArtworkAsync(collection.Icon, ICON_URL, appId, cancellationToken));
+                GetArtworkAsync(collection.Icon, ICON_URL, appId, cancellationToken)
+            );
 
-            collection.Cover = result.Item1;
-            collection.Banner = result.Item2;
-            collection.Icon = result.Item3;
+            collection.Cover = cover;
+            collection.Banner = banner;
+            collection.Icon = icon;
 
             return collection;
         }

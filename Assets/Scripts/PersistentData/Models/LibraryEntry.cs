@@ -12,6 +12,7 @@ namespace Assets.Scripts.PersistentData.Models
         public string Description { get; set; }
         public string Path { get; set; }
         public DateTimeOffset LastPlayed { get; set; }
+        public bool HasSearchedForArtwork { get; set; }
 
         public string Genre { get; set; }
         public string Rating { get; set; }

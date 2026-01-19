@@ -19,7 +19,6 @@ namespace SteamLibraryPlugin
             await request.SendWebRequest().WithCancellation(cancellationToken);
 
             var json = request.downloadHandler.text;
-            Debug.Log(request.downloadHandler.text);
             var response = JsonConvert.DeserializeObject<BeginAuthSessionViaQRResponse>(json);
 
             return response;

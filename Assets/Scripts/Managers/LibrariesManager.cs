@@ -62,12 +62,12 @@ public class LibrariesManager : MonoBehaviour
 
                 ImportProgress.ReportProgress((float)index / entries.Count, $"({index}/{entries.Count}) Importing {entry.Name}");
 
-                var artwork = await library.Plugin.GetArtworkCollection(entry.EntryId, token);
-
-                var paths = await UniTask.WhenAll(
-                    DownloadImage(artwork.Cover, Path.Combine(entry.EntryId, "CoverImage"), token),
-                    DownloadImage(artwork.Icon, Path.Combine(entry.EntryId, "Icon"), token),
-                    DownloadImage(artwork.Banner, Path.Combine(entry.EntryId, "BannerImage"), token));
+                //var artwork = await library.Plugin.GetArtworkCollection(entry.EntryId, token);
+//
+                //var paths = await UniTask.WhenAll(
+                //    DownloadImage(artwork.Cover, Path.Combine(entry.EntryId, "CoverImage"), token),
+                //    DownloadImage(artwork.Icon, Path.Combine(entry.EntryId, "Icon"), token),
+                //    DownloadImage(artwork.Banner, Path.Combine(entry.EntryId, "BannerImage"), token));
 
                 var libraryEntry = new LibraryEntry()
                 {
@@ -81,9 +81,9 @@ public class LibrariesManager : MonoBehaviour
                     Rating = entry.Rating,
                     SourceId = entry.EntryId,
                     Source = library.Name,
-                    CoverImagePath = paths.Item1,
-                    IconPath = paths.Item2,
-                    BannerImagePath = paths.Item3,
+                    CoverImagePath = null,
+                    IconPath = null,
+                    BannerImagePath = null,
                     LastPlayed = entry.LastPlayed
                 };
 
@@ -115,18 +115,43 @@ public class LibrariesManager : MonoBehaviour
         if (string.IsNullOrEmpty(url))
             return "";
 
-        using UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(url);
+        using UnityWebRequest uwr = UnityWebRequest.Get(url);
         await uwr.SendWebRequest().WithCancellation(token);
 
-        var tex = DownloadHandlerTexture.GetContent(uwr);
+        // Get raw image bytes directly - no decode/encode needed!
+        byte[] imageData = uwr.downloadHandler.data;
 
-        var outputPath = Path.Combine(DatabaseManager.DatabasePath, "Images", $"{outputName}.png");
+        var outputPath = Path.Combine(DatabaseManager.DatabasePath, "Images", $"{outputName}.{GetImageExtension(uwr)}");
         var directory = Path.GetDirectoryName(outputPath);
+
+        // Switch to thread pool for I/O operations
+        await UniTask.SwitchToThreadPool();
+
         if (Directory.Exists(directory) == false)
             Directory.CreateDirectory(directory);
 
-        await File.WriteAllBytesAsync(outputPath, tex.EncodeToPNG(), token);
+        await File.WriteAllBytesAsync(outputPath, imageData, token);
+
+        await UniTask.SwitchToMainThread();
 
         return outputPath;
+    }
+    
+    private string GetImageExtension(UnityWebRequest uwr)
+    {
+        string contentType = uwr.GetResponseHeader("Content-Type");
+        if (contentType?.Contains("jpeg") == true || contentType?.Contains("jpg") == true)
+            return ".jpg";
+        if (contentType?.Contains("png") == true)
+            return ".png";
+        
+        // Fallback: detect from bytes
+        byte[] data = uwr.downloadHandler.data;
+        if (data.Length >= 2 && data[0] == 0xFF && data[1] == 0xD8)
+            return ".jpg";
+        if (data.Length >= 4 && data[0] == 0x89 && data[1] == 0x50)
+            return ".png";
+        
+        return ".png"; // default
     }
 }

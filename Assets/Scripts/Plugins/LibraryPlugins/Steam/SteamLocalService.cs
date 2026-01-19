@@ -8,10 +8,8 @@ using System.Threading;
 
 namespace SteamLibraryPlugin
 {
-    class SteamLocalService
+    public class SteamLocalService
     {
-        private static ArtworkService artworkService = new();
-
         internal static LibraryEntry GetInstalledGameFromFile(string path)
         {
             var kv = new KeyValue();

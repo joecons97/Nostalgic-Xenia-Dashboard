@@ -4,6 +4,7 @@ using QRCoder;
 using QRCoder.Unity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,10 +19,11 @@ namespace SteamLibraryPlugin
 
         public override string IconPath => "steam.png";
 
-        private ModalService modalService = new();
-        private ArtworkService artworkService = new();
-        private StartEntryService startEntryService = new();
-        private SteamAuthService steamAuthService = new();
+        private ModalService modalService => new();
+        private ArtworkService artworkService => new();
+        private StartEntryService startEntryService => new();
+        private SteamAuthService steamAuthService => new();
+        private SteamOwnedGamesService steamOwnedGamesService => new(steamAuthService);
 
         public override async UniTask<ArtworkCollection> GetArtworkCollection(string entryId, CancellationToken cancellationToken)
         {
@@ -32,7 +34,20 @@ namespace SteamLibraryPlugin
 
         public override async UniTask<List<LibraryEntry>> GetEntriesAsync(CancellationToken cancellationToken)
         {
-            return await SteamLocalService.GetInstalledGamesAsync(cancellationToken);
+            var installedGames = await SteamLocalService.GetInstalledGamesAsync(cancellationToken);
+            var ownedGames = await steamOwnedGamesService.GetOwnedGamesAsync(cancellationToken);
+
+            var finalList = new List<LibraryEntry>(installedGames);
+
+            foreach (var game in ownedGames)
+            {
+                if (finalList.Any(x => x.EntryId == game.EntryId))
+                    continue;
+
+                finalList.Add(game);
+            }
+
+            return finalList;
         }
 
         public override UniTask<GameActionResult> TryStartEntryAsync(LibraryEntry entry, CancellationToken cancellationToken)
