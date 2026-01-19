@@ -13,6 +13,7 @@ public class NXELibraryEntryTile : NXETile
 {
     [SerializeField] private RawImage image;
     [SerializeField] private Text text;
+    [SerializeField] private GameObject installedIcon;
 
     private static Queue<NXELibraryEntryTile> artworkRequestQueue = new Queue<NXELibraryEntryTile>();
     private static UniTask activeQueueTask = UniTask.CompletedTask;
@@ -28,6 +29,8 @@ public class NXELibraryEntryTile : NXETile
         }
 
         libraryEntry = entry;
+        
+        installedIcon.SetActive(string.IsNullOrEmpty(libraryEntry.Path));
 
         text.text = libraryEntry.Name;
         artworkRequestQueue.Enqueue(this);
@@ -37,8 +40,10 @@ public class NXELibraryEntryTile : NXETile
     {
         if(activeQueueTask.Status != UniTaskStatus.Pending && artworkRequestQueue.TryDequeue(out var result))
         {
-            Debug.Log("Requesting Artwork for " + result.libraryEntry.Name);
-            var token = result.GetCancellationTokenOnDestroy();
+            if (result == null)
+                return;
+            
+            var token = result.destroyCancellationToken;
             activeQueueTask = UniTask.RunOnThreadPool(async () =>
             {
                 var texture = await GetArtworkAsync(result.libraryEntry, token);
@@ -59,7 +64,7 @@ public class NXELibraryEntryTile : NXETile
             if (libraryEntry.HasSearchedForArtwork == false)
             {
                 await UniTask.SwitchToMainThread();
-
+                Debug.Log("Requesting Artwork for " + libraryEntry.Name);
                 var libraryManager = FindFirstObjectByType<LibrariesManager>();
                 var databaseManager = FindFirstObjectByType<DatabaseManager>();
                 var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == libraryEntry.Source);

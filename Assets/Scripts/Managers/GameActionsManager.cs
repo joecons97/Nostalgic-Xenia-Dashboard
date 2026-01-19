@@ -14,14 +14,17 @@ public class GameActionsManager : MonoBehaviour
     [SerializeField] private DatabaseManager databaseManager;
     [SerializeField] private DashboardEntriesBuilder dashboardEntriesBuilder;
 
-    private int activeEntries;
+    private bool isGameActive;
 
     public void LaunchLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
     {
-        if (activeEntries > 0)
+        if (isGameActive)
             return;
             
         if (entry == null)
+            return;
+
+        if (string.IsNullOrEmpty(entry.Path))
             return;
 
         var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == entry.Source);
@@ -53,7 +56,7 @@ public class GameActionsManager : MonoBehaviour
             if (result == GameActionResult.Success)
             {
                 layoutGroup.enabled = false;
-                activeEntries++;
+                isGameActive = true;
             }
         });
 
@@ -63,16 +66,14 @@ public class GameActionsManager : MonoBehaviour
         });
     }
 
-    private void OnEntryProcessEnded(string entryId, LibraryPlugin.LibraryPlugin plugin)
+    private async UniTask OnEntryProcessEnded(string entryId, LibraryPlugin.LibraryPlugin plugin)
     {
+        await UniTask.SwitchToMainThread();
+        
         plugin.OnEntryProcessEnded -= OnEntryProcessEnded;
 
-        activeEntries--;
-        if(activeEntries <= 0)
-        {
-            activeEntries = 0;
-            layoutGroup.enabled = true;
-        }
+        isGameActive = false;
+        layoutGroup.enabled = true;
 
         var delay = 0.0f;
         foreach (var canvas in fadeCanvasGroups.Reverse())

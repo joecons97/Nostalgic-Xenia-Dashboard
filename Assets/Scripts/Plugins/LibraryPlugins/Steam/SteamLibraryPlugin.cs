@@ -52,9 +52,7 @@ namespace SteamLibraryPlugin
 
         public override UniTask<GameActionResult> TryStartEntryAsync(LibraryEntry entry, CancellationToken cancellationToken)
         {
-            startEntryService.Plugin = this;
-
-            return UniTask.FromResult(startEntryService.StartEntry(entry, cancellationToken));
+            return UniTask.FromResult(startEntryService.StartEntry(this, entry, cancellationToken));
         }
 
         public override List<LibraryPluginButton> GetButtons()

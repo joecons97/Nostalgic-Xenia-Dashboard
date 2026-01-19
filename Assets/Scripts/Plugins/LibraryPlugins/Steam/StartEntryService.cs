@@ -6,16 +6,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace SteamLibraryPlugin
 {
     public class StartEntryService
     {
-        public SteamLibraryPlugin Plugin { get; set; }
-
         private HashSet<string> _cachedExecutables;
 
-        public GameActionResult StartEntry(LibraryEntry entry, CancellationToken cancellationToken)
+        public GameActionResult StartEntry(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)
         {
             _cachedExecutables = null;
             Process.Start(new ProcessStartInfo
@@ -26,22 +25,24 @@ namespace SteamLibraryPlugin
 
             _ = UniTask.RunOnThreadPool(async () =>
             {
-                await MonitorGameDirectoryAsync(entry, cancellationToken);
+                await MonitorGameDirectoryAsync(plugin, entry, cancellationToken);
             }, cancellationToken: cancellationToken);
 
             return GameActionResult.Success;
         }
 
-        private async UniTask MonitorGameDirectoryAsync(LibraryEntry entry, CancellationToken cancellationToken)
+        private async UniTask MonitorGameDirectoryAsync(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)
         {
             var installDir = entry.Path;
             if (string.IsNullOrEmpty(installDir))
             {
-                Plugin.OnEntryProcessEnded?.Invoke(entry.EntryId, Plugin);
+                if(plugin.OnEntryProcessEnded != null)
+                    await plugin.OnEntryProcessEnded(entry.EntryId, plugin);
+                
                 return;
             }
 
-            UnityEngine.Debug.Log($"Monitoring {installDir}");
+            Debug.Log($"Monitoring {installDir}");
 
             // Wait for game to start (with polling interval)
             while (!HasProcessesInDirectory(installDir))
@@ -50,7 +51,7 @@ namespace SteamLibraryPlugin
                 if (cancellationToken.IsCancellationRequested) return;
             }
 
-            UnityEngine.Debug.Log($"Game Started");
+            Debug.Log($"Game Started");
 
             //Wait a couple of seconds incase the game launched from a low launcher (like skyrim)
             await UniTask.Delay(2000, cancellationToken: cancellationToken);
@@ -62,9 +63,18 @@ namespace SteamLibraryPlugin
                 if (cancellationToken.IsCancellationRequested) return;
             }
 
-            UnityEngine.Debug.Log($"Finished Monitoring {installDir}");
+            Debug.Log($"Finished Monitoring {installDir}");
 
-            Plugin.OnEntryProcessEnded?.Invoke(entry.EntryId, Plugin);
+            try
+            {
+                if(plugin.OnEntryProcessEnded != null)
+                    await plugin.OnEntryProcessEnded(entry.EntryId, plugin);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Exception in OnEntryProcessEnded: entry.EntryId: {entry?.EntryId}, Plugin: {plugin}");
+                Debug.LogException(ex);
+            }
         }
 
         private bool HasProcessesInDirectory(string gameDirectory)
