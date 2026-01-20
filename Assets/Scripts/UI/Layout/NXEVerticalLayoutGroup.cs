@@ -12,20 +12,17 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public List<NXEBlade> Rows => rows;
 
-    [Header("Layout")]
-    [SerializeField] private float titleDownscale = 0.8f;
+    [Header("Layout")] [SerializeField] private float titleDownscale = 0.8f;
     [SerializeField] private float titleOffset = -50;
     [SerializeField] private int focusedIndex = 0;
 
 
-    [Header("Transitions")] 
-    [SerializeField]
+    [Header("Transitions")] [SerializeField]
     private float transitionTime = 8f;
-    [SerializeField]
-    private Ease transitionEase = Ease.OutQuad;
 
-    [Header("Audio")]
-    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private Ease transitionEase = Ease.OutQuad;
+
+    [Header("Audio")] [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip cycleUpAudio;
     [SerializeField] private AudioClip cycleDownAudio;
     [SerializeField] private AudioClip cycleLeftAudio;
@@ -48,13 +45,13 @@ public class NXEVerticalLayoutGroup : LayoutGroup
         if (enabled == false)
             return;
 
-        if(Rows.Count < 2)
+        if (Rows.Count < 2)
             return;
 
         Rows[^1].transform.SetAsFirstSibling();
         Rows[^1].RectTransform.anchoredPosition = new Vector3(0, -titleOffset * (1 / titleDownscale), 0);
         Layout();
-        
+
         audioSource.PlayOneShot(cycleDownAudio);
     }
 
@@ -107,26 +104,34 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public void MoveLeft(float speed = 1)
     {
-        if (enabled == false)
-            return;
+        if (enabled)
+        {
+            CollectRows();
+            if (Rows[focusedIndex].MoveLeft(speed))
+                audioSource.PlayOneShot(cycleLeftAudio);
 
-        CollectRows();
-        if (Rows[focusedIndex].MoveLeft(speed))
-            audioSource.PlayOneShot(cycleLeftAudio);
-            
-        Layout();
+            Layout();
+        }
+        else
+        {
+            Rows[focusedIndex].MoveLeftPassthrough(speed);
+        }
     }
 
     public void MoveRight(float speed = 1)
     {
-        if (enabled == false)
-            return;
-        
-        CollectRows();
-        if (Rows[focusedIndex].MoveRight(speed))
-            audioSource.PlayOneShot(cycleRightAudio);
-            
-        Layout();
+        if (enabled)
+        {
+            CollectRows();
+            if (Rows[focusedIndex].MoveRight(speed))
+                audioSource.PlayOneShot(cycleRightAudio);
+
+            Layout();
+        }
+        else
+        {
+            Rows[focusedIndex].MoveRightPassthrough(speed);
+        }
     }
 
     public override void CalculateLayoutInputVertical()

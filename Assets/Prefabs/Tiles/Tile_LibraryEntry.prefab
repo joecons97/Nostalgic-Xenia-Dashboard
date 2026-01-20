@@ -279,6 +279,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2076334032808558631, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_RenderMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2076334032808558631, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_VertexColorAlwaysGammaSpace
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3050332351839012047, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_SizeDelta.x
       value: -24
@@ -370,6 +378,7 @@ MonoBehaviour:
   image: {fileID: 8445853608550537976}
   text: {fileID: 4610803573372853432}
   installedIcon: {fileID: 6730046498530332466}
+  gameDetailsBladePrefab: {fileID: 7338058611928956968, guid: 271f18bf9b1c46e4dbfe90f7abb72994, type: 3}
 --- !u!224 &3446431714375862590 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8925714850194066719, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}

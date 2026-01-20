@@ -86,6 +86,16 @@ public class NXEBlade : MonoBehaviour
         return previousTile != newTile;
     }
 
+    public void MoveLeftPassthrough(float speed = 1)
+    {
+        tileInstances[layoutGroup.FocusedIndex].OnMoveLeft();
+    }
+    
+    public void MoveRightPassthrough(float speed = 1)
+    {
+        tileInstances[layoutGroup.FocusedIndex].OnMoveRight();
+    }
+
     private void UpdatePagerText()
     {
         if (pagerText == null)
@@ -100,7 +110,7 @@ public class NXEBlade : MonoBehaviour
         pagerText.text = $"{layoutGroup.FocusedIndex + 1} of {tiles.Length}";
     }
 
-    private void UpdateActions()
+    public void UpdateActions()
     {
         if (tileInstances.Count != tiles.Length)
             GatherExistingTiles();
@@ -134,7 +144,8 @@ public class NXEBlade : MonoBehaviour
 
     public void Focus()
     {
-        titleText.color = Color.white;
+        if(titleText)
+            titleText.color = Color.white;
 
         canvasGroup.DOKill();
         if (Application.isPlaying)
@@ -179,9 +190,10 @@ public class NXEBlade : MonoBehaviour
         else
             canvasGroup.alpha = 0;
 
-        titleText.color = param == NXEBladeUnfocusParams.FullHide
-            ? new Color(1, 1, 1, 0.0f)
-            : new Color(1, 1, 1, 0.5f / focalIndex);
+        if(titleText)
+            titleText.color = param == NXEBladeUnfocusParams.FullHide
+                ? new Color(1, 1, 1, 0.0f)
+                : new Color(1, 1, 1, 0.5f / focalIndex);
     }
 
     private void OnValidate()

@@ -1,12 +1,14 @@
 using System;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class  NXEModal : MonoBehaviour
+public class NXEModal : MonoBehaviour
 {
     public bool canBeClosed = true;
 
@@ -37,7 +39,10 @@ public class  NXEModal : MonoBehaviour
     public static NXEModal CreateAndShow(NXEModal modal)
     {
         var instance = Instantiate(modal);
-        instance.titleText.transform.localScale = new Vector3(1, 0, 1);
+        
+        if(instance.titleText)
+            instance.titleText.transform.localScale = new Vector3(1, 0, 1);
+        
         instance.canvasGroup.alpha = 0;
         instance.Show();
 
@@ -47,7 +52,10 @@ public class  NXEModal : MonoBehaviour
     public static NXEModal Create(NXEModal modal)
     {
         var instance = Instantiate(modal);
-        instance.titleText.transform.localScale = new Vector3(1, 0, 1);
+        
+        if(instance.titleText)
+            instance.titleText.transform.localScale = new Vector3(1, 0, 1);
+        
         instance.canvasGroup.alpha = 0;
 
         return instance;
@@ -56,10 +64,13 @@ public class  NXEModal : MonoBehaviour
     [ContextMenu("Show")]
     public void Show()
     {
-        var rectTransform = titleText.transform as RectTransform;
+        if (titleText)
+        {
+            var rectTransform = titleText.transform as RectTransform;
 
-        titleText.DOFade(1, textTransitionTime).SetEase(textTransitionEase);
-        rectTransform.DOScale(new Vector3(1, 1, 1), textTransitionTime).SetEase(textTransitionEase);
+            titleText.DOFade(1, textTransitionTime).SetEase(textTransitionEase);
+            rectTransform.DOScale(new Vector3(1, 1, 1), textTransitionTime).SetEase(textTransitionEase);
+        }
 
         canvasGroup.DOFade(1, fadeTransitionTime)
             .SetEase(fadeTransitionEase)
@@ -143,14 +154,18 @@ public class  NXEModal : MonoBehaviour
 
     private void Hide(TweenCallback onComplete = null)
     {
-        var rectTransform = titleText.transform as RectTransform;
+        TweenerCore<Vector3, Vector3, VectorOptions> scaleTween = null;
+        if (titleText)
+        {
+            var rectTransform = titleText.transform as RectTransform;
 
-        titleText.DOFade(0, textTransitionTime)
-            .SetEase(textTransitionEase);
-
-        var scaleTween = rectTransform
-            .DOScale(new Vector3(1, 0, 1), textTransitionTime)
-            .SetEase(textTransitionEase);
+            titleText.DOFade(0, textTransitionTime)
+                .SetEase(textTransitionEase);
+            
+            scaleTween = rectTransform
+                .DOScale(new Vector3(1, 0, 1), textTransitionTime)
+                .SetEase(textTransitionEase);
+        }
 
         var fadeTween = canvasGroup
             .DOFade(0, fadeTransitionTime)
@@ -158,17 +173,21 @@ public class  NXEModal : MonoBehaviour
 
         if (onComplete != null)
         {
-            if (fadeTransitionTime > textTransitionTime)
-                fadeTween.OnComplete(onComplete);
-            else
+            if (textTransitionTime > fadeTransitionTime && scaleTween != null)
                 scaleTween.OnComplete(onComplete);
+            else
+                fadeTween.OnComplete(onComplete);
         }
     }
 
     private void OnDestroy()
     {
         canvasGroup.DOKill();
-        titleText.DOKill();
-        titleText.transform.DOKill();
+        
+        if (titleText)
+        {
+            titleText.DOKill();
+            titleText.transform.DOKill();
+        }
     }
 }

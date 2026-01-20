@@ -212,13 +212,15 @@ public class NXEBladeLayoutGroup : LayoutGroup
 #endif
 
     // Helper methods for navigation
-    public void MoveLeft(float speed = 1)
+    public bool MoveLeft(float speed = 1)
     {
         if (enabled)
         {
             transitionSpeedMultiplier = speed;
             FocusedIndex = Mathf.Max(0, focusedIndex - 1);
         }
+        
+        return enabled;
     }
 
     public void ResetPosition()
@@ -226,13 +228,15 @@ public class NXEBladeLayoutGroup : LayoutGroup
         FocusedIndex = 0;
     }
 
-    public void MoveRight(float speed = 1)
+    public bool MoveRight(float speed = 1)
     {
         if (enabled)
         {
             transitionSpeedMultiplier = speed;
             FocusedIndex = Mathf.Min(tiles.Count - 1, focusedIndex + 1);
         }
+
+        return enabled;
     }
 
     public RectTransform GetFocusedTile()

@@ -16,6 +16,9 @@ public class NXELibraryEntryTile : NXETile
     [SerializeField] private RawImage image;
     [SerializeField] private Text text;
     [SerializeField] private GameObject installedIcon;
+    [SerializeField] private NXEModal gameDetailsBladePrefab;
+    
+    private NXEModal currentModal;
 
     private static Queue<NXELibraryEntryTile> artworkRequestQueue = new Queue<NXELibraryEntryTile>();
     private static UniTask activeQueueTask = UniTask.CompletedTask;
@@ -122,8 +125,9 @@ public class NXELibraryEntryTile : NXETile
     public override void OnSelect()
     {
         var actionManager = FindFirstObjectByType<GameActionsManager>();
-
-        if (string.IsNullOrEmpty(libraryEntry.Path))
+        if (currentModal && currentModal.TryGetComponent(out NXEBlade blade))
+            blade.Select();
+        else if (string.IsNullOrEmpty(libraryEntry.Path))
         {
             if (isInstalling == false)
             {
@@ -165,10 +169,39 @@ public class NXELibraryEntryTile : NXETile
         }
     }
 
+    public override void OnSelectAlt()
+    {
+        if (currentModal && currentModal.TryGetComponent(out NXEBlade blade))
+            blade.SelectAlt();
+        else
+        {
+            currentModal = NXEModal.CreateAndShow(gameDetailsBladePrefab);
+            if(currentModal.TryGetComponent(out blade))
+                blade.UpdateActions();
+        }
+    }
+
     public override void OnCancel()
     {
         if(string.IsNullOrEmpty(activeModalId) == false)
             FindFirstObjectByType<ModalServiceManager>().RequestCloseModal(activeModalId);
+        else if (currentModal != null)
+        {
+            if(currentModal.Close() == NXEModalCloseResult.NormalClose)
+                currentModal = null;
+        }
+    }
+
+    public override void OnMoveLeft(float speed = 1)
+    {
+        if (currentModal && currentModal.TryGetComponent(out NXEBlade blade))
+            blade.MoveLeft(speed);
+    }
+    
+    public override void OnMoveRight(float speed = 1)
+    {
+        if (currentModal && currentModal.TryGetComponent(out NXEBlade blade))
+            blade.MoveRight(speed);
     }
 
     private void ActionManagerOnOnInstallationCompleteOrCancelled(string obj)
