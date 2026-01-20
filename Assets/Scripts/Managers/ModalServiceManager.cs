@@ -11,11 +11,11 @@ public class ModalServiceManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        ModalService.OnRequestCreateModal += OnRequestCreateModal;
-        ModalService.OnRequestCloseModal += OnRequestCloseModal;
+        ModalService.OnRequestCreateModal += RequestCreateModal;
+        ModalService.OnRequestCloseModal += RequestCloseModal;
     }
 
-    private string OnRequestCreateModal(CreateModalArgs args)
+    public string RequestCreateModal(CreateModalArgs args)
     {
         Debug.Log("Creating modal");
 
@@ -35,6 +35,8 @@ public class ModalServiceManager : MonoBehaviour
 
         modal.name = guid;
         modal.canBeClosed = args.CanBeClosed;
+        modal.DisplayActions.showCancelAction = args.CanBeClosed;
+        modal.UpdateDisplayActions();
 
         modal.transform.Find("Title").GetComponent<Text>().text = args.Name;
 
@@ -51,7 +53,7 @@ public class ModalServiceManager : MonoBehaviour
         return guid;
     }
 
-    private void OnRequestCloseModal(string guid)
+    public void RequestCloseModal(string guid)
     {
         if (externallyCreatedModals.TryGetValue(guid, out var modal))
         {
@@ -69,7 +71,7 @@ public class ModalServiceManager : MonoBehaviour
 
     void OnDestroy()
     {
-        ModalService.OnRequestCreateModal -= OnRequestCreateModal;
-        ModalService.OnRequestCloseModal -= OnRequestCloseModal;
+        ModalService.OnRequestCreateModal -= RequestCreateModal;
+        ModalService.OnRequestCloseModal -= RequestCloseModal;
     }
 }

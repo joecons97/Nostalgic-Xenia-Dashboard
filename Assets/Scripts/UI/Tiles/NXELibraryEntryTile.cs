@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Assets.Scripts.PersistentData.Models;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using LibraryPlugin;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using LibraryEntry = Assets.Scripts.PersistentData.Models.LibraryEntry;
 
 public class NXELibraryEntryTile : NXETile
 {
@@ -21,6 +22,7 @@ public class NXELibraryEntryTile : NXETile
 
     private LibraryEntry libraryEntry;
     private bool isInstalling;
+    private string activeModalId;
 
     public void SetLibraryEntry(LibraryEntry entry)
     {
@@ -134,11 +136,39 @@ public class NXELibraryEntryTile : NXETile
                     .SetAutoKill(false);
                 isInstalling = true;
             }
+            else
+            {
+                
+                var root = new GameObject("Root", typeof(RectTransform), typeof(VerticalLayoutGroup));
+                root.GetComponent<VerticalLayoutGroup>().childForceExpandWidth = false;
+                root.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.MiddleCenter;
+            
+                var textObj = new GameObject("Text", typeof(RectTransform), typeof(Text));
+                textObj.transform.SetParent(root.transform, false);
+                var text = textObj.GetComponent<Text>();
+                text.font = Resources.Load<Font>("NXD");
+                text.fontSize = 26;
+                text.alignment = TextAnchor.UpperCenter;
+                text.text = $"{libraryEntry.Name} is currently being installed via {libraryEntry.Source}.\n\nTo view progress, please visit the third-party client.";
+                
+                activeModalId = FindFirstObjectByType<ModalServiceManager>().RequestCreateModal(new CreateModalArgs()
+                {
+                    CanBeClosed = true,
+                    Name = $"Installing {libraryEntry.Name}",
+                    ChildrenRoot = root
+                });
+            }
         }
         else
         {
             actionManager.LaunchLibraryEntry(libraryEntry);
         }
+    }
+
+    public override void OnCancel()
+    {
+        if(string.IsNullOrEmpty(activeModalId) == false)
+            FindFirstObjectByType<ModalServiceManager>().RequestCloseModal(activeModalId);
     }
 
     private void ActionManagerOnOnInstallationCompleteOrCancelled(string obj)

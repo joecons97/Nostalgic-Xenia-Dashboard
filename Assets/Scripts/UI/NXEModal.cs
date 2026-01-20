@@ -77,8 +77,14 @@ public class NXEModal : MonoBehaviour
             _ = UniTask.NextFrame().ContinueWith(() => eventTrigger.enabled = true);
         }
 
-        FindFirstObjectByType<NXEActionsEffects>().SetConfig(DisplayActions);
+        FindFirstObjectByType<NXEVerticalLayoutGroup>()?.Hide();
+        UpdateDisplayActions();
         topMostModal = this;
+    }
+
+    public void UpdateDisplayActions()
+    {
+        FindFirstObjectByType<NXEActionsEffects>().SetConfig(DisplayActions);
     }
 
     public void OpenSubModal(NXEModal modal)
@@ -127,6 +133,8 @@ public class NXEModal : MonoBehaviour
             if (canBeClosed)
             {
                 Hide(() => Destroy(gameObject));
+                
+                FindFirstObjectByType<NXEVerticalLayoutGroup>()?.Show();
                 return NXEModalCloseResult.NormalClose;
             }
 

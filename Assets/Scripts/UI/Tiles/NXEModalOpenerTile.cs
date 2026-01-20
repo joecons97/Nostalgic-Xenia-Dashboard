@@ -12,7 +12,6 @@ public class NXEModalOpenerTile : NXETile
         if (currentModal == null)
         {
             currentModal = NXEModal.CreateAndShow(modal);
-            FindFirstObjectByType<NXEVerticalLayoutGroup>()?.Hide();
         }
     }
 
@@ -24,7 +23,6 @@ public class NXEModalOpenerTile : NXETile
 
             if (result == NXEModalCloseResult.NormalClose)
             {
-                FindFirstObjectByType<NXEVerticalLayoutGroup>()?.Show();
                 currentModal = null;
             }
         }
