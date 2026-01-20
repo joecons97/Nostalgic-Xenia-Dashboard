@@ -82,6 +82,9 @@ namespace SteamLibraryPlugin
 
         private async UniTask Authenticate(CancellationToken cancellationToken)
         {
+            var closureCancellationToken = new CancellationTokenSource();
+            cancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, closureCancellationToken.Token).Token;
+            
             Debug.Log("Authenticating");
 
             var beginResult = await steamAuthService.BeginLoginAsync(cancellationToken);
@@ -110,8 +113,13 @@ namespace SteamLibraryPlugin
             var id = modalService.CreateModal(new CreateModalArgs()
             {
                 Name = "Authenticate",
-                CanBeClosed = false,
+                CanBeClosed = true,
                 ChildrenRoot = root
+            });
+            
+            modalService.SetCloseCallback(id, () =>
+            {
+                closureCancellationToken.Cancel();
             });
 
             Debug.Log(beginResult.Response.ChallengeUrl);

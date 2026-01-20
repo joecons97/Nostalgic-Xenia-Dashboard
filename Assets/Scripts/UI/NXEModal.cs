@@ -1,20 +1,18 @@
 using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using JetBrains.Annotations;
-using LibraryPlugin;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class NXEModal : MonoBehaviour
+public class  NXEModal : MonoBehaviour
 {
-    public bool isOpen;
     public bool canBeClosed = true;
 
     public ActionsConfig DisplayActions;
+
+    public event Action OnClosed;
 
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] protected Text titleText;
@@ -34,7 +32,6 @@ public class NXEModal : MonoBehaviour
     public NXEModal ParentModal => parentModal;
 
     public static NXEModal TopMostModal => topMostModal;
-
     private static NXEModal topMostModal = null;
 
     public static NXEModal CreateAndShow(NXEModal modal)
@@ -112,6 +109,7 @@ public class NXEModal : MonoBehaviour
             {
                 if (subModal.canBeClosed)
                 {
+                    subModal.OnClosed?.Invoke();
                     subModal.Hide(() =>
                     {
                         Destroy(subModal.gameObject);
@@ -132,6 +130,7 @@ public class NXEModal : MonoBehaviour
         {
             if (canBeClosed)
             {
+                OnClosed?.Invoke();
                 Hide(() => Destroy(gameObject));
                 
                 FindFirstObjectByType<NXEVerticalLayoutGroup>()?.Show();

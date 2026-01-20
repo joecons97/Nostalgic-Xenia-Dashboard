@@ -13,6 +13,7 @@ public class ModalServiceManager : MonoBehaviour
     {
         ModalService.OnRequestCreateModal += RequestCreateModal;
         ModalService.OnRequestCloseModal += RequestCloseModal;
+        ModalService.OnRequestSetCloseCallback += SetOnClosedCallback;
     }
 
     public string RequestCreateModal(CreateModalArgs args)
@@ -67,6 +68,12 @@ public class ModalServiceManager : MonoBehaviour
             if(result != NXEModalCloseResult.None)
                 externallyCreatedModals.Remove(guid);
         }
+    }
+
+    public void SetOnClosedCallback(string guid, Action callback)
+    {
+        if (externallyCreatedModals.TryGetValue(guid, out var modal))
+            modal.OnClosed += callback;
     }
 
     void OnDestroy()

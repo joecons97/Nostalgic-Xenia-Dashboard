@@ -145,11 +145,13 @@ public class LibraryPluginModal : NXEModal
         FindFirstObjectByType<DashboardEntriesBuilder>().Rebuild();
     }
 
-    public async UniTask DoReImporter()
+    public UniTask DoReImporter()
     {
         canBeClosed = false;
         _ = librariesManager.ImportLibraryAsync(library);
         HandleImportButton();
+        
+        return UniTask.CompletedTask;
     }
 
     void HandleImportButton()
