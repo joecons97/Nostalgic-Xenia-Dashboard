@@ -176,8 +176,10 @@ public class NXELibraryEntryTile : NXETile
         else
         {
             currentModal = NXEModal.CreateAndShow(gameDetailsBladePrefab);
-            if(currentModal.TryGetComponent(out blade))
-                blade.UpdateActions();
+            if (currentModal.TryGetComponent(out blade))
+            {
+                blade.Focus(animate: false);
+            }
         }
     }
 
