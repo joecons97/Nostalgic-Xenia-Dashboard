@@ -166,17 +166,22 @@ public class NXEBladeLayoutGroup : LayoutGroup
 
     private void ApplyLayout()
     {
+        if (tiles == null)
+            return;
+        
         for (int i = 0; i < tiles.Count; i++)
         {
-            RectTransform tile = tiles[i];
+            var tile = tiles[i];
+            if (tile == null)
+                continue;
             
             if (Application.isPlaying)
             {
                 // Smooth transitions during play
                 tile.DOKill();
 
-                int stepsFromFocus = i - focusedIndex;
-                bool isInViewRange = !(stepsFromFocus < 0 || stepsFromFocus > 15);
+                var stepsFromFocus = i - focusedIndex;
+                var isInViewRange = stepsFromFocus is >= 0 and <= 15;
 
                 if (isInViewRange)
                     tile.gameObject.SetActive(true);

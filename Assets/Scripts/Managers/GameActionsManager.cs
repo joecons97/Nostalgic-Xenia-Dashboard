@@ -14,11 +14,16 @@ public class GameActionsManager : MonoBehaviour
     [SerializeField] private LibrariesManager libraryManager;
     [SerializeField] private DatabaseManager databaseManager;
     [SerializeField] private DashboardEntriesBuilder dashboardEntriesBuilder;
-    
-    public event Action<string> OnInstallationCompleteOrCancelled;
+
+    public event Action<ObjectId> OnInstallationBegin;
+    public event Action<ObjectId> OnInstallationCompleteOrCancelled;
 
     private bool isGameActive;
     private List<ObjectId> installingGames = new();
+    private bool layoutGroupReturnEnabled;
+    
+    public bool IsEntryInstalling(Assets.Scripts.PersistentData.Models.LibraryEntry entry) 
+        => installingGames.Contains(entry.Id);
 
     public void LaunchLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
     {
@@ -59,6 +64,7 @@ public class GameActionsManager : MonoBehaviour
             Debug.Log(result);
             if (result == GameActionResult.Success)
             {
+                layoutGroupReturnEnabled = layoutGroup.enabled;
                 layoutGroup.enabled = false;
                 isGameActive = true;
             }
@@ -77,7 +83,7 @@ public class GameActionsManager : MonoBehaviour
         plugin.OnEntryProcessEnded -= OnEntryProcessEnded;
 
         isGameActive = false;
-        layoutGroup.enabled = true;
+        layoutGroup.enabled = layoutGroupReturnEnabled;
 
         var delay = 0.0f;
         foreach (var canvas in fadeCanvasGroups.Reverse())
@@ -116,11 +122,14 @@ public class GameActionsManager : MonoBehaviour
         {
             lib.Plugin.OnEntryInstallationComplete += OnEntryInstallationComplete;
             lib.Plugin.OnEntryInstallationCancelled += OnEntryInstallationCancelled;
-            
-            if(result == GameActionResult.Success)
+
+            if (result == GameActionResult.Success)
+            {
                 installingGames.Add(entry.Id);
+                OnInstallationBegin?.Invoke(entry.Id);
+            }
             else
-                OnInstallationCompleteOrCancelled?.Invoke(entry.SourceId);
+                OnInstallationCompleteOrCancelled?.Invoke(entry.Id);
         });
     }
 
@@ -137,8 +146,15 @@ public class GameActionsManager : MonoBehaviour
         await UniTask.SwitchToMainThread();
         
         Debug.Log($"{entry.Name} Installation cancelled");
+        
+        installingGames.Remove(entry.Id);
+        
         libraryPlugin.OnEntryInstallationCancelled -= OnEntryInstallationCancelled;
-        OnInstallationCompleteOrCancelled?.Invoke(entry.SourceId);
+        
+        _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
+        {
+            OnInstallationCompleteOrCancelled?.Invoke(entry.Id);
+        });
     }
 
     private async UniTask OnEntryInstallationComplete(string entryId, string path, LibraryPlugin.LibraryPlugin libraryPlugin)
@@ -157,8 +173,14 @@ public class GameActionsManager : MonoBehaviour
         
         entry.Path = path;
         databaseManager.LibraryEntries.Update(entry);
+        databaseManager.DbContext.Checkpoint();
+        
+        installingGames.Remove(entry.Id);
         
         libraryPlugin.OnEntryInstallationComplete -= OnEntryInstallationComplete;
-        OnInstallationCompleteOrCancelled?.Invoke(entry.SourceId);
+        _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
+        {
+            OnInstallationCompleteOrCancelled?.Invoke(entry.Id);
+        });
     }
 }

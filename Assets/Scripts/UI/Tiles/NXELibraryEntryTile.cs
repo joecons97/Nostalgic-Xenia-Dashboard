@@ -6,6 +6,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using LibraryPlugin;
+using LiteDB;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -17,8 +18,9 @@ public class NXELibraryEntryTile : NXETile
     [SerializeField] private Text text;
     [SerializeField] private GameObject installedIcon;
     [SerializeField] private NXEModal gameDetailsBladePrefab;
-    
+
     private NXEModal currentModal;
+    private GameActionsManager gameActionsManager;
 
     private static Queue<NXELibraryEntryTile> artworkRequestQueue = new Queue<NXELibraryEntryTile>();
     private static UniTask activeQueueTask = UniTask.CompletedTask;
@@ -35,21 +37,40 @@ public class NXELibraryEntryTile : NXETile
             return;
         }
 
+        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
+        
         libraryEntry = entry;
         
+        SetIsInstalling(gameActionsManager.IsEntryInstalling(libraryEntry));
+
         installedIcon.SetActive(string.IsNullOrEmpty(libraryEntry.Path));
 
         text.text = libraryEntry.Name;
         artworkRequestQueue.Enqueue(this);
+        
+        gameActionsManager.OnInstallationBegin += GameActionsManagerOnOnInstallationBegin;
+        gameActionsManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
+    }
+
+    private void GameActionsManagerOnOnInstallationBegin(ObjectId obj)
+    {
+        if (libraryEntry.Id == obj)
+            SetIsInstalling(true);
+    }
+
+    private void OnDestroy()
+    {
+        gameActionsManager.OnInstallationCompleteOrCancelled -= ActionManagerOnOnInstallationCompleteOrCancelled;
+        gameActionsManager.OnInstallationBegin -= GameActionsManagerOnOnInstallationBegin;
     }
 
     void Update()
     {
-        if(activeQueueTask.Status != UniTaskStatus.Pending && artworkRequestQueue.TryDequeue(out var result))
+        if (activeQueueTask.Status != UniTaskStatus.Pending && artworkRequestQueue.TryDequeue(out var result))
         {
             if (result == null)
                 return;
-            
+
             var token = result.destroyCancellationToken;
             activeQueueTask = UniTask.RunOnThreadPool(async () =>
             {
@@ -99,7 +120,7 @@ public class NXELibraryEntryTile : NXETile
 
             return await LoadImageAsync(libraryEntry.CoverImagePath, cancellationToken);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Debug.LogException(e);
             return null;
@@ -124,29 +145,21 @@ public class NXELibraryEntryTile : NXETile
 
     public override void OnSelect()
     {
-        var actionManager = FindFirstObjectByType<GameActionsManager>();
         if (currentModal && currentModal.TryGetComponent(out NXEBlade blade))
             blade.Select();
         else if (string.IsNullOrEmpty(libraryEntry.Path))
         {
             if (isInstalling == false)
             {
-                actionManager.TryInstallLibraryEntry(libraryEntry);
-                actionManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
-                installedIcon.transform
-                    .DOScale(1.5f, 1)
-                    .SetEase(Ease.InOutSine)
-                    .SetLoops(-1, LoopType.Yoyo)
-                    .SetAutoKill(false);
-                isInstalling = true;
+                gameActionsManager.TryInstallLibraryEntry(libraryEntry);
+                SetIsInstalling(true);
             }
             else
             {
-                
                 var root = new GameObject("Root", typeof(RectTransform), typeof(VerticalLayoutGroup));
                 root.GetComponent<VerticalLayoutGroup>().childForceExpandWidth = false;
                 root.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.MiddleCenter;
-            
+
                 var textObj = new GameObject("Text", typeof(RectTransform), typeof(Text));
                 textObj.transform.SetParent(root.transform, false);
                 var text = textObj.GetComponent<Text>();
@@ -154,7 +167,7 @@ public class NXELibraryEntryTile : NXETile
                 text.fontSize = 26;
                 text.alignment = TextAnchor.UpperCenter;
                 text.text = $"{libraryEntry.Name} is currently being installed via {libraryEntry.Source}.\n\nTo view progress, please visit the third-party client.";
-                
+
                 activeModalId = FindFirstObjectByType<ModalServiceManager>().RequestCreateModal(new CreateModalArgs()
                 {
                     CanBeClosed = true,
@@ -165,8 +178,21 @@ public class NXELibraryEntryTile : NXETile
         }
         else
         {
-            actionManager.LaunchLibraryEntry(libraryEntry);
+            gameActionsManager.LaunchLibraryEntry(libraryEntry);
         }
+    }
+
+    void SetIsInstalling(bool value)
+    {
+        isInstalling = value;
+        if (isInstalling)
+            installedIcon.transform
+                .DOScale(1.5f, 1)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetAutoKill(false);
+        else
+            installedIcon.transform.DOKill(complete: true);
     }
 
     public override void OnSelectAlt()
@@ -179,17 +205,18 @@ public class NXELibraryEntryTile : NXETile
             if (currentModal.TryGetComponent(out blade))
             {
                 blade.Focus(animate: false);
+                currentModal.GetComponentInChildren<NXELibraryEntryDetailsTile>().SetLibraryEntry(libraryEntry);
             }
         }
     }
 
     public override void OnCancel()
     {
-        if(string.IsNullOrEmpty(activeModalId) == false)
+        if (string.IsNullOrEmpty(activeModalId) == false)
             FindFirstObjectByType<ModalServiceManager>().RequestCloseModal(activeModalId);
         else if (currentModal != null)
         {
-            if(currentModal.Close() == NXEModalCloseResult.NormalClose)
+            if (currentModal.Close() == NXEModalCloseResult.NormalClose)
                 currentModal = null;
         }
     }
@@ -199,22 +226,20 @@ public class NXELibraryEntryTile : NXETile
         if (currentModal && currentModal.TryGetComponent(out NXEBlade blade))
             blade.MoveLeft(speed);
     }
-    
+
     public override void OnMoveRight(float speed = 1)
     {
         if (currentModal && currentModal.TryGetComponent(out NXEBlade blade))
             blade.MoveRight(speed);
     }
 
-    private void ActionManagerOnOnInstallationCompleteOrCancelled(string obj)
+    private void ActionManagerOnOnInstallationCompleteOrCancelled(ObjectId obj)
     {
-        FindFirstObjectByType<GameActionsManager>().OnInstallationCompleteOrCancelled -= ActionManagerOnOnInstallationCompleteOrCancelled;
-        if (libraryEntry.SourceId == obj)
+        if (libraryEntry.Id == obj)
         {
-            installedIcon.transform.DOKill(complete: true);
-            var entry = FindFirstObjectByType<DatabaseManager>().LibraryEntries.FindOne(x => x.SourceId == obj);
+            var entry = FindFirstObjectByType<DatabaseManager>().LibraryEntries.FindOne(x => x.Id == obj);
+            
             SetLibraryEntry(entry);
-            isInstalling = false;
         }
     }
 }

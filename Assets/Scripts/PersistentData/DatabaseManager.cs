@@ -13,12 +13,14 @@ public class DatabaseManager : MonoBehaviour
 
     private LiteDatabase dbContext;
 
+    public LiteDatabase DbContext => dbContext;
+    
     public ILiteCollection<LibraryEntry> LibraryEntries => dbContext
         .GetCollection<LibraryEntry>("library_entries");
 
     public ILiteCollection<DashboardEntry> DashboardEntries => dbContext
         .GetCollection<DashboardEntry>("dashboard_entries");
-
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {

@@ -10,9 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8370879796798621875}
   - component: {fileID: 300666722500568104}
+  - component: {fileID: 2342146032320560734}
   - component: {fileID: 2908806356672142032}
   - component: {fileID: 3235967581119126223}
-  - component: {fileID: 2342146032320560734}
+  - component: {fileID: 850176554714403604}
   m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
@@ -34,10 +35,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2345155414292868229}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 16, y: -24}
+  m_SizeDelta: {x: 388, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &300666722500568104
 CanvasRenderer:
@@ -47,55 +48,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1230489747391838702}
   m_CullTransparentMesh: 1
---- !u!114 &2908806356672142032
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1230489747391838702}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 12800000, guid: a202a15bad2ddae4ba8f0fe3ee22af3d, type: 3}
-    m_FontSize: 30
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 3
-    m_MaxSize: 52
-    m_Alignment: 3
-    m_AlignByGeometry: 1
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: 'Red Dead: Redemption 2'
---- !u!114 &3235967581119126223
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1230489747391838702}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
-  m_EffectDistance: {x: 1, y: -1}
-  m_UseGraphicAlpha: 1
 --- !u!114 &2342146032320560734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -129,17 +81,17 @@ MonoBehaviour:
     Value: NaN
     Unit: 3
   _flexGrow: 0
-  _flexShrink: 0
+  _flexShrink: 1
   _justifyContent: 0
   _alignItems: 1
   _alignSelf: 0
   _alignContent: 0
   _width:
-    Value: 388
-    Unit: 1
+    Value: 100
+    Unit: 2
   _height:
-    Value: 40
-    Unit: 1
+    Value: NaN
+    Unit: 0
   _minWidth:
     Value: NaN
     Unit: 0
@@ -182,6 +134,69 @@ MonoBehaviour:
   _gapColumn: 0
   _gapRow: 0
   _foldoutState: 00010001000000
+--- !u!114 &2908806356672142032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230489747391838702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 12800000, guid: a202a15bad2ddae4ba8f0fe3ee22af3d, type: 3}
+    m_FontSize: 30
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 25
+    m_MaxSize: 36
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 'Red Dead: Redemption 2'
+--- !u!114 &3235967581119126223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230489747391838702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
+--- !u!114 &850176554714403604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230489747391838702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &1402953694451762270
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,7 +310,7 @@ MonoBehaviour:
     Value: 16
     Unit: 1
   _paddingTop:
-    Value: 16
+    Value: 24
     Unit: 1
   _paddingRight:
     Value: 16
@@ -544,13 +559,44 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1246878154835936909, guid: b7cbf40a354631b4aaa033ebe135be32, type: 3}
       insertIndex: 2
       addedObject: {fileID: 2345155414292868229}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5353531884984750672, guid: b7cbf40a354631b4aaa033ebe135be32, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6910170439071487590}
   m_SourcePrefab: {fileID: 100100000, guid: b7cbf40a354631b4aaa033ebe135be32, type: 3}
 --- !u!224 &683693918856653109 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1246878154835936909, guid: b7cbf40a354631b4aaa033ebe135be32, type: 3}
   m_PrefabInstance: {fileID: 1743239317829676984}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5943249639460650472 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5353531884984750672, guid: b7cbf40a354631b4aaa033ebe135be32, type: 3}
+  m_PrefabInstance: {fileID: 1743239317829676984}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6910170439071487590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5943249639460650472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b3cdc57a5b65e3438a0f3e03d8e41e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NXELibraryEntryDetailsTile
+  DisplayActions:
+    showSelectAction: 1
+    selectActionText: Select
+    showSelectAltAction: 0
+    selectAltActionText: Details
+    showCancelAction: 1
+    cancelActionText: Back
+  DefaultSelection: {fileID: 5593883659550739926}
+  installButton: {fileID: 5618754093866987496}
+  playButton: {fileID: 5593883659550739926}
+  titleText: {fileID: 2908806356672142032}
 --- !u!1001 &7967197784813715307
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -865,6 +911,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 03e5ea3f93eca5e48afe5f4b2db74166, type: 3}
+--- !u!114 &5618754093866987496 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2535627335671739069, guid: 03e5ea3f93eca5e48afe5f4b2db74166, type: 3}
+  m_PrefabInstance: {fileID: 7983062123654503765}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!224 &6290596133359009290 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4144762386101986143, guid: 03e5ea3f93eca5e48afe5f4b2db74166, type: 3}
