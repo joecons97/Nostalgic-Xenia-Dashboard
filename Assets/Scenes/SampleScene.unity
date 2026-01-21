@@ -682,6 +682,7 @@ MonoBehaviour:
     selectAltActionText: 
     showCancelAction: 0
     cancelActionText: 
+  DefaultSelection: {fileID: 0}
 --- !u!223 &188545623
 Canvas:
   m_ObjectHideFlags: 0
@@ -3758,6 +3759,7 @@ MonoBehaviour:
     selectAltActionText: 
     showCancelAction: 0
     cancelActionText: 
+  DefaultSelection: {fileID: 0}
 --- !u!223 &1330227422
 Canvas:
   m_ObjectHideFlags: 0
@@ -3900,7 +3902,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00012207031, y: -0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -72.00023, y: -31.999878}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1356273491
@@ -5074,7 +5076,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: -0.000091552734}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1921505679
@@ -5380,6 +5382,7 @@ MonoBehaviour:
     selectAltActionText: 
     showCancelAction: 0
     cancelActionText: 
+  DefaultSelection: {fileID: 0}
   modal: {fileID: 2058949782104086260, guid: 4c7c7e9c4a29ce2419e0e24fcd74d505, type: 3}
 --- !u!223 &1970355799
 Canvas:
