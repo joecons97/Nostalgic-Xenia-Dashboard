@@ -1,3 +1,4 @@
+using System;
 using Assets.Scripts.PersistentData.Models;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
@@ -8,13 +9,25 @@ using UnityEngine.UI;
 public class NXELibraryEntryDetailsTile : NXETile
 {
     private LibraryEntry libraryEntry;
-    private bool isInstalling;
+    private bool isOperant;
     private GameActionsManager gameActionsManager;
 
     [SerializeField] private Button installButton;
     [SerializeField] private Button playButton;
     [SerializeField] private Text titleText;
+
+    private void Start()
+    {
+        gameActionsManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
+        gameActionsManager.OnUninstallationCompleteOrCancelled += GameActionsManagerOnUninstallationCompleteOrCancelled;
+    }
     
+    private void OnDestroy()
+    {
+        gameActionsManager.OnInstallationCompleteOrCancelled -= ActionManagerOnOnInstallationCompleteOrCancelled;
+        gameActionsManager.OnUninstallationCompleteOrCancelled -= GameActionsManagerOnUninstallationCompleteOrCancelled;
+    }
+
     public void SetLibraryEntry(LibraryEntry entry)
     {
         if (entry == null)
@@ -26,13 +39,13 @@ public class NXELibraryEntryDetailsTile : NXETile
         gameActionsManager = FindFirstObjectByType<GameActionsManager>();
         libraryEntry = entry;
         
-        SetIsInstalling(gameActionsManager.IsEntryInstalling(libraryEntry));
+        SetIsOperant(gameActionsManager.IsEntryOperant(libraryEntry));
 
         playButton.onClick.AddListener(() =>
         {
             if (string.IsNullOrEmpty(libraryEntry.Path))
             {
-                if(isInstalling == false)
+                if(isOperant == false)
                     installButton.onClick.Invoke();
             }
             else
@@ -42,24 +55,27 @@ public class NXELibraryEntryDetailsTile : NXETile
             }
         });
 
-        installButton.OnClickAsAsyncEnumerable().Subscribe(async au =>
+        installButton.onClick.AddListener(() =>
         {
             if (string.IsNullOrEmpty(libraryEntry.Path))
             {
                 gameActionsManager.TryInstallLibraryEntry(libraryEntry);
-                gameActionsManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
+            }
+            else
+            {
+                gameActionsManager.TryUninstallLibraryEntry(libraryEntry);
             }
 
-            SetIsInstalling(true);
+            SetIsOperant(true);
         });
         
         titleText.text = libraryEntry.Name;
     }
 
-    void SetIsInstalling(bool value)
+    void SetIsOperant(bool value)
     {
-        isInstalling = value;
-        if (isInstalling)
+        isOperant = value;
+        if (isOperant)
         {
             installButton.GetComponentInChildren<Text>().text = "Installing...";
             installButton.interactable = false;
@@ -89,8 +105,18 @@ public class NXELibraryEntryDetailsTile : NXETile
             
             installButton.interactable = true;
             installButton.Select();
+        }
+    }
+    
+    private void GameActionsManagerOnUninstallationCompleteOrCancelled(ObjectId obj)
+    {
+        if (libraryEntry.Id == obj)
+        {
+            var entry = FindFirstObjectByType<DatabaseManager>().LibraryEntries.FindOne(x => x.Id == obj);
+            SetLibraryEntry(entry);
             
-            gameActionsManager.OnInstallationCompleteOrCancelled -= ActionManagerOnOnInstallationCompleteOrCancelled;
+            installButton.interactable = true;
+            installButton.Select();
         }
     }
 }

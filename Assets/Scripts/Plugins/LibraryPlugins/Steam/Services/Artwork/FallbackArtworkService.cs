@@ -46,8 +46,6 @@ namespace SteamLibraryPlugin
 
             using UnityWebRequest request = UnityWebRequest.Get(url);
 
-            Debug.Log($"GET {url}");
-
             request.SetRequestHeader("Authorization", $"Bearer {KEY}");
             await request.SendWebRequest();
 

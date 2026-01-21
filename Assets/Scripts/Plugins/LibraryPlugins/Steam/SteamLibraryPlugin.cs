@@ -25,6 +25,7 @@ namespace SteamLibraryPlugin
         private SteamAuthService steamAuthService => new();
         private SteamOwnedGamesService steamOwnedGamesService => new(steamAuthService);
         private InstallEntryService installEntryService => new();
+        private UninstallEntryService uninstallEntryService => new();
 
         public override async UniTask<ArtworkCollection> GetArtworkCollection(string entryId, CancellationToken cancellationToken)
         {
@@ -59,6 +60,11 @@ namespace SteamLibraryPlugin
         public override UniTask<GameActionResult> TryInstallEntryAsync(LibraryEntry entry, CancellationToken cancellationToken)
         {
             return UniTask.FromResult(installEntryService.InstallEntry(this, entry, cancellationToken));
+        }
+
+        public override UniTask<GameActionResult> TryUninstallEntryAsync(LibraryEntry entry, CancellationToken cancellationToken)
+        {
+            return UniTask.FromResult(uninstallEntryService.UninstallEntry(this, entry, cancellationToken));
         }
 
         public override List<LibraryPluginButton> GetButtons()

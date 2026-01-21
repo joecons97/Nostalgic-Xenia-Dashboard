@@ -43,8 +43,6 @@ namespace SteamLibraryPlugin
         {
             using UnityWebRequest request = UnityWebRequest.Get(url);
 
-            Debug.Log($"GET {url}");
-            
             // Only download first 50 KB
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Range", "bytes=0-12800");
