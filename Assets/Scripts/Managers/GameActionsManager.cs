@@ -17,13 +17,15 @@ public class GameActionsManager : MonoBehaviour
 
     public event Action<ObjectId> OnInstallationBegin;
     public event Action<ObjectId> OnInstallationCompleteOrCancelled;
+    public event Action<ObjectId> OnUninstallationBegin;
+    public event Action<ObjectId> OnUninstallationCompleteOrCancelled;
 
     private bool isGameActive;
-    private List<ObjectId> installingGames = new();
+    private HashSet<ObjectId> operantEntries = new();
     private bool layoutGroupReturnEnabled;
     
-    public bool IsEntryInstalling(Assets.Scripts.PersistentData.Models.LibraryEntry entry) 
-        => installingGames.Contains(entry.Id);
+    public bool IsEntryOperant(Assets.Scripts.PersistentData.Models.LibraryEntry entry) 
+        => operantEntries.Contains(entry.Id);
 
     public void LaunchLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
     {
@@ -105,7 +107,7 @@ public class GameActionsManager : MonoBehaviour
         if (string.IsNullOrEmpty(entry.Path) == false)
             return;
 
-        if (installingGames.Contains(entry.Id))
+        if (operantEntries.Contains(entry.Id))
             return;
 
         var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == entry.Source);
@@ -120,12 +122,12 @@ public class GameActionsManager : MonoBehaviour
         
         _ = lib.Plugin.TryInstallEntryAsync(pluginEntry, this.GetCancellationTokenOnDestroy()).ContinueWith(result =>
         {
-            lib.Plugin.OnEntryInstallationComplete += OnEntryInstallationComplete;
-            lib.Plugin.OnEntryInstallationCancelled += OnEntryInstallationCancelled;
-
             if (result == GameActionResult.Success)
             {
-                installingGames.Add(entry.Id);
+                lib.Plugin.OnEntryInstallationComplete += OnEntryInstallationComplete;
+                lib.Plugin.OnEntryInstallationCancelled += OnEntryInstallationCancelled;
+
+                operantEntries.Add(entry.Id);
                 OnInstallationBegin?.Invoke(entry.Id);
             }
             else
@@ -133,6 +135,46 @@ public class GameActionsManager : MonoBehaviour
         });
     }
 
+    public void TryUninstallLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
+    {
+        if (isGameActive)
+            return;
+            
+        if (entry == null)
+            return;
+
+        if (string.IsNullOrEmpty(entry.Path))
+            return;
+
+        if (operantEntries.Contains(entry.Id))
+            return;
+
+        var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == entry.Source);
+        if (lib == null)
+            return;
+        
+        var pluginEntry = new LibraryEntry()
+        {
+            EntryId = entry.SourceId,
+            Path = entry.Path
+        };
+        
+        _ = lib.Plugin.TryUninstallEntryAsync(pluginEntry, this.GetCancellationTokenOnDestroy()).ContinueWith(result =>
+        {
+            if (result == GameActionResult.Success)
+            {
+                lib.Plugin.OnEntryUninstallationComplete += OnEntryUninstallationComplete;
+                lib.Plugin.OnEntryUninstallationCancelled += OnEntryUninstallationCancelled;
+
+                operantEntries.Add(entry.Id);
+                OnUninstallationBegin?.Invoke(entry.Id);
+            }
+            else
+                OnUninstallationCompleteOrCancelled?.Invoke(entry.Id);
+        });
+    }
+
+    
     private async UniTask OnEntryInstallationCancelled(string entryId, LibraryPlugin.LibraryPlugin libraryPlugin)
     {
         var entry = databaseManager.LibraryEntries
@@ -140,14 +182,14 @@ public class GameActionsManager : MonoBehaviour
             .Where(x => x.SourceId == entryId && x.Source == libraryPlugin.Name)
             .FirstOrDefault();
 
-        if (entry == null || installingGames.Contains(entry.Id) == false)
+        if (entry == null || operantEntries.Contains(entry.Id) == false)
             return;
         
         await UniTask.SwitchToMainThread();
         
         Debug.Log($"{entry.Name} Installation cancelled");
         
-        installingGames.Remove(entry.Id);
+        operantEntries.Remove(entry.Id);
         
         libraryPlugin.OnEntryInstallationCancelled -= OnEntryInstallationCancelled;
         
@@ -164,7 +206,7 @@ public class GameActionsManager : MonoBehaviour
             .Where(x => x.SourceId == entryId && x.Source == libraryPlugin.Name)
             .FirstOrDefault();
 
-        if (entry == null || installingGames.Contains(entry.Id) == false)
+        if (entry == null || operantEntries.Contains(entry.Id) == false)
             return;
 
         await UniTask.SwitchToMainThread();
@@ -175,12 +217,66 @@ public class GameActionsManager : MonoBehaviour
         databaseManager.LibraryEntries.Update(entry);
         databaseManager.DbContext.Checkpoint();
         
-        installingGames.Remove(entry.Id);
+        operantEntries.Remove(entry.Id);
         
         libraryPlugin.OnEntryInstallationComplete -= OnEntryInstallationComplete;
         _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
         {
             OnInstallationCompleteOrCancelled?.Invoke(entry.Id);
+        });
+    }
+    
+    private async UniTask OnEntryUninstallationCancelled(string entryId, LibraryPlugin.LibraryPlugin libraryPlugin)
+    {
+        var entry = databaseManager.LibraryEntries
+            .Query()
+            .Where(x => x.SourceId == entryId && x.Source == libraryPlugin.Name)
+            .FirstOrDefault();
+
+        if (entry == null || operantEntries.Contains(entry.Id) == false)
+            return;
+        
+        await UniTask.SwitchToMainThread();
+        
+        Debug.Log($"{entry.Name} Uninstallation cancelled");
+        
+        operantEntries.Remove(entry.Id);
+        
+        libraryPlugin.OnEntryUninstallationCancelled -= OnEntryUninstallationCancelled;
+        libraryPlugin.OnEntryUninstallationComplete -= OnEntryUninstallationComplete;
+        
+        _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
+        {
+            OnUninstallationCompleteOrCancelled?.Invoke(entry.Id);
+        });
+    }
+
+    private async UniTask OnEntryUninstallationComplete(string entryId, LibraryPlugin.LibraryPlugin libraryPlugin)
+    {
+        var entry = databaseManager.LibraryEntries
+            .Query()
+            .Where(x => x.SourceId == entryId && x.Source == libraryPlugin.Name)
+            .FirstOrDefault();
+
+        if (entry == null || operantEntries.Contains(entry.Id) == false)
+            return;
+
+        await UniTask.SwitchToMainThread();
+        
+        Debug.Log($"{entry.Name} Uninstalled");
+        
+        entry.Path = null;
+        databaseManager.LibraryEntries.Update(entry);
+        databaseManager.DbContext.Checkpoint();
+        
+        operantEntries.Remove(entry.Id);
+        
+        libraryPlugin.OnEntryUninstallationCancelled -= OnEntryUninstallationCancelled;
+        libraryPlugin.OnEntryUninstallationComplete -= OnEntryUninstallationComplete;
+        
+        _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
+        {
+            OnUninstallationCompleteOrCancelled?.Invoke(entry.Id);
         });
     }
 }

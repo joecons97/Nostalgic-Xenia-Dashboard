@@ -7,20 +7,20 @@ using LibraryPlugin;
 
 namespace SteamLibraryPlugin
 {
-    public class InstallEntryService
+    public class UninstallEntryService
     {
-        public GameActionResult InstallEntry(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)
+        public GameActionResult UninstallEntry(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)
         {
             try
             {
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = Steam.ClientExecPath,
-                    Arguments = $"-silent \"steam://install/{entry.EntryId}\"",
+                    Arguments = $"-silent \"steam://uninstall/{entry.EntryId}\"",
                     UseShellExecute = true
                 });
 
-                _ = UniTask.RunOnThreadPool(async () => { await MonitorGameInstallation(plugin, entry, cancellationToken); }, cancellationToken: cancellationToken);
+                _ = UniTask.RunOnThreadPool(async () => { await MonitorGameUninstallation(plugin, entry, cancellationToken); }, cancellationToken: cancellationToken);
 
                 return GameActionResult.Success;
             }
@@ -31,24 +31,24 @@ namespace SteamLibraryPlugin
             }
         }
 
-        private async UniTask MonitorGameInstallation(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)
+        private async UniTask MonitorGameUninstallation(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)
         {
             LibraryEntry game;
-            while (TryGetGame(entry.EntryId, out game) == false)
+            while (TryGetGame(entry.EntryId, out game))
             {
                 await UniTask.Delay(1000);
 
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    if(plugin.OnEntryInstallationCancelled != null)
-                        await plugin.OnEntryInstallationCancelled(entry.EntryId, plugin);
+                    if(plugin.OnEntryUninstallationCancelled != null)
+                        await plugin.OnEntryUninstallationCancelled(entry.EntryId, plugin);
                     
                     return;
                 }
             }
             
-            if(plugin.OnEntryInstallationComplete != null)
-                await plugin.OnEntryInstallationComplete(entry.EntryId, game.Path, plugin);
+            if(plugin.OnEntryUninstallationComplete != null)
+                await plugin.OnEntryUninstallationComplete(entry.EntryId, plugin);
         }
 
         private bool TryGetGame(string entryId, out LibraryEntry game)
@@ -63,7 +63,6 @@ namespace SteamLibraryPlugin
                 return false;
             }
 
-            
             return true;
         }
     }

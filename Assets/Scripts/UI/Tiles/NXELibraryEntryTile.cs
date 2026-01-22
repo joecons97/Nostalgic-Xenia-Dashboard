@@ -26,8 +26,13 @@ public class NXELibraryEntryTile : NXETile
     private static UniTask activeQueueTask = UniTask.CompletedTask;
 
     private LibraryEntry libraryEntry;
-    private bool isInstalling;
+    private bool isOperant;
     private string activeModalId;
+
+    private void Awake()
+    {
+        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
+    }
 
     public void SetLibraryEntry(LibraryEntry entry)
     {
@@ -37,30 +42,35 @@ public class NXELibraryEntryTile : NXETile
             return;
         }
 
-        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
-        
         libraryEntry = entry;
         
-        SetIsInstalling(gameActionsManager.IsEntryInstalling(libraryEntry));
+        SetIsOperant(gameActionsManager.IsEntryOperant(libraryEntry));
 
         installedIcon.SetActive(string.IsNullOrEmpty(libraryEntry.Path));
 
         text.text = libraryEntry.Name;
         artworkRequestQueue.Enqueue(this);
-        
+    }
+
+    private void Start()
+    {
         gameActionsManager.OnInstallationBegin += GameActionsManagerOnOnInstallationBegin;
+        gameActionsManager.OnUninstallationBegin += GameActionsManagerOnOnInstallationBegin;
         gameActionsManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
+        gameActionsManager.OnUninstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
     }
 
     private void GameActionsManagerOnOnInstallationBegin(ObjectId obj)
     {
         if (libraryEntry.Id == obj)
-            SetIsInstalling(true);
+            SetIsOperant(true);
     }
 
     private void OnDestroy()
     {
+        gameActionsManager.OnUninstallationCompleteOrCancelled -= ActionManagerOnOnInstallationCompleteOrCancelled;
         gameActionsManager.OnInstallationCompleteOrCancelled -= ActionManagerOnOnInstallationCompleteOrCancelled;
+        gameActionsManager.OnUninstallationBegin -= GameActionsManagerOnOnInstallationBegin;
         gameActionsManager.OnInstallationBegin -= GameActionsManagerOnOnInstallationBegin;
     }
 
@@ -149,10 +159,9 @@ public class NXELibraryEntryTile : NXETile
             blade.Select();
         else if (string.IsNullOrEmpty(libraryEntry.Path))
         {
-            if (isInstalling == false)
+            if (isOperant == false)
             {
                 gameActionsManager.TryInstallLibraryEntry(libraryEntry);
-                SetIsInstalling(true);
             }
             else
             {
@@ -182,10 +191,10 @@ public class NXELibraryEntryTile : NXETile
         }
     }
 
-    void SetIsInstalling(bool value)
+    void SetIsOperant(bool value)
     {
-        isInstalling = value;
-        if (isInstalling)
+        isOperant = value;
+        if (isOperant)
             installedIcon.transform
                 .DOScale(1.5f, 1)
                 .SetEase(Ease.InOutSine)
@@ -213,7 +222,10 @@ public class NXELibraryEntryTile : NXETile
     public override void OnCancel()
     {
         if (string.IsNullOrEmpty(activeModalId) == false)
+        {
             FindFirstObjectByType<ModalServiceManager>().RequestCloseModal(activeModalId);
+            activeModalId = null;
+        }
         else if (currentModal != null)
         {
             if (currentModal.Close() == NXEModalCloseResult.NormalClose)

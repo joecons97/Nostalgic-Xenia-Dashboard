@@ -14,6 +14,9 @@ namespace LibraryPlugin
         public Func<string, LibraryPlugin, UniTask> OnEntryProcessEnded;
         public Func<string, string, LibraryPlugin, UniTask> OnEntryInstallationComplete;
         public Func<string, LibraryPlugin, UniTask> OnEntryInstallationCancelled;
+        
+        public Func<string, LibraryPlugin, UniTask> OnEntryUninstallationComplete;
+        public Func<string, LibraryPlugin, UniTask> OnEntryUninstallationCancelled;
 
         public abstract UniTask<List<LibraryEntry>> GetEntriesAsync(CancellationToken cancellationToken);
 
