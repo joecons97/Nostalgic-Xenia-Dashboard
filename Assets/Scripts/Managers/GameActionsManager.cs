@@ -243,6 +243,7 @@ public class GameActionsManager : MonoBehaviour
         operantEntries.Remove(entry.Id);
         
         libraryPlugin.OnEntryUninstallationCancelled -= OnEntryUninstallationCancelled;
+        libraryPlugin.OnEntryUninstallationComplete -= OnEntryUninstallationComplete;
         
         _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
         {
@@ -270,7 +271,9 @@ public class GameActionsManager : MonoBehaviour
         
         operantEntries.Remove(entry.Id);
         
+        libraryPlugin.OnEntryUninstallationCancelled -= OnEntryUninstallationCancelled;
         libraryPlugin.OnEntryUninstallationComplete -= OnEntryUninstallationComplete;
+        
         _ = UniTask.WaitForEndOfFrame().ContinueWith(() =>
         {
             OnUninstallationCompleteOrCancelled?.Invoke(entry.Id);
