@@ -18,6 +18,7 @@ public class NXELibraryEntryDetailsTile : NXETile
 
     private void Start()
     {
+        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
         gameActionsManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
         gameActionsManager.OnUninstallationCompleteOrCancelled += GameActionsManagerOnUninstallationCompleteOrCancelled;
     }
@@ -36,7 +37,6 @@ public class NXELibraryEntryDetailsTile : NXETile
             return;
         }
 
-        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
         libraryEntry = entry;
         
         SetIsOperant(gameActionsManager.IsEntryOperant(libraryEntry));
