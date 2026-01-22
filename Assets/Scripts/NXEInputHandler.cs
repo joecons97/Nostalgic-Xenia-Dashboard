@@ -30,6 +30,7 @@ public class NXEInputHandler : MonoBehaviour
         InputSystem.actions.FindAction("Submit").performed += OnSubmitPerformed;
         InputSystem.actions.FindAction("SubmitAlt").performed += OnSubmitAltPerformed;
         InputSystem.actions.FindAction("Cancel").performed += OnCancelPerformed;
+        Cursor.visible = false;
     }
 
     private void OnSubmitPerformed(InputAction.CallbackContext obj)
