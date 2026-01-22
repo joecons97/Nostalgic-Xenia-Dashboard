@@ -538,7 +538,7 @@ MonoBehaviour:
   actionsDisplay: {fileID: 939992066}
   initialDelay: 0.5
   repeatRate: 0.1
-  navigationHeldSpeedMultiplier: 4
+  navigationHeldSpeedMultiplier: 3
 --- !u!114 &180220473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1399,7 +1399,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 32, y: -44}
-  m_SizeDelta: {x: 63.324535, y: 44}
+  m_SizeDelta: {x: 62.60069, y: 44}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &313909323
 MonoBehaviour:
@@ -3926,7 +3926,7 @@ MonoBehaviour:
   titleDownscale: 0.75
   titleOffset: 57
   focusedIndex: 0
-  transitionTime: 0.125
+  transitionTime: 0.25
   transitionEase: 3
   audioSource: {fileID: 1356273493}
   cycleUpAudio: {fileID: 8300000, guid: d6646acaa5e11cc4593281c570fd954d, type: 3}
