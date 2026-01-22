@@ -27,6 +27,9 @@ public class NXELibraryEntryDetailsTile : NXETile
         gameActionsManager.OnUninstallationCompleteOrCancelled += GameActionsManagerOnOperationCompleteOrCancelled;
         gameActionsManager.OnInstallationBegin += GameActionsManagerOnOperandBegin;
         gameActionsManager.OnUninstallationBegin += GameActionsManagerOnOperandBegin;
+
+        playButton.onClick.AddListener(OnPlayButtonClicked);
+        installButton.onClick.AddListener(OnInstallButtonClicked);
     }
 
     private void OnDestroy()
@@ -35,6 +38,9 @@ public class NXELibraryEntryDetailsTile : NXETile
         gameActionsManager.OnUninstallationCompleteOrCancelled -= GameActionsManagerOnOperationCompleteOrCancelled;
         gameActionsManager.OnInstallationBegin -= GameActionsManagerOnOperandBegin;
         gameActionsManager.OnUninstallationBegin -= GameActionsManagerOnOperandBegin;
+
+        playButton.onClick.RemoveListener(OnPlayButtonClicked);
+        installButton.onClick.RemoveListener(OnInstallButtonClicked);
     }
 
     public void SetLibraryEntry(LibraryEntry entry)
@@ -46,36 +52,38 @@ public class NXELibraryEntryDetailsTile : NXETile
         }
 
         libraryEntry = entry;
-        
+
         SetIsOperant(gameActionsManager.IsEntryOperant(libraryEntry));
 
-        playButton.onClick.AddListener(() =>
-        {
-            if (string.IsNullOrEmpty(libraryEntry.Path))
-            {
-                if(isOperant == false)
-                    installButton.onClick.Invoke();
-            }
-            else
-            {
-                var actionManager = FindFirstObjectByType<GameActionsManager>();
-                actionManager.LaunchLibraryEntry(libraryEntry);
-            }
-        });
-
-        installButton.onClick.AddListener(() =>
-        {
-            if (string.IsNullOrEmpty(libraryEntry.Path))
-            {
-                gameActionsManager.TryInstallLibraryEntry(libraryEntry);
-            }
-            else
-            {
-                gameActionsManager.TryUninstallLibraryEntry(libraryEntry);
-            }
-        });
-        
         titleText.text = libraryEntry.Name;
+    }
+
+    private void OnPlayButtonClicked()
+    {
+        if (libraryEntry == null)
+            return;
+        
+        if (string.IsNullOrEmpty(libraryEntry.Path))
+        {
+            if (isOperant == false)
+                installButton.onClick.Invoke();
+        }
+        else
+        {
+            var actionManager = FindFirstObjectByType<GameActionsManager>();
+            actionManager.LaunchLibraryEntry(libraryEntry);
+        }
+    }
+
+    private void OnInstallButtonClicked()
+    {
+        if (libraryEntry == null)
+            return;
+        
+        if (string.IsNullOrEmpty(libraryEntry.Path))
+            gameActionsManager.TryInstallLibraryEntry(libraryEntry);
+        else
+            gameActionsManager.TryUninstallLibraryEntry(libraryEntry);
     }
 
     void SetIsOperant(bool value)
@@ -83,10 +91,10 @@ public class NXELibraryEntryDetailsTile : NXETile
         isOperant = value;
         if (isOperant)
         {
-            installButton.GetComponentInChildren<Text>().text = string.IsNullOrEmpty(libraryEntry.Path)  
-                ? "Installing..." 
+            installButton.GetComponentInChildren<Text>().text = string.IsNullOrEmpty(libraryEntry.Path)
+                ? "Installing..."
                 : "Uninstalling...";
-            
+
             installButton.interactable = false;
             playButton.interactable = false;
         }
@@ -100,8 +108,8 @@ public class NXELibraryEntryDetailsTile : NXETile
 
     void UpdateInstallButtonText()
     {
-        installButton.GetComponentInChildren<Text>().text = string.IsNullOrEmpty(libraryEntry.Path) 
-            ? "Install" 
+        installButton.GetComponentInChildren<Text>().text = string.IsNullOrEmpty(libraryEntry.Path)
+            ? "Install"
             : "Uninstall";
     }
 
@@ -111,12 +119,12 @@ public class NXELibraryEntryDetailsTile : NXETile
         {
             var entry = FindFirstObjectByType<DatabaseManager>().LibraryEntries.FindOne(x => x.Id == obj);
             SetLibraryEntry(entry);
-            
+
             installButton.interactable = true;
             installButton.Select();
         }
     }
-    
+
     private void GameActionsManagerOnOperandBegin(ObjectId obj)
     {
         if (libraryEntry != null && libraryEntry.Id == obj)

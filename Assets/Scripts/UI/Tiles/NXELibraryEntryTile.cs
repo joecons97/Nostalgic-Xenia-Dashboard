@@ -162,7 +162,6 @@ public class NXELibraryEntryTile : NXETile
             if (isOperant == false)
             {
                 gameActionsManager.TryInstallLibraryEntry(libraryEntry);
-                SetIsOperant(true);
             }
             else
             {
