@@ -37,8 +37,6 @@ public class NXELibraryEntryTile : NXETile
             return;
         }
 
-        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
-        
         libraryEntry = entry;
         
         SetIsOperant(gameActionsManager.IsEntryOperant(libraryEntry));
@@ -47,7 +45,12 @@ public class NXELibraryEntryTile : NXETile
 
         text.text = libraryEntry.Name;
         artworkRequestQueue.Enqueue(this);
-        
+    }
+
+    private void Start()
+    {
+        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
+
         gameActionsManager.OnInstallationBegin += GameActionsManagerOnOnInstallationBegin;
         gameActionsManager.OnUninstallationBegin += GameActionsManagerOnOnInstallationBegin;
         gameActionsManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
