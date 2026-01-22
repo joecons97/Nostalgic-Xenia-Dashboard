@@ -21,7 +21,7 @@ public class GameActionsManager : MonoBehaviour
     public event Action<ObjectId> OnUninstallationCompleteOrCancelled;
 
     private bool isGameActive;
-    private List<ObjectId> operantEntries = new();
+    private HashSet<ObjectId> operantEntries = new();
     private bool layoutGroupReturnEnabled;
     
     public bool IsEntryOperant(Assets.Scripts.PersistentData.Models.LibraryEntry entry) 
