@@ -19,14 +19,14 @@ public class NXELibraryEntryDetailsTile : NXETile
     private void Start()
     {
         gameActionsManager = FindFirstObjectByType<GameActionsManager>();
-        gameActionsManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;
-        gameActionsManager.OnUninstallationCompleteOrCancelled += GameActionsManagerOnUninstallationCompleteOrCancelled;
+        gameActionsManager.OnInstallationCompleteOrCancelled += GameActionsManagerOnOperationCompleteOrCancelled;
+        gameActionsManager.OnUninstallationCompleteOrCancelled += GameActionsManagerOnOperationCompleteOrCancelled;
     }
     
     private void OnDestroy()
     {
-        gameActionsManager.OnInstallationCompleteOrCancelled -= ActionManagerOnOnInstallationCompleteOrCancelled;
-        gameActionsManager.OnUninstallationCompleteOrCancelled -= GameActionsManagerOnUninstallationCompleteOrCancelled;
+        gameActionsManager.OnInstallationCompleteOrCancelled -= GameActionsManagerOnOperationCompleteOrCancelled;
+        gameActionsManager.OnUninstallationCompleteOrCancelled -= GameActionsManagerOnOperationCompleteOrCancelled;
     }
 
     public void SetLibraryEntry(LibraryEntry entry)
@@ -96,19 +96,7 @@ public class NXELibraryEntryDetailsTile : NXETile
             : "Uninstall";
     }
 
-    private void ActionManagerOnOnInstallationCompleteOrCancelled(ObjectId obj)
-    {
-        if (libraryEntry.Id == obj)
-        {
-            var entry = FindFirstObjectByType<DatabaseManager>().LibraryEntries.FindOne(x => x.Id == obj);
-            SetLibraryEntry(entry);
-            
-            installButton.interactable = true;
-            installButton.Select();
-        }
-    }
-    
-    private void GameActionsManagerOnUninstallationCompleteOrCancelled(ObjectId obj)
+    private void GameActionsManagerOnOperationCompleteOrCancelled(ObjectId obj)
     {
         if (libraryEntry.Id == obj)
         {
