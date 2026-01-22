@@ -122,11 +122,11 @@ public class GameActionsManager : MonoBehaviour
         
         _ = lib.Plugin.TryInstallEntryAsync(pluginEntry, this.GetCancellationTokenOnDestroy()).ContinueWith(result =>
         {
-            lib.Plugin.OnEntryInstallationComplete += OnEntryInstallationComplete;
-            lib.Plugin.OnEntryInstallationCancelled += OnEntryInstallationCancelled;
-
             if (result == GameActionResult.Success)
             {
+                lib.Plugin.OnEntryInstallationComplete += OnEntryInstallationComplete;
+                lib.Plugin.OnEntryInstallationCancelled += OnEntryInstallationCancelled;
+
                 operantEntries.Add(entry.Id);
                 OnInstallationBegin?.Invoke(entry.Id);
             }
@@ -161,11 +161,11 @@ public class GameActionsManager : MonoBehaviour
         
         _ = lib.Plugin.TryUninstallEntryAsync(pluginEntry, this.GetCancellationTokenOnDestroy()).ContinueWith(result =>
         {
-            lib.Plugin.OnEntryUninstallationComplete += OnEntryUninstallationComplete;
-            lib.Plugin.OnEntryUninstallationCancelled += OnEntryUninstallationCancelled;
-
             if (result == GameActionResult.Success)
             {
+                lib.Plugin.OnEntryUninstallationComplete += OnEntryUninstallationComplete;
+                lib.Plugin.OnEntryUninstallationCancelled += OnEntryUninstallationCancelled;
+
                 operantEntries.Add(entry.Id);
                 OnUninstallationBegin?.Invoke(entry.Id);
             }
