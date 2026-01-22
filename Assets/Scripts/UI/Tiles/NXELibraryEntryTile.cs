@@ -29,6 +29,11 @@ public class NXELibraryEntryTile : NXETile
     private bool isOperant;
     private string activeModalId;
 
+    private void Awake()
+    {
+        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
+    }
+
     public void SetLibraryEntry(LibraryEntry entry)
     {
         if (entry == null)
@@ -49,8 +54,6 @@ public class NXELibraryEntryTile : NXETile
 
     private void Start()
     {
-        gameActionsManager = FindFirstObjectByType<GameActionsManager>();
-
         gameActionsManager.OnInstallationBegin += GameActionsManagerOnOnInstallationBegin;
         gameActionsManager.OnUninstallationBegin += GameActionsManagerOnOnInstallationBegin;
         gameActionsManager.OnInstallationCompleteOrCancelled += ActionManagerOnOnInstallationCompleteOrCancelled;

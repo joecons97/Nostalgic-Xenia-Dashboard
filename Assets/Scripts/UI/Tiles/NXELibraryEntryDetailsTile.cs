@@ -16,9 +16,13 @@ public class NXELibraryEntryDetailsTile : NXETile
     [SerializeField] private Button playButton;
     [SerializeField] private Text titleText;
 
-    private void Start()
+    private void Awake()
     {
         gameActionsManager = FindFirstObjectByType<GameActionsManager>();
+    }
+
+    private void Start()
+    {
         gameActionsManager.OnInstallationCompleteOrCancelled += GameActionsManagerOnOperationCompleteOrCancelled;
         gameActionsManager.OnUninstallationCompleteOrCancelled += GameActionsManagerOnOperationCompleteOrCancelled;
     }
