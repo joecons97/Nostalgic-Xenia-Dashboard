@@ -25,12 +25,16 @@ public class NXELibraryEntryDetailsTile : NXETile
     {
         gameActionsManager.OnInstallationCompleteOrCancelled += GameActionsManagerOnOperationCompleteOrCancelled;
         gameActionsManager.OnUninstallationCompleteOrCancelled += GameActionsManagerOnOperationCompleteOrCancelled;
+        gameActionsManager.OnInstallationBegin += GameActionsManagerOnOperandBegin;
+        gameActionsManager.OnUninstallationBegin += GameActionsManagerOnOperandBegin;
     }
-    
+
     private void OnDestroy()
     {
         gameActionsManager.OnInstallationCompleteOrCancelled -= GameActionsManagerOnOperationCompleteOrCancelled;
         gameActionsManager.OnUninstallationCompleteOrCancelled -= GameActionsManagerOnOperationCompleteOrCancelled;
+        gameActionsManager.OnInstallationBegin -= GameActionsManagerOnOperandBegin;
+        gameActionsManager.OnUninstallationBegin -= GameActionsManagerOnOperandBegin;
     }
 
     public void SetLibraryEntry(LibraryEntry entry)
@@ -69,8 +73,6 @@ public class NXELibraryEntryDetailsTile : NXETile
             {
                 gameActionsManager.TryUninstallLibraryEntry(libraryEntry);
             }
-
-            SetIsOperant(true);
         });
         
         titleText.text = libraryEntry.Name;
@@ -110,5 +112,11 @@ public class NXELibraryEntryDetailsTile : NXETile
             installButton.interactable = true;
             installButton.Select();
         }
+    }
+    
+    private void GameActionsManagerOnOperandBegin(ObjectId obj)
+    {
+        if (libraryEntry != null && libraryEntry.Id == obj)
+            SetIsOperant(true);
     }
 }
