@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -10,19 +11,24 @@ namespace SteamLibraryPlugin
     {
         public GameActionResult UninstallEntry(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)
         {
-            Process.Start(new ProcessStartInfo
+            try
             {
-                FileName = Steam.ClientExecPath,
-                Arguments = $"-silent \"steam://uninstall/{entry.EntryId}\"",
-                UseShellExecute = true
-            });
-            
-            _ = UniTask.RunOnThreadPool(async () =>
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Steam.ClientExecPath,
+                    Arguments = $"-silent \"steam://uninstall/{entry.EntryId}\"",
+                    UseShellExecute = true
+                });
+
+                _ = UniTask.RunOnThreadPool(async () => { await MonitorGameUninstallation(plugin, entry, cancellationToken); }, cancellationToken: cancellationToken);
+
+                return GameActionResult.Success;
+            }
+            catch (Exception ex)
             {
-                await MonitorGameUninstallation(plugin, entry, cancellationToken);
-            }, cancellationToken: cancellationToken);
-            
-            return GameActionResult.Success;
+                UnityEngine.Debug.LogException(ex);
+                return GameActionResult.Fail;
+            }
         }
 
         private async UniTask MonitorGameUninstallation(SteamLibraryPlugin plugin, LibraryEntry entry, CancellationToken cancellationToken)

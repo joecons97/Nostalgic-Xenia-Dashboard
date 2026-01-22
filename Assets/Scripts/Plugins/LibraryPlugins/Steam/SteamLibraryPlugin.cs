@@ -19,13 +19,18 @@ namespace SteamLibraryPlugin
 
         public override string IconPath => "steam.png";
 
-        private ModalService modalService => new();
-        private ArtworkService artworkService => new();
-        private StartEntryService startEntryService => new();
-        private SteamAuthService steamAuthService => new();
+        private ModalService modalService { get; } = new();
+
+        private ArtworkService artworkService { get; } = new();
+
+        private StartEntryService startEntryService { get; } = new();
+
+        private SteamAuthService steamAuthService { get; } = new();
+
         private SteamOwnedGamesService steamOwnedGamesService => new(steamAuthService);
-        private InstallEntryService installEntryService => new();
-        private UninstallEntryService uninstallEntryService => new();
+        private InstallEntryService installEntryService { get; } = new();
+
+        private UninstallEntryService uninstallEntryService { get; } = new();
 
         public override async UniTask<ArtworkCollection> GetArtworkCollection(string entryId, CancellationToken cancellationToken)
         {
