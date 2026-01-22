@@ -222,7 +222,10 @@ public class NXELibraryEntryTile : NXETile
     public override void OnCancel()
     {
         if (string.IsNullOrEmpty(activeModalId) == false)
+        {
             FindFirstObjectByType<ModalServiceManager>().RequestCloseModal(activeModalId);
+            activeModalId = null;
+        }
         else if (currentModal != null)
         {
             if (currentModal.Close() == NXEModalCloseResult.NormalClose)
