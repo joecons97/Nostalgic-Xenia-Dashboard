@@ -83,7 +83,10 @@ public class NXELibraryEntryDetailsTile : NXETile
         isOperant = value;
         if (isOperant)
         {
-            installButton.GetComponentInChildren<Text>().text = "Installing...";
+            installButton.GetComponentInChildren<Text>().text = string.IsNullOrEmpty(libraryEntry.Path)  
+                ? "Installing..." 
+                : "Uninstalling...";
+            
             installButton.interactable = false;
             playButton.interactable = false;
         }
