@@ -104,6 +104,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Home",
+                    "type": "Button",
+                    "id": "0dd2281e-86a3-42f1-b338-705a7dac9687",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -500,6 +509,28 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "SubmitAlt",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d84f5882-7a54-4f7c-be2d-0d7d09b6a9d5",
+                    "path": "<Keyboard>/home",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Home",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8fc4cd72-f581-46d8-b565-428a3a8e7b36",
+                    "path": "<XInputController>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Home",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -1,3 +1,4 @@
+using TNRD;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,9 +8,13 @@ public class NXEInputHandler : MonoBehaviour
 
     [Header("References")]
     [SerializeField]
-    private NXEVerticalLayoutGroup verticalLayout;
+    private SerializableInterface<IControllableLayout> verticalLayout;
+    [SerializeField]
+    private SerializableInterface<IControllableLayout> guideMenuLayout;
     [SerializeField]
     private NXEActionsEffects actionsDisplay;
+    [SerializeField]
+    private GuideMenuManager guideMenuManager;
 
     [Header("Repeat Settings")] [SerializeField]
     private float initialDelay = 0.5f; // Time before repeat starts
@@ -22,6 +27,7 @@ public class NXEInputHandler : MonoBehaviour
     private float holdTime = 0f;
     private float nextRepeatTime = 0f;
     private bool wasHolding = false;
+    private IControllableLayout activeLayout;
 
     void Start()
     {
@@ -30,25 +36,39 @@ public class NXEInputHandler : MonoBehaviour
         InputSystem.actions.FindAction("Submit").performed += OnSubmitPerformed;
         InputSystem.actions.FindAction("SubmitAlt").performed += OnSubmitAltPerformed;
         InputSystem.actions.FindAction("Cancel").performed += OnCancelPerformed;
+        InputSystem.actions.FindAction("Home").performed += OnHomePerformed;
+
         Cursor.visible = false;
+        activeLayout = verticalLayout.Value;
+    }
+
+    private void OnHomePerformed(InputAction.CallbackContext obj)
+    {
+        guideMenuManager.ToggleGuide();
+        guideMenuLayout.Value.SetEnabled(guideMenuManager.IsGuideOpen);
+        verticalLayout.Value.SetEnabled(!guideMenuManager.IsGuideOpen);
+        
+        activeLayout = guideMenuManager.IsGuideOpen 
+            ? guideMenuLayout.Value 
+            : verticalLayout.Value;
     }
 
     private void OnSubmitPerformed(InputAction.CallbackContext obj)
     {
         actionsDisplay.ActionSelect();
-        verticalLayout.Select();
+        activeLayout?.Select();
     }
     
     private void OnCancelPerformed(InputAction.CallbackContext obj)
     {
         actionsDisplay.ActionCancel();
-        verticalLayout.Cancel();
+        activeLayout?.Cancel();
     }
 
     private void OnSubmitAltPerformed(InputAction.CallbackContext obj)
     {
         actionsDisplay.ActionSelectAlt();
-        verticalLayout.SelectAlt();
+        activeLayout?.SelectAlt();
     }
 
     private void Update()
@@ -119,24 +139,24 @@ public class NXEInputHandler : MonoBehaviour
         if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
         {
             // Horizontal movement
-            if (verticalLayout != null)
+            if (activeLayout != null)
             {
                 var speed = holdTime > 0 ? navigationHeldSpeedMultiplier : 1;
                 if (input.x > 0)
-                    verticalLayout.MoveRight(speed);
+                    activeLayout.MoveRight(speed);
                 else if (input.x < 0)
-                    verticalLayout.MoveLeft(speed);
+                    activeLayout.MoveLeft(speed);
             }
         }
         else
         {
             // Vertical movement
-            if (verticalLayout != null)
+            if (activeLayout != null)
             {
                 if (input.y > 0)
-                    verticalLayout.MoveUp();
+                    activeLayout.MoveUp();
                 else if (input.y < 0)
-                    verticalLayout.MoveDown();
+                    activeLayout.MoveDown();
             }
         }
     }
