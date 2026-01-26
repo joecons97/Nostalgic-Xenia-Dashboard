@@ -27,6 +27,9 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
     [SerializeField] private int sortOrderBase = 500;
     [SerializeField] private float overlayTransitionTime = 0.3f;
     [SerializeField] private int overlaySortingOrder = 100; // Overlay renders above blades but below buttons
+    
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] moveAudioClips;
 
     private List<GuideMenuBlade> blades = new List<GuideMenuBlade>();
     private List<Canvas> bladeCanvases = new List<Canvas>();
@@ -34,6 +37,7 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
     private Vector3[] targetScales;
     private float[] targetAlphas;
     private int[] targetSortOrders;
+    private AudioSource audioSource;
 
     public int FocusedIndex
     {
@@ -64,6 +68,12 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
         
         var blade = blades[focusedIndex];
         blade.Focus();
+    }
+
+    protected override void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        base.Start();
     }
 
     public override void CalculateLayoutInputHorizontal()
@@ -368,8 +378,11 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
         FocusedIndex = Mathf.Max(0, focusedIndex - 1);
         var newTile = blades[focusedIndex];
         
-        if(previousTile != newTile)
+        if (previousTile != newTile)
+        {
             newTile.Focus();
+            audioSource.PlayOneShot(moveAudioClips[Random.Range(0, moveAudioClips.Length)]);
+        }
     }
 
     public void MoveRight(float speed = 1)
@@ -377,9 +390,12 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
         var previousTile = blades[focusedIndex];
         FocusedIndex = Mathf.Min(blades.Count - 1, focusedIndex + 1);
         var newTile = blades[focusedIndex];
-        
-        if(previousTile != newTile)
+
+        if (previousTile != newTile)
+        {
             newTile.Focus();
+            audioSource.PlayOneShot(moveAudioClips[Random.Range(0, moveAudioClips.Length)]);
+        }
     }
 
     public GuideMenuBlade GetFocusedBlade()

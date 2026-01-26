@@ -16,14 +16,21 @@ public class GuideMenuManager : MonoBehaviour
     [SerializeField] private float fadeTime = 0.3f;
     [SerializeField] private float scaleFrom = 0.8f;
     
+    [Header("Audio")]
+    [SerializeField] private AudioClip openGuideAudioClip;
+    [SerializeField] private AudioClip closeGuideAudioClip;
+    
     public event Action OnGuideClosed;
     public event Action OnGuideOpened;
     
     private bool isGuideOpen = false;
     private bool isInOverlayMode = false; // Track if we're in overlay mode (game launched)
+    private AudioSource audioSource;
     
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+        
         if (guideCanvasGroup == null && guideMenuContainer != null)
         {
             guideCanvasGroup = guideMenuContainer.GetComponent<CanvasGroup>();
@@ -178,6 +185,8 @@ public class GuideMenuManager : MonoBehaviour
             guideMenuContainer.transform.DOScale(Vector3.one, fadeTime).SetEase(Ease.OutBack);
         }
         
+        audioSource.PlayOneShot(openGuideAudioClip);
+        
         OnGuideOpened?.Invoke();
     }
     
@@ -207,6 +216,8 @@ public class GuideMenuManager : MonoBehaviour
                     }
                 });
         }
+        
+        audioSource.PlayOneShot(closeGuideAudioClip);
         
         OnGuideClosed?.Invoke();
     }

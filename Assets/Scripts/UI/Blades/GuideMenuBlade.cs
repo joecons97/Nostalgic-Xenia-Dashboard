@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class GuideMenuBlade : MonoBehaviour
@@ -22,8 +24,18 @@ public class GuideMenuBlade : MonoBehaviour
     
     public void Focus()
     {
-        if(defaultSelection)
+        if (defaultSelection)
+        {
+            //Hacky but stops the selection sound from playing on modal open
+            var eventTrigger = defaultSelection.GetComponent<EventTrigger>();
+            eventTrigger.enabled = false;
             defaultSelection.Select();
+            _ = UniTask.NextFrame(destroyCancellationToken).ContinueWith(() =>
+            {
+                 if(eventTrigger)
+                    eventTrigger.enabled = true;
+            });
+        }
     }
 
     private void OnValidate()
