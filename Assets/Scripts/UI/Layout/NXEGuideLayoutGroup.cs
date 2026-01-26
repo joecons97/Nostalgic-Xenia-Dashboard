@@ -122,7 +122,7 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
             {
                 blades.Add(child.GetComponent<GuideMenuBlade>());
 
-                // Ensure each blade has a Canvas component for sort order
+                // Ensure each blade has a Canvas component forQ sort order
                 Canvas canvas = child.GetComponent<Canvas>();
                 if (canvas == null)
                 {

@@ -47,6 +47,7 @@ public class NXEInputHandler : MonoBehaviour
 
     private void GuideMenuManagerOnGuideOpened()
     {
+        navigateAction = InputSystem.actions.FindAction("NavigateAlt");
         guideMenuLayout.Value.SetEnabled(true);
         verticalLayout.Value.SetEnabled(false);
         
@@ -55,6 +56,7 @@ public class NXEInputHandler : MonoBehaviour
 
     private void GuideMenuManagerOnGuideClosed()
     {
+        navigateAction = InputSystem.actions.FindAction("Navigate");
         guideMenuLayout.Value.SetEnabled(false);
         verticalLayout.Value.SetEnabled(true);
         
