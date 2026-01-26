@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
 
@@ -14,6 +15,9 @@ public class GuideMenuManager : MonoBehaviour
     [Header("Animation")]
     [SerializeField] private float fadeTime = 0.3f;
     [SerializeField] private float scaleFrom = 0.8f;
+    
+    public event Action OnGuideClosed;
+    public event Action OnGuideOpened;
     
     private bool isGuideOpen = false;
     private bool isInOverlayMode = false; // Track if we're in overlay mode (game launched)
@@ -173,6 +177,8 @@ public class GuideMenuManager : MonoBehaviour
             guideMenuContainer.transform.DOKill();
             guideMenuContainer.transform.DOScale(Vector3.one, fadeTime).SetEase(Ease.OutBack);
         }
+        
+        OnGuideOpened?.Invoke();
     }
     
     public void CloseGuide()
@@ -201,8 +207,15 @@ public class GuideMenuManager : MonoBehaviour
                     }
                 });
         }
+        
+        OnGuideClosed?.Invoke();
     }
-    
+
+    public void QuitNxd()
+    {
+        Application.Quit();
+    }
+
     public bool IsGuideOpen => isGuideOpen;
     public bool IsInOverlayMode => isInOverlayMode;
 }

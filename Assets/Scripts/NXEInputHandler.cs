@@ -37,20 +37,33 @@ public class NXEInputHandler : MonoBehaviour
         InputSystem.actions.FindAction("SubmitAlt").performed += OnSubmitAltPerformed;
         InputSystem.actions.FindAction("Cancel").performed += OnCancelPerformed;
         InputSystem.actions.FindAction("Home").performed += OnHomePerformed;
+        
+        guideMenuManager.OnGuideOpened += GuideMenuManagerOnGuideOpened;
+        guideMenuManager.OnGuideClosed += GuideMenuManagerOnGuideClosed;
 
         Cursor.visible = false;
+        activeLayout = verticalLayout.Value;
+    }
+
+    private void GuideMenuManagerOnGuideOpened()
+    {
+        guideMenuLayout.Value.SetEnabled(true);
+        verticalLayout.Value.SetEnabled(false);
+        
+        activeLayout = guideMenuLayout.Value;
+    }
+
+    private void GuideMenuManagerOnGuideClosed()
+    {
+        guideMenuLayout.Value.SetEnabled(false);
+        verticalLayout.Value.SetEnabled(true);
+        
         activeLayout = verticalLayout.Value;
     }
 
     private void OnHomePerformed(InputAction.CallbackContext obj)
     {
         guideMenuManager.ToggleGuide();
-        guideMenuLayout.Value.SetEnabled(guideMenuManager.IsGuideOpen);
-        verticalLayout.Value.SetEnabled(!guideMenuManager.IsGuideOpen);
-        
-        activeLayout = guideMenuManager.IsGuideOpen 
-            ? guideMenuLayout.Value 
-            : verticalLayout.Value;
     }
 
     private void OnSubmitPerformed(InputAction.CallbackContext obj)

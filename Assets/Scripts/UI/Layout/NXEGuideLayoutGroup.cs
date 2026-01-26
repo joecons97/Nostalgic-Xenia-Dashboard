@@ -24,6 +24,7 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
     [Header("Focus Overlay")] [SerializeField]
     private GuideMenuBlade focusOverlay; // The blue blade overlay (outside this layout)
 
+    [SerializeField] private int sortOrderBase = 500;
     [SerializeField] private float overlayTransitionTime = 0.3f;
     [SerializeField] private int overlaySortingOrder = 100; // Overlay renders above blades but below buttons
 
@@ -98,7 +99,7 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
         }
 
         overlayCanvas.overrideSorting = true;
-        overlayCanvas.sortingOrder = overlaySortingOrder;
+        overlayCanvas.sortingOrder = overlaySortingOrder + sortOrderBase;
 
         // Set same size as blades
         focusOverlay.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, bladeSize.x);
@@ -142,7 +143,7 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
                     }
 
                     buttonCanvas.overrideSorting = true;
-                    buttonCanvas.sortingOrder = 150; // Above overlay
+                    buttonCanvas.sortingOrder = 150 + sortOrderBase; // Above overlay
 
                     // Ensure it has a CanvasGroup for visibility control
                     if (buttonContainer.GetComponent<CanvasGroup>() == null)
@@ -259,7 +260,7 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
             }
 
             // Set sort order
-            canvas.sortingOrder = targetSortOrders[i];
+            canvas.sortingOrder = targetSortOrders[i] + sortOrderBase;
 
             // Show/hide buttons based on focus
             Transform buttonContainer = blade.RectTransform.Find("ButtonContainer");
