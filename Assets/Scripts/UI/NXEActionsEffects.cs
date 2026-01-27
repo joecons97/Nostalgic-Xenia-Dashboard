@@ -40,7 +40,7 @@ public class NXEActionsEffects : MonoBehaviour
 
     public void ActionSelect() 
     {
-        if (actionButtonSet.SelectAction.activeSelf == false)
+        if (actionButtonSet == null || actionButtonSet.SelectAction.activeSelf == false)
             return;
 
         AnimateAction(actionButtonSet.SelectAction);
@@ -48,7 +48,7 @@ public class NXEActionsEffects : MonoBehaviour
     }
     public void ActionSelectAlt()
     {
-        if (actionButtonSet.SelectAltAction.activeSelf == false)
+        if (actionButtonSet == null || actionButtonSet.SelectAltAction.activeSelf == false)
             return;
 
         AnimateAction(actionButtonSet.SelectAltAction);
@@ -56,7 +56,7 @@ public class NXEActionsEffects : MonoBehaviour
     }
     public void ActionCancel()
     {
-        if (actionButtonSet.CancelAction.activeSelf == false)
+        if (actionButtonSet == null || actionButtonSet.CancelAction.activeSelf == false)
             return;
 
         AnimateAction(actionButtonSet.CancelAction);
@@ -83,6 +83,9 @@ public class NXEActionsEffects : MonoBehaviour
 
     public void SetConfig(ActionsConfig config)
     {
+        if (config == null || actionButtonSet == null)
+            return;
+        
         HandleText(config.showSelectAction, config.selectActionText, actionButtonSet.SelectAction);
         HandleText(config.showSelectAltAction, config.selectAltActionText, actionButtonSet.SelectAltAction);
         HandleText(config.showCancelAction, config.cancelActionText, actionButtonSet.CancelAction);

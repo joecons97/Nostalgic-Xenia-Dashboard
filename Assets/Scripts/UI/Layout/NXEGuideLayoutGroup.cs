@@ -128,9 +128,10 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
         {
             RectTransform child = transform.GetChild(i) as RectTransform;
 
-            if (child != null && child.gameObject.activeSelf)
+            if (child != null && child.gameObject.activeSelf && 
+                child.TryGetComponent<GuideMenuBlade>(out var blade))
             {
-                blades.Add(child.GetComponent<GuideMenuBlade>());
+                blades.Add(blade);
 
                 // Ensure each blade has a Canvas component forQ sort order
                 Canvas canvas = child.GetComponent<Canvas>();
@@ -381,7 +382,9 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
         if (previousTile != newTile)
         {
             newTile.Focus();
-            audioSource.PlayOneShot(moveAudioClips[Random.Range(0, moveAudioClips.Length)]);
+            
+            if(audioSource)
+                audioSource.PlayOneShot(moveAudioClips[Random.Range(0, moveAudioClips.Length)]);
         }
     }
 
@@ -394,7 +397,9 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
         if (previousTile != newTile)
         {
             newTile.Focus();
-            audioSource.PlayOneShot(moveAudioClips[Random.Range(0, moveAudioClips.Length)]);
+            
+            if(audioSource)
+                audioSource.PlayOneShot(moveAudioClips[Random.Range(0, moveAudioClips.Length)]);
         }
     }
 

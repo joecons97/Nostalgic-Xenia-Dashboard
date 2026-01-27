@@ -9,6 +9,11 @@ public class ActionButtonSet : MonoBehaviour
     public void Use(ActionsConfig actions = null)
     {
         var effects = FindFirstObjectByType<NXEActionsEffects>();
+        if (effects == null)
+        {
+            Debug.LogError("No NXEActionsEffects found!");
+            return;
+        }
         
         if(effects.actionButtonSet)
             effects.actionButtonSet.gameObject.SetActive(false);

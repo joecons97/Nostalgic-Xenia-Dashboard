@@ -28,13 +28,20 @@ public class GuideMenuBlade : MonoBehaviour
         {
             //Hacky but stops the selection sound from playing on modal open
             var eventTrigger = defaultSelection.GetComponent<EventTrigger>();
-            eventTrigger.enabled = false;
-            defaultSelection.Select();
-            _ = UniTask.NextFrame(destroyCancellationToken).ContinueWith(() =>
+            if (eventTrigger != null)
             {
-                 if(eventTrigger)
-                    eventTrigger.enabled = true;
-            });
+                eventTrigger.enabled = false;
+                defaultSelection.Select();
+                _ = UniTask.NextFrame(destroyCancellationToken).ContinueWith(() =>
+                {
+                    if (eventTrigger)
+                        eventTrigger.enabled = true;
+                });
+            }
+            else
+            {
+                defaultSelection.Select();
+            }
         }
     }
 
