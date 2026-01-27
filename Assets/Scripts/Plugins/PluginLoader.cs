@@ -28,13 +28,23 @@ public class PluginLoader : MonoBehaviour
 
         foreach (var dll in dlls)
         {
-            Debug.Log($"Loading Plugin: {dll}");
-            var asm = Assembly.LoadFile(dll);
-            var entry = asm.GetExportedTypes().FirstOrDefault(x => typeof(LibraryPlugin.LibraryPlugin).IsAssignableFrom(x));
-            if (entry != null)
+            try
             {
-                var plugin = (LibraryPlugin.LibraryPlugin)Activator.CreateInstance(entry);
-                plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(Path.GetDirectoryName(dll) ?? string.Empty, plugin.IconPath), dll, plugin));
+                Debug.Log($"Loading Plugin: {dll}");
+                var asm = Assembly.LoadFile(dll);
+                var entry = asm.GetExportedTypes().FirstOrDefault(x => typeof(LibraryPlugin.LibraryPlugin).IsAssignableFrom(x));
+                if (entry != null)
+                {
+                    var plugin = (LibraryPlugin.LibraryPlugin)Activator.CreateInstance(entry);
+                    plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(Path.GetDirectoryName(dll) ?? string.Empty, plugin.IconPath), dll, plugin));
+                }
+
+                Debug.Log($"Loaded Plugin: {dll}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to load plugin: {dll}");
+                Debug.LogException(e);
             }
         }
 

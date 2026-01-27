@@ -51,12 +51,15 @@ public class DashboardEntriesBuilder : MonoBehaviour
         spawnedBlades.Add(blade);
         blade.SetTitle(entry.Name);
 
+        //LiteDB doesn't support ThenBy so we have to do it locally
         var entries = databaseManager.LibraryEntries.Query()
             .Where(x => x.Source == entry.Data)
+            .ToArray()
             .OrderByDescending(x => x.LastPlayed)
+            .ThenBy(x => x.Name)
             .ToArray();
 
-        blade.SetTiles(entries.Select(x => libraryEntryTilePrefab).ToArray());
+        blade.SetTiles(entries.Select(x => libraryEntryTilePrefab).ToArray<NXETile>());
 
         int index = 0;
         foreach (var tile in blade.Tiles)
@@ -71,14 +74,14 @@ public class DashboardEntriesBuilder : MonoBehaviour
         return blade;
     }
 
-    public void RebuildDashboardEntry(string name)
+    public void RebuildDashboardEntry(string dashboardName)
     {
-        var entry = databaseManager.DashboardEntries.FindOne(x => x.Name == name);
+        var entry = databaseManager.DashboardEntries.FindOne(x => x.Name == dashboardName);
         if (entry == null)
             return;
 
         int index = 0;
-        var existingBlade = transform.Find(name);
+        var existingBlade = transform.Find(dashboardName);
         if (existingBlade != null)
             index = existingBlade.GetSiblingIndex();
 
