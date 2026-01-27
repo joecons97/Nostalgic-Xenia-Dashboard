@@ -72,7 +72,8 @@ public class GuideMenuManager : MonoBehaviour
 
     private void OnValidate()
     {
-        allChildrenText = guideMenuContainer.GetComponentsInChildren<Text>();
+        if(guideMenuContainer)
+            allChildrenText = guideMenuContainer.GetComponentsInChildren<Text>();
     }
 
     void OnDestroy()
