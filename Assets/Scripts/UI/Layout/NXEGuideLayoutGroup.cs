@@ -438,11 +438,12 @@ public class NXEGuideLayoutGroup : LayoutGroup, IControllableLayout
 
     public void SelectAlt()
     {
-        //Does nothing, Unity handles buttons
+        //TODO: Implement app closing as well
+        FindFirstObjectByType<GuideMenuManager>().CloseGuide();
     }
 
     public void Cancel()
     {
-        //Does nothing, Unity handles buttons
+        FindFirstObjectByType<GuideMenuManager>().CloseGuide();
     }
 }

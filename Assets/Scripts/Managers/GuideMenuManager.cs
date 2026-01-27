@@ -14,6 +14,8 @@ public class GuideMenuManager : MonoBehaviour
     [SerializeField] private CanvasGroup guideCanvasGroup;
     [SerializeField] private NXEGuideLayoutGroup layoutGroup;
     [SerializeField] private Image temporaryOverlayPanel;
+    [SerializeField] private ActionButtonSet actionButtonSet;
+    [SerializeField] private ActionsConfig actionsConfig;
     
     [Header("Animation")]
     [SerializeField] private float fadeTime = 0.3f;
@@ -29,7 +31,7 @@ public class GuideMenuManager : MonoBehaviour
     private bool isGuideOpen = false;
     private bool isInOverlayMode = false; // Track if we're in overlay mode (game launched)
     private AudioSource audioSource;
-    private Text[] allChildrenText;
+    [SerializeField, HideInInspector] private Text[] allChildrenText;
     
     void Start()
     {
@@ -207,6 +209,7 @@ public class GuideMenuManager : MonoBehaviour
             temporaryOverlayPanel.DOFade(0, fadeTime).SetDelay(fadeTime);
         }
         
+        actionButtonSet.Use(actionsConfig);
         audioSource.PlayOneShot(openGuideAudioClip);
         
         OnGuideOpened?.Invoke();

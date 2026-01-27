@@ -15,6 +15,8 @@ public class NXEInputHandler : MonoBehaviour
     private NXEActionsEffects actionsDisplay;
     [SerializeField]
     private GuideMenuManager guideMenuManager;
+    [SerializeField]
+    private ActionButtonSet actionButtonSet;
 
     [Header("Repeat Settings")] [SerializeField]
     private float initialDelay = 0.5f; // Time before repeat starts
@@ -60,6 +62,7 @@ public class NXEInputHandler : MonoBehaviour
         guideMenuLayout.Value.SetEnabled(false);
         verticalLayout.Value.SetEnabled(true);
         
+        actionButtonSet.Use();
         activeLayout = verticalLayout.Value;
     }
 
