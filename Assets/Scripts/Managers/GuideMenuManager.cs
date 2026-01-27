@@ -132,7 +132,7 @@ public class GuideMenuManager : MonoBehaviour
         
         if (overlayWindow != null)
         {
-            overlayWindow.DisableClickthrough(); // Start with clickthrough enabled
+            overlayWindow.DisableClickthrough();
         }
         
         // Stop global keyboard hook
@@ -206,8 +206,10 @@ public class GuideMenuManager : MonoBehaviour
             
             guideMenuContainer.transform.DOScale(Vector3.one, fadeTime).SetEase(Ease.OutBack);
             layoutGroup.transform.DOScale(Vector3.one, fadeTime).SetDelay(fadeTime);
-            layoutGroup.GetComponent<CanvasGroup>().DOFade(1,fadeTime).SetDelay(fadeTime).ChangeStartValue(0);
             temporaryOverlayPanel.DOFade(0, fadeTime).SetDelay(fadeTime);
+            
+            if(layoutGroup.TryGetComponent(out CanvasGroup canvasGroup))
+                canvasGroup.DOFade(1,fadeTime).SetDelay(fadeTime).ChangeStartValue(0);
         }
         
         actionButtonSet.Use(actionsConfig);
@@ -269,7 +271,8 @@ public class GuideMenuManager : MonoBehaviour
 
     private void Update()
     {
-        timeText.text = DateTime.Now.ToShortTimeString();
+        if(timeText)
+            timeText.text = DateTime.Now.ToShortTimeString();
     }
 
     public void QuitNxd()
