@@ -16,6 +16,7 @@ public class GuideMenuManager : MonoBehaviour
     [SerializeField] private Image temporaryOverlayPanel;
     [SerializeField] private ActionButtonSet actionButtonSet;
     [SerializeField] private ActionsConfig actionsConfig;
+    [SerializeField] private Text timeText;
     
     [Header("Animation")]
     [SerializeField] private float fadeTime = 0.3f;
@@ -261,6 +262,11 @@ public class GuideMenuManager : MonoBehaviour
         audioSource.PlayOneShot(closeGuideAudioClip);
         
         OnGuideClosed?.Invoke();
+    }
+
+    private void Update()
+    {
+        timeText.text = DateTime.Now.ToShortTimeString();
     }
 
     public void QuitNxd()
