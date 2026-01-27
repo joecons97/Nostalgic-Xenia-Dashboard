@@ -16,9 +16,7 @@ public class ActionsConfig
 
 public class NXEActionsEffects : MonoBehaviour
 {
-    [SerializeField] private GameObject selectActionButton;
-    [SerializeField] private GameObject selectAltActionButton;
-    [SerializeField] private GameObject CancelActionButton;
+    public ActionButtonSet actionButtonSet;
 
     [Header("Transition Settings")]
 
@@ -42,26 +40,26 @@ public class NXEActionsEffects : MonoBehaviour
 
     public void ActionSelect() 
     {
-        if (selectActionButton.activeSelf == false)
+        if (actionButtonSet == null || actionButtonSet.SelectAction.activeSelf == false)
             return;
 
-        AnimateAction(selectActionButton);
+        AnimateAction(actionButtonSet.SelectAction);
         audioSource.PlayOneShot(selectAudioClip);
     }
     public void ActionSelectAlt()
     {
-        if (selectAltActionButton.activeSelf == false)
+        if (actionButtonSet == null || actionButtonSet.SelectAltAction.activeSelf == false)
             return;
 
-        AnimateAction(selectAltActionButton);
+        AnimateAction(actionButtonSet.SelectAltAction);
         audioSource.PlayOneShot(selectAudioClip);
     }
     public void ActionCancel()
     {
-        if (CancelActionButton.activeSelf == false)
+        if (actionButtonSet == null || actionButtonSet.CancelAction.activeSelf == false)
             return;
 
-        AnimateAction(CancelActionButton);
+        AnimateAction(actionButtonSet.CancelAction);
         audioSource.PlayOneShot(cancelAudioClip);
     }
     
@@ -85,9 +83,12 @@ public class NXEActionsEffects : MonoBehaviour
 
     public void SetConfig(ActionsConfig config)
     {
-        HandleText(config.showSelectAction, config.selectActionText, selectActionButton);
-        HandleText(config.showSelectAltAction, config.selectAltActionText, selectAltActionButton);
-        HandleText(config.showCancelAction, config.cancelActionText, CancelActionButton);
+        if (config == null || actionButtonSet == null)
+            return;
+        
+        HandleText(config.showSelectAction, config.selectActionText, actionButtonSet.SelectAction);
+        HandleText(config.showSelectAltAction, config.selectAltActionText, actionButtonSet.SelectAltAction);
+        HandleText(config.showCancelAction, config.cancelActionText, actionButtonSet.CancelAction);
     }
     
     private void HandleText(bool display, string text, GameObject obj)
@@ -112,7 +113,7 @@ public class NXEActionsEffects : MonoBehaviour
             }
             else
             {
-                textComponent.text = text;
+                //textComponent.text = text;
                 
                 image.transform.DOScale(Vector3.one, buttonTransitionTime)
                     .ChangeStartValue(Vector3.zero)

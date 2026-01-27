@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [ExecuteAlways]
-public class NXEVerticalLayoutGroup : LayoutGroup
+public class NXEVerticalLayoutGroup : LayoutGroup, IControllableLayout
 {
     private List<NXEBlade> rows = new List<NXEBlade>();
     private Vector3[] targetPositions;
@@ -89,17 +88,24 @@ public class NXEVerticalLayoutGroup : LayoutGroup
 
     public void Select()
     {
-        Rows[FocusedIndex].Select();
+        if(enabled)
+            Rows[FocusedIndex].Select();
     }
 
     public void SelectAlt()
     {
-        Rows[FocusedIndex].SelectAlt();
+        if(enabled)
+            Rows[FocusedIndex].SelectAlt();
     }
 
     public void Cancel()
-    {
+    { 
         Rows[FocusedIndex].Cancel();
+    }
+
+    public void SetEnabled(bool value)
+    {
+        enabled = value;
     }
 
     public void MoveLeft(float speed = 1)

@@ -14,6 +14,8 @@ public class GameActionsManager : MonoBehaviour
     [SerializeField] private LibrariesManager libraryManager;
     [SerializeField] private DatabaseManager databaseManager;
     [SerializeField] private DashboardEntriesBuilder dashboardEntriesBuilder;
+    [SerializeField] private GuideMenuManager guideMenuManager;
+    [SerializeField] private GameObject Canvas;
 
     public event Action<ObjectId> OnInstallationBegin;
     public event Action<ObjectId> OnInstallationCompleteOrCancelled;
@@ -58,6 +60,8 @@ public class GameActionsManager : MonoBehaviour
             canvas.DOFade(fadeTo, 0.5f).SetDelay(delay);
             delay += 0.5f;
         }
+        
+        Canvas.SetActive(false);
 
         lib.Plugin.OnEntryProcessEnded += OnEntryProcessEnded;
 
@@ -69,6 +73,7 @@ public class GameActionsManager : MonoBehaviour
                 layoutGroupReturnEnabled = layoutGroup.enabled;
                 layoutGroup.enabled = false;
                 isGameActive = true;
+                guideMenuManager.EnterOverlayMode();
             }
         });
 
@@ -86,6 +91,8 @@ public class GameActionsManager : MonoBehaviour
 
         isGameActive = false;
         layoutGroup.enabled = layoutGroupReturnEnabled;
+        guideMenuManager.ExitOverlayMode();
+        Canvas.SetActive(true);
 
         var delay = 0.0f;
         foreach (var canvas in fadeCanvasGroups.Reverse())

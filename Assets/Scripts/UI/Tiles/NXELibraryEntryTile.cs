@@ -44,6 +44,9 @@ public class NXELibraryEntryTile : NXETile
 
         libraryEntry = entry;
         
+        if(gameActionsManager == null)
+            gameActionsManager = FindFirstObjectByType<GameActionsManager>();
+        
         SetIsOperant(gameActionsManager.IsEntryOperant(libraryEntry));
 
         installedIcon.SetActive(string.IsNullOrEmpty(libraryEntry.Path));
