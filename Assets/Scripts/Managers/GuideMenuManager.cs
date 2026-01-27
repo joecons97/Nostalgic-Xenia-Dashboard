@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using DG.Tweening;
-using TMPro;
 using UnityEngine.UI;
 
 public class GuideMenuManager : MonoBehaviour
@@ -62,7 +61,7 @@ public class GuideMenuManager : MonoBehaviour
         // Set up global keyboard hook
         if (keyboardHook == null)
         {
-            keyboardHook = FindObjectOfType<GlobalKeyboardHook>();
+            keyboardHook = FindFirstObjectByType<GlobalKeyboardHook>();
         }
         
         if (keyboardHook != null)
@@ -211,7 +210,9 @@ public class GuideMenuManager : MonoBehaviour
         }
         
         actionButtonSet.Use(actionsConfig);
-        audioSource.PlayOneShot(openGuideAudioClip);
+        
+        if(audioSource)
+            audioSource.PlayOneShot(openGuideAudioClip);
         
         OnGuideOpened?.Invoke();
     }
@@ -259,7 +260,8 @@ public class GuideMenuManager : MonoBehaviour
                 });
         }
         
-        audioSource.PlayOneShot(closeGuideAudioClip);
+        if(audioSource)
+            audioSource.PlayOneShot(closeGuideAudioClip);
         
         OnGuideClosed?.Invoke();
     }
