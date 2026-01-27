@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
+using UnityEngine.UI;
 
 public class GuideMenuManager : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class GuideMenuManager : MonoBehaviour
     [SerializeField] private GlobalKeyboardHook keyboardHook;
     [SerializeField] private CanvasGroup guideCanvasGroup;
     [SerializeField] private NXEGuideLayoutGroup layoutGroup;
+    [SerializeField] private Image temporaryOverlayPanel;
     
     [Header("Animation")]
     [SerializeField] private float fadeTime = 0.3f;
@@ -26,6 +29,7 @@ public class GuideMenuManager : MonoBehaviour
     private bool isGuideOpen = false;
     private bool isInOverlayMode = false; // Track if we're in overlay mode (game launched)
     private AudioSource audioSource;
+    private Text[] allChildrenText;
     
     void Start()
     {
@@ -63,7 +67,12 @@ public class GuideMenuManager : MonoBehaviour
             keyboardHook.OnGuideButtonPressed += ToggleGuide;
         }
     }
-    
+
+    private void OnValidate()
+    {
+        allChildrenText = guideMenuContainer.GetComponentsInChildren<Text>();
+    }
+
     void OnDestroy()
     {
         if (keyboardHook != null)
@@ -173,6 +182,14 @@ public class GuideMenuManager : MonoBehaviour
         {
             guideMenuContainer.SetActive(true);
             guideMenuContainer.transform.localScale = Vector3.one * scaleFrom;
+            layoutGroup.transform.localScale = new Vector3(0.5f, 1, 1);
+            temporaryOverlayPanel.color = Color.white;
+
+            foreach (var text in allChildrenText)
+            {
+                text.color = new Color(text.color.r, text.color.g, text.color.b, 0);
+                text.DOFade(1, fadeTime).SetDelay(fadeTime);
+            }
             
             if (guideCanvasGroup != null)
             {
@@ -182,7 +199,12 @@ public class GuideMenuManager : MonoBehaviour
             }
             
             guideMenuContainer.transform.DOKill();
+            layoutGroup.DOKill();
+            
             guideMenuContainer.transform.DOScale(Vector3.one, fadeTime).SetEase(Ease.OutBack);
+            layoutGroup.transform.DOScale(Vector3.one, fadeTime).SetDelay(fadeTime);
+            layoutGroup.GetComponent<CanvasGroup>().DOFade(1,fadeTime).SetDelay(fadeTime).ChangeStartValue(0);
+            temporaryOverlayPanel.DOFade(0, fadeTime).SetDelay(fadeTime);
         }
         
         audioSource.PlayOneShot(openGuideAudioClip);
@@ -201,10 +223,26 @@ public class GuideMenuManager : MonoBehaviour
         {
             guideCanvasGroup.DOKill();
             guideMenuContainer.transform.DOKill();
+            layoutGroup.DOKill();
             
-            guideCanvasGroup.DOFade(0f, fadeTime).SetEase(Ease.InQuad);
+            foreach (var text in allChildrenText)
+            {
+                text.color = new Color(text.color.r, text.color.g, text.color.b, 1);
+                text.DOFade(0, fadeTime);
+            }
+
+            layoutGroup.transform.DOScale(new Vector3(0.5f, 1, 1), fadeTime);
+
+            temporaryOverlayPanel.DOFade(1, fadeTime);
+            layoutGroup.GetComponent<CanvasGroup>().DOFade(0,fadeTime).ChangeStartValue(1);
+            
+            guideCanvasGroup.DOFade(0f, fadeTime)
+                .SetDelay(fadeTime)
+                .SetEase(Ease.InQuad);
+
             guideMenuContainer.transform.DOScale(Vector3.one * scaleFrom, fadeTime)
                 .SetEase(Ease.InBack)
+                .SetDelay(fadeTime)
                 .OnComplete(() => 
                 {
                     guideMenuContainer.SetActive(false);
