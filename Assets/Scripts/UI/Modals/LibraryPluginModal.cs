@@ -59,6 +59,7 @@ public class LibraryPluginModal : NXEModal
             if(btn)
                 Destroy(btn.gameObject);
         }
+        spawnedButtons.Clear();
     }
 
     private void ImportProgress_OnProgressed(Progress obj)
