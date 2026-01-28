@@ -20,6 +20,22 @@ public class TransparentOverlayWindow : MonoBehaviour
     [DllImport("user32.dll")]
     private static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
     
+    [DllImport("user32.dll")]
+    private static extern bool GetCursorPos(out POINT lpPoint);
+    
+    [DllImport("user32.dll")]
+    private static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
+    
+    [DllImport("user32.dll")]
+    private static extern IntPtr WindowFromPoint(POINT Point);
+    
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+    }
+    
     private struct MARGINS
     {
         public int cxLeftWidth;
@@ -47,9 +63,11 @@ public class TransparentOverlayWindow : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private bool enableOnStart = false; // Changed to false - we'll enable manually when launching a game
     [SerializeField] private Camera overlayCamera;
+    [SerializeField] private RectTransform guideMenuContainer; // Reference to guide UI for hit testing
     
     private IntPtr windowHandle;
     private bool isTransparent = false;
+    private bool shouldBeClickthrough = true;
     
     void Start()
     {
@@ -59,6 +77,13 @@ public class TransparentOverlayWindow : MonoBehaviour
             SetupTransparentWindow();
         }
         #endif
+        
+        // Prevent Unity from throttling when window loses focus
+        Application.runInBackground = true;
+        
+        // Set target frame rate to ensure smooth animations
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0; // Disable VSync for overlay
         
         // Set camera to render only UI with transparent background
         if (overlayCamera == null)
@@ -112,18 +137,22 @@ public class TransparentOverlayWindow : MonoBehaviour
     
     public void EnableClickthrough()
     {
+        shouldBeClickthrough = true;
+        
         #if !UNITY_EDITOR && UNITY_STANDALONE_WIN
         if (windowHandle == IntPtr.Zero)
             windowHandle = GetActiveWindow();
             
         uint exStyle = GetWindowLong(windowHandle, GWL_EXSTYLE);
         SetWindowLong(windowHandle, GWL_EXSTYLE, exStyle | WS_EX_TRANSPARENT);
-        Debug.Log("Clickthrough enabled");
+        Debug.Log("Clickthrough enabled (will be dynamic based on mouse)");
         #endif
     }
     
     public void DisableClickthrough()
     {
+        shouldBeClickthrough = false;
+        
         #if !UNITY_EDITOR && UNITY_STANDALONE_WIN
         if (windowHandle == IntPtr.Zero)
             windowHandle = GetActiveWindow();

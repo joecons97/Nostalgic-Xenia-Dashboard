@@ -37,6 +37,7 @@ public class ModalServiceManager : MonoBehaviour
         modal.name = guid;
         modal.canBeClosed = args.CanBeClosed;
         modal.DisplayActions.showCancelAction = args.CanBeClosed;
+        modal.DisplayActions.showSelectAction = args.DisplaySelectAction;
         modal.UpdateDisplayActions();
 
         modal.transform.Find("Title").GetComponent<Text>().text = args.Name;
