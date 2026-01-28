@@ -200,7 +200,8 @@ public class NXELibraryEntryTile : NXETile
 
                 _ = UniTask.WaitForSeconds(0.5f).ContinueWith(() =>
                 {
-                    button.Select();
+                    if(button)
+                        button.Select();
                 });              
                 
             }

@@ -41,7 +41,7 @@ public class GameActionsManager : MonoBehaviour
         if (lib == null)
             return;
 
-        lib.Plugin.OpenLibraryApplication(location);
+        lib.Plugin.OpenLibraryApplication(location).Forget();
     }
 
     public void LaunchLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
