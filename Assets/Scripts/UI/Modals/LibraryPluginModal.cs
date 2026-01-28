@@ -36,7 +36,8 @@ public class LibraryPluginModal : NXEModal
 
     void OnEnable()
     {
-        _ = UniTask.WaitUntil(() => library != null).ContinueWith(() =>
+        UniTask.WaitUntil(() => library != null, cancellationToken: this.destroyCancellationToken)
+            .ContinueWith(() =>
         {
             foreach (var button in library.Plugin.GetButtons())
             {
@@ -48,7 +49,7 @@ public class LibraryPluginModal : NXEModal
                 
                 spawnedButtons.Add(newButton);
             }
-        });
+        }).Forget();
     }
 
     void OnDisable()
