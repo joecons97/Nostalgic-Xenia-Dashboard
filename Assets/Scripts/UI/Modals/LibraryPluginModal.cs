@@ -31,14 +31,13 @@ public class LibraryPluginModal : NXEModal
         originalImportText = importText.text;
 
         librariesManager.OnLibraryImportEnd += LibrariesManager_OnLibraryImportEnd;
-        librariesManager.ImportProgress.OnProgressed += ImportProgress_OnProgressed;
-
-        
+        librariesManager.ImportProgress.OnProgressed += ImportProgress_OnProgressed; 
     }
 
     void OnEnable()
     {
-        _ =UniTask.WaitUntil(() => library != null).ContinueWith(() =>
+        UniTask.WaitUntil(() => library != null, cancellationToken: this.destroyCancellationToken)
+            .ContinueWith(() =>
         {
             foreach (var button in library.Plugin.GetButtons())
             {
@@ -50,15 +49,17 @@ public class LibraryPluginModal : NXEModal
                 
                 spawnedButtons.Add(newButton);
             }
-        });
+        }).Forget();
     }
 
     void OnDisable()
     {
         foreach(var btn in spawnedButtons)
         {
-            Destroy(btn.gameObject);
+            if(btn)
+                Destroy(btn.gameObject);
         }
+        spawnedButtons.Clear();
     }
 
     private void ImportProgress_OnProgressed(Progress obj)

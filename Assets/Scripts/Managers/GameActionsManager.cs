@@ -29,6 +29,21 @@ public class GameActionsManager : MonoBehaviour
     public bool IsEntryOperant(Assets.Scripts.PersistentData.Models.LibraryEntry entry) 
         => operantEntries.Contains(entry.Id);
 
+    public void OpenLibrary(Assets.Scripts.PersistentData.Models.LibraryEntry entry, LibraryLocation location)
+    {
+        if (isGameActive)
+            return;
+            
+        if (entry == null)
+            return;
+
+        var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == entry.Source);
+        if (lib == null)
+            return;
+
+        lib.Plugin.OpenLibraryApplication(location).Forget();
+    }
+
     public void LaunchLibraryEntry(Assets.Scripts.PersistentData.Models.LibraryEntry entry)
     {
         if (isGameActive)

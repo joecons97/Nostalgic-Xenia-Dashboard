@@ -26,14 +26,6 @@ namespace LibraryPlugin
         public virtual UniTask<GameActionResult> TryInstallEntryAsync(LibraryEntry entry, CancellationToken cancellationToken) { return UniTask.FromResult(GameActionResult.Indeterminate); }
         public virtual UniTask<GameActionResult> TryUninstallEntryAsync(LibraryEntry entry, CancellationToken cancellationToken) { return UniTask.FromResult(GameActionResult.Indeterminate); }
         public virtual List<LibraryPluginButton> GetButtons() { return new List<LibraryPluginButton>(); }
-
-        
-    }
-
-    public enum GameActionResult
-    {
-        Success,
-        Fail,
-        Indeterminate
+        public virtual UniTask OpenLibraryApplication(LibraryLocation location) { return UniTask.CompletedTask; }
     }
 }

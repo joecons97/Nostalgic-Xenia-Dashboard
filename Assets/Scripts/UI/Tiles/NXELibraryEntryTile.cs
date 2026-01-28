@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Gilzoide.FlexUi;
 using LibraryPlugin;
 using LiteDB;
 using UnityEngine;
@@ -168,24 +169,41 @@ public class NXELibraryEntryTile : NXETile
             }
             else
             {
-                var root = new GameObject("Root", typeof(RectTransform), typeof(VerticalLayoutGroup));
-                root.GetComponent<VerticalLayoutGroup>().childForceExpandWidth = false;
-                root.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.MiddleCenter;
+                var buttonObj = Resources.Load<GameObject>("EmptyButton");
+                var root = new GameObject("Root", typeof(RectTransform), typeof(FlexLayout));
+                //root.GetComponent<VerticalLayoutGroup>().childForceExpandWidth = false;
+                //root.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.MiddleCenter;
 
-                var textObj = new GameObject("Text", typeof(RectTransform), typeof(Text));
+                var textObj = new GameObject("Text", typeof(RectTransform), typeof(Text), typeof(FlexLayout));
                 textObj.transform.SetParent(root.transform, false);
                 var text = textObj.GetComponent<Text>();
                 text.font = Resources.Load<Font>("NXD");
                 text.fontSize = 26;
                 text.alignment = TextAnchor.UpperCenter;
                 text.text = $"{libraryEntry.Name} is currently being installed via {libraryEntry.Source}.\n\nTo view progress, please visit the third-party client.";
+                
+                buttonObj = Instantiate(buttonObj, root.transform);
+                buttonObj.GetComponentInChildren<Text>().text = "Open Library Client";   
+                var button = buttonObj.GetComponent<Button>();
+                button.onClick.AddListener(() =>
+                {
+                    gameActionsManager.OpenLibrary(libraryEntry, LibraryLocation.Downloads);
+                });
 
                 activeModalId = FindFirstObjectByType<ModalServiceManager>().RequestCreateModal(new CreateModalArgs()
                 {
                     CanBeClosed = true,
+                    DisplaySelectAction = true,
                     Name = $"Installing {libraryEntry.Name}",
                     ChildrenRoot = root
                 });
+
+                _ = UniTask.WaitForSeconds(0.5f).ContinueWith(() =>
+                {
+                    if(button)
+                        button.Select();
+                });              
+                
             }
         }
         else
@@ -200,11 +218,15 @@ public class NXELibraryEntryTile : NXETile
         if (isOperant)
             installedIcon.transform
                 .DOScale(1.5f, 1)
+                .ChangeStartValue(Vector3.one)
                 .SetEase(Ease.InOutSine)
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetAutoKill(false);
         else
+        {
             installedIcon.transform.DOKill(complete: true);
+            installedIcon.transform.localScale = Vector3.one;
+        }
     }
 
     public override void OnSelectAlt()

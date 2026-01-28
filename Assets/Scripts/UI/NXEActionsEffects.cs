@@ -93,28 +93,28 @@ public class NXEActionsEffects : MonoBehaviour
     
     private void HandleText(bool display, string text, GameObject obj)
     {
-        bool wasActive = obj.activeSelf;
+        bool wasActive = obj.activeInHierarchy;
 
         var textComponent = obj.GetComponentInChildren<Text>();
         var image = obj.GetComponentInChildren<Image>();
             
         textComponent.DOKill();
         image.DOKill();
+        image.transform.DOKill();
             
         if (display)
         {
-
             obj.SetActive(true);
             if (wasActive)
             {
                 textComponent.DOFade(0, textTransitionTime)
                     .SetEase(textTransitionEase)
                     .OnComplete(() => textComponent.text = text);
+
+                image.transform.localScale = Vector3.one;
             }
             else
             {
-                //textComponent.text = text;
-                
                 image.transform.DOScale(Vector3.one, buttonTransitionTime)
                     .ChangeStartValue(Vector3.zero)
                     .SetEase(buttonScaleTransitionEase);

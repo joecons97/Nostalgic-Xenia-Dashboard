@@ -8,6 +8,7 @@ namespace LibraryPlugin
         public GameObject ChildrenRoot;
         public string Name;
         public bool CanBeClosed;
+        public bool DisplaySelectAction;
     }
     
     public class ModalService
