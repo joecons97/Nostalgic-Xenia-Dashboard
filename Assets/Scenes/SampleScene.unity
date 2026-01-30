@@ -8489,7 +8489,7 @@ GameObject:
   - component: {fileID: 1226026940}
   - component: {fileID: 1226026939}
   m_Layer: 5
-  m_Name: Xenia
+  m_Name: Throbber
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15314,7 +15314,7 @@ GameObject:
   - component: {fileID: 2122488246}
   - component: {fileID: 2122488245}
   m_Layer: 5
-  m_Name: Throbber
+  m_Name: Spinner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
