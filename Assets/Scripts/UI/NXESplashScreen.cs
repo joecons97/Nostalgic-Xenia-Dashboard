@@ -20,12 +20,40 @@ public class NXESplashScreen : MonoBehaviour
     [SerializeField] private float fadeTime = 1f;
     
     private List<ILoadable> completedLoadables = new List<ILoadable>();
+    private int expectedLoadables;
 
     private void Awake()
     {
+        if (loadables == null || loadables.Length == 0)
+        {
+            CompleteSplash();
+            return;
+        }
+
         foreach (var loadable in loadables)
         {
+            if (loadable?.Value == null)
+                continue;
+
+            expectedLoadables++;
             loadable.Value.OnLoadComplete += ValueOnOnLoadComplete;
+        }
+
+        if (expectedLoadables == 0)
+            CompleteSplash();
+    }
+
+    private void OnDestroy()
+    {
+        if (loadables == null)
+            return;
+
+        foreach (var loadable in loadables)
+        {
+            if (loadable?.Value == null)
+                continue;
+
+            loadable.Value.OnLoadComplete -= ValueOnOnLoadComplete;
         }
     }
 
@@ -36,11 +64,15 @@ public class NXESplashScreen : MonoBehaviour
         if(completedLoadables.Contains(obj) == false)
             completedLoadables.Add(obj);
 
-        if (completedLoadables.Count == loadables.Length)
-        {
-            canvasGroup.DOFade(0, fadeTime);
-            dashboardCanvasGroup.DOFade(1, fadeTime).SetDelay(fadeTime);
-        }
+        if (completedLoadables.Count == expectedLoadables)
+            CompleteSplash();
+    }
+
+    private void CompleteSplash()
+    {
+        canvasGroup.DOFade(0, fadeTime);
+        dashboardCanvasGroup.DOFade(1, fadeTime).SetDelay(fadeTime);
+    }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
