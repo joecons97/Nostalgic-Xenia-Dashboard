@@ -6,10 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Loadables;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class LibrariesManager : MonoBehaviour
+public class LibrariesManager : MonoBehaviour, ILoadable
 {
     [SerializeField] private PluginLoader loader;
     [SerializeField] private DatabaseManager databaseManager;
@@ -19,6 +20,7 @@ public class LibrariesManager : MonoBehaviour
     public event Action<Library> OnLibraryImportBegin;
     public event Action<Library> OnLibraryImportCancelled;
     public event Action<Library> OnLibraryImportEnd;
+    public event Action<ILoadable> OnLoadComplete;
 
     public Progress ImportProgress { get; private set; } = new Progress();
 
@@ -27,6 +29,7 @@ public class LibrariesManager : MonoBehaviour
     private void Start()
     {
         Libraries = loader.LoadLibraryPlugins();
+        OnLoadComplete?.Invoke(this);
     }
 
     public async UniTask ImportLibraryAsync(Library library, CancellationToken token = default)
