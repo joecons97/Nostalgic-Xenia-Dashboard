@@ -1,9 +1,12 @@
+using System;
 using Assets.Scripts.PersistentData.Models;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
+using Loadables;
 using UnityEngine;
 
-public class DashboardEntriesBuilder : MonoBehaviour
+public class DashboardEntriesBuilder : MonoBehaviour, ILoadable
 {
     [Header("Blade"), SerializeField] private NXEBlade bladePrefab;
     [SerializeField] private NXEBlade libraryEntriesBladePrefab;
@@ -13,6 +16,8 @@ public class DashboardEntriesBuilder : MonoBehaviour
 
     private DatabaseManager databaseManager;
     private List<NXEBlade> spawnedBlades = new();
+
+    public event Action<ILoadable> OnLoadComplete;
 
     void Start()
     {
@@ -42,6 +47,12 @@ public class DashboardEntriesBuilder : MonoBehaviour
                     break;
             }
         }
+
+        UniTask.WaitForSeconds(1).ContinueWith(() =>
+        {
+            OnLoadComplete?.Invoke(this);
+        }).Forget();
+        
     }
 
     private NXEBlade BuildDashboardEntryType(DashboardEntry entry)
