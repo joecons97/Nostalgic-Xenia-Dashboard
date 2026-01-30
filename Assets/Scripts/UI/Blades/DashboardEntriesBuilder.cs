@@ -48,7 +48,8 @@ public class DashboardEntriesBuilder : MonoBehaviour, ILoadable
             }
         }
 
-        UniTask.WaitForSeconds(1).ContinueWith(() =>
+        var ct = this.GetCancellationTokenOnDestroy();
+        UniTask.WaitForSeconds(1, ignoreTimeScale: true, cancellationToken: ct).ContinueWith(() =>
         {
             OnLoadComplete?.Invoke(this);
         }).Forget();
