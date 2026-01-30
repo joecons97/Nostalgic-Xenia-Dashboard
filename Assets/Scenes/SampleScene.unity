@@ -10928,6 +10928,7 @@ MonoBehaviour:
   throbberSize: 1.125
   throbberSpeed: 1
   spinnerSpeed: 1
+  fadeTime: 0.5
   references:
     version: 2
     RefIds:

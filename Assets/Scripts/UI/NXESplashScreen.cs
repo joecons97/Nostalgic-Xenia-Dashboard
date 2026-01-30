@@ -17,6 +17,7 @@ public class NXESplashScreen : MonoBehaviour
     [SerializeField] private float throbberSpeed = 1f;
     
     [SerializeField] private float spinnerSpeed = 1f;
+    [SerializeField] private float fadeTime = 1f;
     
     private List<ILoadable> completedLoadables = new List<ILoadable>();
 
@@ -37,8 +38,8 @@ public class NXESplashScreen : MonoBehaviour
 
         if (completedLoadables.Count == loadables.Length)
         {
-            canvasGroup.DOFade(0, 1f);
-            dashboardCanvasGroup.DOFade(1, 1f);
+            canvasGroup.DOFade(0, fadeTime);
+            dashboardCanvasGroup.DOFade(1, fadeTime).SetDelay(fadeTime);
         }
     }
 
