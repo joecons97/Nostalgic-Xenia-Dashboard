@@ -599,15 +599,37 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "",
-                    "id": "8fc4cd72-f581-46d8-b565-428a3a8e7b36",
-                    "path": "<XInputController>/select",
+                    "name": "Gamepad",
+                    "id": "2378391e-8d21-4ab0-8c6f-9cea0ec97662",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Home",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "e313eb6a-f050-4b76-a352-145174a9d713",
+                    "path": "<Gamepad>/start",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Home",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "6ccaba37-0052-4723-a9a5-af7a3d66b860",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Home",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }
