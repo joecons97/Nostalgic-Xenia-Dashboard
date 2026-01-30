@@ -73,8 +73,7 @@ public class NXESplashScreen : MonoBehaviour
         canvasGroup.DOFade(0, fadeTime);
         dashboardCanvasGroup.DOFade(1, fadeTime).SetDelay(fadeTime);
     }
-    }
-
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
