@@ -26,20 +26,45 @@ public class PluginLoader : MonoBehaviour
         var plugins = new List<Library>();
         var dlls = Directory.GetFiles(PluginsPath, "*.dll", SearchOption.AllDirectories);
 
+        // Track plugin directories for dependency resolution
+        var pluginDirectories = new HashSet<string>();
+
+        AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+        {
+            var assemblyName = new AssemblyName(args.Name);
+
+            // Search in all plugin directories
+            foreach (var dir in pluginDirectories)
+            {
+                var assemblyPath = Path.Combine(dir, assemblyName.Name + ".dll");
+                if (File.Exists(assemblyPath))
+                {
+                    Debug.Log($"Resolved dependency: {assemblyName.Name} from {assemblyPath}");
+                    return Assembly.LoadFile(assemblyPath);
+                }
+            }
+
+            return null;
+        };
+
         foreach (var dll in dlls)
         {
             try
             {
-                Debug.Log($"Loading Plugin: {dll}");
-                var asm = Assembly.LoadFile(dll);
-                var entry = asm.GetExportedTypes().FirstOrDefault(x => typeof(LibraryPlugin.LibraryPlugin).IsAssignableFrom(x));
-                if (entry != null)
+                // Track this plugin's directory
+                var pluginDir = Path.GetDirectoryName(dll);
+                if (!string.IsNullOrEmpty(pluginDir))
                 {
-                    var plugin = (LibraryPlugin.LibraryPlugin)Activator.CreateInstance(entry);
-                    plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(Path.GetDirectoryName(dll) ?? string.Empty, plugin.IconPath), dll, plugin));
+                    pluginDirectories.Add(pluginDir);
                 }
 
-                Debug.Log($"Loaded Plugin: {dll}");
+                var asm = Assembly.LoadFile(dll);
+                var entry = asm.GetExportedTypes().FirstOrDefault(x => typeof(LibraryPlugin.LibraryPlugin).IsAssignableFrom(x));
+                if (entry == null) continue;
+
+                var plugin = (LibraryPlugin.LibraryPlugin)Activator.CreateInstance(entry);
+                plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(pluginDir ?? string.Empty, plugin.IconPath), dll, plugin));
+                Debug.Log($"Loaded Plugin: {asm.GetName()}");
             }
             catch (Exception e)
             {
