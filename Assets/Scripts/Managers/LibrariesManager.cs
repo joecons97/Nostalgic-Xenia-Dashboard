@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks.Triggers;
 using Loadables;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -26,9 +27,9 @@ public class LibrariesManager : MonoBehaviour, ILoadable
 
     public Library ActivelyImportingLibrary { get; private set; }
 
-    private void Start()
+    private async UniTaskVoid Start()
     {
-        Libraries = loader.LoadLibraryPlugins();
+        Libraries = await loader.LoadLibraryPluginsAsync();
         OnLoadComplete?.Invoke(this);
     }
 

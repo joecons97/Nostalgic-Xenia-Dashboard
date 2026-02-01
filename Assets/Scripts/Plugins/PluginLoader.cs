@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class PluginLoader : MonoBehaviour
@@ -21,7 +22,7 @@ public class PluginLoader : MonoBehaviour
         Debug.Log($"Plugins Path: {PluginsPath}");
     }
 
-    public Library[] LoadLibraryPlugins()
+    public async UniTask<Library[]> LoadLibraryPluginsAsync()
     {
         var plugins = new List<Library>();
         var dlls = Directory.GetFiles(PluginsPath, "*.dll", SearchOption.AllDirectories);
@@ -64,6 +65,7 @@ public class PluginLoader : MonoBehaviour
 
                 var plugin = (LibraryPlugin.LibraryPlugin)Activator.CreateInstance(entry);
                 plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(pluginDir ?? string.Empty, plugin.IconPath), dll, plugin));
+                await plugin.OnPluginLoaded();
                 Debug.Log($"Loaded Plugin: {asm.GetName()}");
             }
             catch (Exception e)
