@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using Assets.Scripts.PersistentData.Models;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
+using Extensions;
 using LiteDB;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class LibraryPluginModal : NXEModal
@@ -18,6 +20,7 @@ public class LibraryPluginModal : NXEModal
     [SerializeField] private Button toggleDashboardButton;
     [SerializeField] private Transform buttonsParent;
     [SerializeField] private Button buttonPrefab;
+    [SerializeField] private Text customDescriptionField;
 
     private List<Button> spawnedButtons = new List<Button>();
 
@@ -46,6 +49,20 @@ public class LibraryPluginModal : NXEModal
 
                 if (button.Action != null)
                     newButton.OnClickAsAsyncEnumerable().Subscribe(async (asyncUnit) => await button.Action(this.GetCancellationTokenOnDestroy()));
+
+                var eventTrigger = newButton.GetComponent<EventTrigger>();
+                
+                eventTrigger.triggers.Add(new EventTrigger.Entry()
+                {
+                    eventID = EventTriggerType.Select,
+                    callback = new EventTrigger.TriggerEvent().Listen(ev => customDescriptionField.text = button.Description)
+                });
+                
+                eventTrigger.triggers.Add(new EventTrigger.Entry()
+                {
+                    eventID = EventTriggerType.Deselect,
+                    callback = new EventTrigger.TriggerEvent().Listen(ev => customDescriptionField.text = "")
+                });
                 
                 spawnedButtons.Add(newButton);
             }
