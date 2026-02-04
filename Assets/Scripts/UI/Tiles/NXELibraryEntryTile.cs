@@ -254,6 +254,7 @@ public class NXELibraryEntryTile : NXETile
                         var data = await library.Plugin.GetAdditionalMetadata(libraryEntry.SourceId, this.GetCancellationTokenOnDestroy());
                         await UniTask.WaitUntil(() => currentModal != null, cancellationToken: this.GetCancellationTokenOnDestroy());
                         currentModal.GetComponentInChildren<NXELibraryEntryInfoTile>().SetLibraryMetadataEntry(data);
+                        currentModal.GetComponentInChildren<NXELibraryEntryDescriptionTile>().SetLibraryMetadataEntry(data);
                     }).Forget();
                 }
             }
