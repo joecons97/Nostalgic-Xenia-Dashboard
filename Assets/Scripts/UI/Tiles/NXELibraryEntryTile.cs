@@ -22,17 +22,21 @@ public class NXELibraryEntryTile : NXETile
 
     private NXEModal currentModal;
     private GameActionsManager gameActionsManager;
+    private LibrariesManager librariesManager;
 
-    private static Queue<NXELibraryEntryTile> artworkRequestQueue = new Queue<NXELibraryEntryTile>();
+    private static Queue<NXELibraryEntryTile> artworkRequestQueue = new();
     private static UniTask activeQueueTask = UniTask.CompletedTask;
 
+    private Library library;
     private LibraryEntry libraryEntry;
     private bool isOperant;
     private string activeModalId;
+    private bool isLoadingMetadata;
 
     private void Awake()
     {
         gameActionsManager = FindFirstObjectByType<GameActionsManager>();
+        librariesManager = FindFirstObjectByType<LibrariesManager>();
     }
 
     public void SetLibraryEntry(LibraryEntry entry)
@@ -240,6 +244,18 @@ public class NXELibraryEntryTile : NXETile
             {
                 blade.Focus(animate: false);
                 currentModal.GetComponentInChildren<NXELibraryEntryDetailsTile>().SetLibraryEntry(libraryEntry);
+
+                library ??= librariesManager.Libraries.FirstOrDefault(x => x.Name == libraryEntry.Source);
+
+                if (library != null)
+                {
+                    UniTask.Create(async () =>
+                    {
+                        var data = await library.Plugin.GetAdditionalMetadata(libraryEntry.SourceId, this.GetCancellationTokenOnDestroy());
+                        await UniTask.WaitUntil(() => currentModal != null, cancellationToken: this.GetCancellationTokenOnDestroy());
+                        currentModal.GetComponentInChildren<NXELibraryEntryInfoTile>().SetLibraryMetadataEntry(data);
+                    }).Forget();
+                }
             }
         }
     }

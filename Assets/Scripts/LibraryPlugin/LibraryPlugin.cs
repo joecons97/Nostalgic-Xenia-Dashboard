@@ -26,9 +26,9 @@ namespace LibraryPlugin
             return UniTask.CompletedTask;
         }
         
-        public virtual UniTask<List<AdditionalMetadata>> GetAdditionalMetadata(string entryId, CancellationToken cancellationToken)
+        public virtual UniTask<AdditionalMetadata> GetAdditionalMetadata(string entryId, CancellationToken cancellationToken)
         {
-            return UniTask.FromResult(new List<AdditionalMetadata>());
+            return UniTask.FromResult<AdditionalMetadata>(null);
         }
 
         public virtual UniTask<GameActionResult> TryStartEntryAsync(LibraryEntry entry, CancellationToken cancellationToken)
