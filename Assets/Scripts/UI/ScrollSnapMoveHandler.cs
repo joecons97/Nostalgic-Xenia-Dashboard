@@ -8,12 +8,14 @@ public class ScrollSnapMoveHandler : Selectable
 {
     [SerializeField, ReadOnly] private ScrollSnap scrollSnapBase;
 
+#if UNITY_EDITOR
     protected override void OnValidate()
     {
         base.OnValidate();
 
         scrollSnapBase = GetComponent<ScrollSnap>();
     }
+#endif
 
     public override void OnMove(AxisEventData eventData)
     {
