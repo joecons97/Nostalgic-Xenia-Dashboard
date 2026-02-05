@@ -3,9 +3,17 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
 
+[RequireComponent(typeof(ScrollSnap))]
 public class ScrollSnapMoveHandler : Selectable
 {
-    [SerializeField] private ScrollSnap scrollSnapBase;
+    [SerializeField, ReadOnly] private ScrollSnap scrollSnapBase;
+
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+
+        scrollSnapBase = GetComponent<ScrollSnap>();
+    }
 
     public override void OnMove(AxisEventData eventData)
     {
