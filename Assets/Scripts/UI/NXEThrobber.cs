@@ -24,4 +24,10 @@ public class NXEThrobber : MonoBehaviour
             .SetLoops(-1, LoopType.Restart) // -1 makes it loop infinitely
             .SetRelative(); // Rotates relative to current rotation
     }
+
+    private void OnDestroy()
+    {
+        throbber.DOKill();
+        spinner.DOKill();
+    }
 }

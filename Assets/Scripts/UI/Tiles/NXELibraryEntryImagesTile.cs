@@ -60,7 +60,7 @@ public class NXELibraryEntryImagesTile : MonoBehaviour
         if (page > imageLoaders.Count - 1)
             return;
 
-        var img = imageLoaders[page].GetComponent<AsyncImageLoader>();
+        var img = imageLoaders[page];
         if (img.HasImage == false)
             img.SetSource(metadata.ScreenshotUrls[page]);
     }

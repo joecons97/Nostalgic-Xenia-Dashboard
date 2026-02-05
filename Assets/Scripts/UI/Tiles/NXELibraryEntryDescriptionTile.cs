@@ -7,8 +7,6 @@ public class NXELibraryEntryDescriptionTile : MonoBehaviour
     [SerializeField] private Text detailsText;
     [SerializeField] private NXEThrobber throbber;
     
-    private AdditionalMetadata metadata;
-
     private void Awake()
     {
         throbber.gameObject.SetActive(true);
@@ -17,8 +15,6 @@ public class NXELibraryEntryDescriptionTile : MonoBehaviour
 
     public void SetLibraryMetadataEntry(AdditionalMetadata data)
     {
-        metadata = data;
-
         detailsText.text = data?.Description ?? "No description available.";
         
         throbber.gameObject.SetActive(false);
