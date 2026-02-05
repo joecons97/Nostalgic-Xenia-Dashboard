@@ -4,8 +4,9 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using UnityEngine.UI.Extensions;
 
-[ExecuteAlways]
+[ExecuteAlways, RequireComponent(typeof(AudioSource))]
 public class NXEBladeLayoutGroup : LayoutGroup
 {
     [Header("Blade Layout Settings")]
@@ -20,7 +21,7 @@ public class NXEBladeLayoutGroup : LayoutGroup
     [SerializeField] private float transitionTime = 8f;
     [SerializeField] private Ease transitionEase = Ease.OutQuad;
 
-    [Header("Audio")] [SerializeField] private AudioSource audioSource;
+    [Header("Audio")] [SerializeField, ReadOnly] private AudioSource audioSource;
     [SerializeField] private AudioClip cycleLeftAudio;
     [SerializeField] private AudioClip cycleRightAudio;
 
@@ -216,6 +217,9 @@ public class NXEBladeLayoutGroup : LayoutGroup
     protected override void OnValidate()
     {
         base.OnValidate();
+
+        audioSource = GetComponent<AudioSource>();
+
         CalculateLayout();
     }
 #endif
