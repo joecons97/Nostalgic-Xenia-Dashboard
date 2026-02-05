@@ -44,15 +44,29 @@ public class AsyncImageLoader : MonoBehaviour
         if (throbber)
             throbber.gameObject.SetActive(true);
         
-        var request = UnityWebRequestTexture.GetTexture(src);
-        await request.SendWebRequest().WithCancellation(this.GetCancellationTokenOnDestroy());
+        using var request = UnityWebRequestTexture.GetTexture(src);
 
-        image.texture = DownloadHandlerTexture.GetContent(request);
-        image.enabled = true;
+        try
+        {
+            await request.SendWebRequest().WithCancellation(this.GetCancellationTokenOnDestroy());
+            if(request.result == UnityWebRequest.Result.Success)
+            {
+                var texture = DownloadHandlerTexture.GetContent(request);
+                image.texture = texture;
+                image.enabled = true;
 
-        aspectRatioFitter.aspectRatio = (float)image.texture.width / image.texture.height;
-
-        if (throbber)
-            throbber.gameObject.SetActive(false);
+                aspectRatioFitter.aspectRatio = (float)texture.width / texture.height;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load image from {src}: {e.Message}");
+            Debug.LogException(e);
+        }
+        finally
+        {
+            if (throbber)
+                throbber.gameObject.SetActive(false);
+        }
     }
 }
