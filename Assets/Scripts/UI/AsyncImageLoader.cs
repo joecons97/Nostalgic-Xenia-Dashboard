@@ -32,6 +32,9 @@ public class AsyncImageLoader : MonoBehaviour
 
     public void SetSource(string url)
     {
+        if (string.IsNullOrEmpty(url))
+            return;
+
         src = url;
         
         UniTask.Create(LoadImageAsync).Forget();
