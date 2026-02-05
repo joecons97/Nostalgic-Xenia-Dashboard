@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Gilzoide.FlexUi;
 using LibraryPlugin;
 using LiteDB;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -48,10 +48,10 @@ public class NXELibraryEntryTile : NXETile
         }
 
         libraryEntry = entry;
-        
-        if(gameActionsManager == null)
+
+        if (gameActionsManager == null)
             gameActionsManager = FindFirstObjectByType<GameActionsManager>();
-        
+
         SetIsOperant(gameActionsManager.IsEntryOperant(libraryEntry));
 
         installedIcon.SetActive(string.IsNullOrEmpty(libraryEntry.Path));
@@ -185,9 +185,9 @@ public class NXELibraryEntryTile : NXETile
                 text.fontSize = 26;
                 text.alignment = TextAnchor.UpperCenter;
                 text.text = $"{libraryEntry.Name} is currently being installed via {libraryEntry.Source}.\n\nTo view progress, please visit the third-party client.";
-                
+
                 buttonObj = Instantiate(buttonObj, root.transform);
-                buttonObj.GetComponentInChildren<Text>().text = "Open Library Client";   
+                buttonObj.GetComponentInChildren<Text>().text = "Open Library Client";
                 var button = buttonObj.GetComponent<Button>();
                 button.onClick.AddListener(() =>
                 {
@@ -204,10 +204,10 @@ public class NXELibraryEntryTile : NXETile
 
                 _ = UniTask.WaitForSeconds(0.5f).ContinueWith(() =>
                 {
-                    if(button)
+                    if (button)
                         button.Select();
-                });              
-                
+                });
+
             }
         }
         else
@@ -251,11 +251,31 @@ public class NXELibraryEntryTile : NXETile
                 {
                     UniTask.Create(async () =>
                     {
-                        var data = await library.Plugin.GetAdditionalMetadata(libraryEntry.SourceId, this.GetCancellationTokenOnDestroy());
-                        await UniTask.WaitUntil(() => currentModal != null, cancellationToken: this.GetCancellationTokenOnDestroy());
-                        currentModal.GetComponentInChildren<NXELibraryEntryInfoTile>().SetLibraryMetadataEntry(data);
-                        currentModal.GetComponentInChildren<NXELibraryEntryDescriptionTile>().SetLibraryMetadataEntry(data);
-                        currentModal.GetComponentInChildren<NXELibraryEntryImagesTile>().SetLibraryMetadataEntry(data);
+                        try
+                        {
+                            var token = this.GetCancellationTokenOnDestroy();
+                            var data = await library.Plugin.GetAdditionalMetadata(libraryEntry.SourceId, token);
+
+                            var infoTile = currentModal.GetComponentInChildren<NXELibraryEntryInfoTile>();
+                            if (infoTile)
+                                infoTile.SetLibraryMetadataEntry(data);
+
+                            var descriptionTile = currentModal.GetComponentInChildren<NXELibraryEntryDescriptionTile>();
+                            if (descriptionTile)
+                                descriptionTile.SetLibraryMetadataEntry(data);
+
+                            var imagesTile = currentModal.GetComponentInChildren<NXELibraryEntryImagesTile>();
+                            if (imagesTile)
+                                imagesTile.SetLibraryMetadataEntry(data);
+                        }
+                        catch(OperationCanceledException)
+                        {
+
+                        }
+                        catch(Exception ex)
+                        {
+                            Debug.LogException(ex);
+                        }
                     }).Forget();
                 }
             }
@@ -293,7 +313,7 @@ public class NXELibraryEntryTile : NXETile
         if (libraryEntry.Id == obj)
         {
             var entry = FindFirstObjectByType<DatabaseManager>().LibraryEntries.FindOne(x => x.Id == obj);
-            
+
             SetLibraryEntry(entry);
         }
     }
