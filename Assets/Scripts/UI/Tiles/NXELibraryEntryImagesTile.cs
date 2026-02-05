@@ -28,6 +28,17 @@ public class NXELibraryEntryImagesTile : MonoBehaviour
 
         metadata = data;
 
+        if (data.ScreenshotUrls == null || data.ScreenshotUrls.Length == 0)
+            return;
+
+        foreach (var loader in imageLoaders)
+        {
+            if (loader != null)
+                Destroy(loader.gameObject);
+        }
+
+        imageLoaders.Clear();
+
         foreach (var metadataScreenshotUrl in metadata.ScreenshotUrls)
         {
             var image = Instantiate(asyncImagePrefab, imagesParent);
