@@ -4,7 +4,7 @@ namespace LibraryPlugin
 {
     public class AdditionalMetadata
     {
-        public AdditionalMetadata(string description, string[] screenshotUrls, string[] developers, string[] publishers, string[] genres, DateTime releaseDate)
+        public AdditionalMetadata(string description, string[] screenshotUrls, string[] developers, string[] publishers, string[] genres, DateTime? releaseDate)
         {
             Description = description;
             ScreenshotUrls = screenshotUrls;
@@ -19,6 +19,6 @@ namespace LibraryPlugin
         public string[] Developers { get; }
         public string[] Publishers { get; }
         public string[] Genres { get; }
-        public DateTime ReleaseDate { get; }
+        public DateTime? ReleaseDate { get; }
     }
 }

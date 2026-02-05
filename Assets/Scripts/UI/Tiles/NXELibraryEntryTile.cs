@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Gilzoide.FlexUi;
 using LibraryPlugin;
 using LiteDB;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -22,17 +22,21 @@ public class NXELibraryEntryTile : NXETile
 
     private NXEModal currentModal;
     private GameActionsManager gameActionsManager;
+    private LibrariesManager librariesManager;
 
-    private static Queue<NXELibraryEntryTile> artworkRequestQueue = new Queue<NXELibraryEntryTile>();
+    private static Queue<NXELibraryEntryTile> artworkRequestQueue = new();
     private static UniTask activeQueueTask = UniTask.CompletedTask;
 
+    private Library library;
     private LibraryEntry libraryEntry;
     private bool isOperant;
     private string activeModalId;
+    private bool isLoadingMetadata;
 
     private void Awake()
     {
         gameActionsManager = FindFirstObjectByType<GameActionsManager>();
+        librariesManager = FindFirstObjectByType<LibrariesManager>();
     }
 
     public void SetLibraryEntry(LibraryEntry entry)
@@ -44,10 +48,10 @@ public class NXELibraryEntryTile : NXETile
         }
 
         libraryEntry = entry;
-        
-        if(gameActionsManager == null)
+
+        if (gameActionsManager == null)
             gameActionsManager = FindFirstObjectByType<GameActionsManager>();
-        
+
         SetIsOperant(gameActionsManager.IsEntryOperant(libraryEntry));
 
         installedIcon.SetActive(string.IsNullOrEmpty(libraryEntry.Path));
@@ -181,9 +185,9 @@ public class NXELibraryEntryTile : NXETile
                 text.fontSize = 26;
                 text.alignment = TextAnchor.UpperCenter;
                 text.text = $"{libraryEntry.Name} is currently being installed via {libraryEntry.Source}.\n\nTo view progress, please visit the third-party client.";
-                
+
                 buttonObj = Instantiate(buttonObj, root.transform);
-                buttonObj.GetComponentInChildren<Text>().text = "Open Library Client";   
+                buttonObj.GetComponentInChildren<Text>().text = "Open Library Client";
                 var button = buttonObj.GetComponent<Button>();
                 button.onClick.AddListener(() =>
                 {
@@ -200,10 +204,10 @@ public class NXELibraryEntryTile : NXETile
 
                 _ = UniTask.WaitForSeconds(0.5f).ContinueWith(() =>
                 {
-                    if(button)
+                    if (button)
                         button.Select();
-                });              
-                
+                });
+
             }
         }
         else
@@ -240,6 +244,40 @@ public class NXELibraryEntryTile : NXETile
             {
                 blade.Focus(animate: false);
                 currentModal.GetComponentInChildren<NXELibraryEntryDetailsTile>().SetLibraryEntry(libraryEntry);
+
+                library ??= librariesManager.Libraries.FirstOrDefault(x => x.Name == libraryEntry.Source);
+
+                if (library != null)
+                {
+                    UniTask.Create(async () =>
+                    {
+                        try
+                        {
+                            var token = this.GetCancellationTokenOnDestroy();
+                            var data = await library.Plugin.GetAdditionalMetadata(libraryEntry.SourceId, token);
+
+                            var infoTile = currentModal.GetComponentInChildren<NXELibraryEntryInfoTile>();
+                            if (infoTile)
+                                infoTile.SetLibraryMetadataEntry(data);
+
+                            var descriptionTile = currentModal.GetComponentInChildren<NXELibraryEntryDescriptionTile>();
+                            if (descriptionTile)
+                                descriptionTile.SetLibraryMetadataEntry(data);
+
+                            var imagesTile = currentModal.GetComponentInChildren<NXELibraryEntryImagesTile>();
+                            if (imagesTile)
+                                imagesTile.SetLibraryMetadataEntry(data);
+                        }
+                        catch(OperationCanceledException)
+                        {
+
+                        }
+                        catch(Exception ex)
+                        {
+                            Debug.LogException(ex);
+                        }
+                    }).Forget();
+                }
             }
         }
     }
@@ -275,7 +313,7 @@ public class NXELibraryEntryTile : NXETile
         if (libraryEntry.Id == obj)
         {
             var entry = FindFirstObjectByType<DatabaseManager>().LibraryEntries.FindOne(x => x.Id == obj);
-            
+
             SetLibraryEntry(entry);
         }
     }

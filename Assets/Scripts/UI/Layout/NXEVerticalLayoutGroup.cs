@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using DG.Tweening;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,21 +11,20 @@ public class NXEVerticalLayoutGroup : LayoutGroup, IControllableLayout
 
     public List<NXEBlade> Rows => rows;
 
-    [Header("Layout")] [SerializeField] private float titleDownscale = 0.8f;
+    [Header("Layout")][SerializeField] private float titleDownscale = 0.8f;
     [SerializeField] private float titleOffset = -50;
     [SerializeField] private int focusedIndex = 0;
 
 
-    [Header("Transitions")] [SerializeField]
+    [Header("Transitions")]
+    [SerializeField]
     private float transitionTime = 8f;
 
     [SerializeField] private Ease transitionEase = Ease.OutQuad;
 
-    [Header("Audio")] [SerializeField] private AudioSource audioSource;
+    [Header("Audio")][SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip cycleUpAudio;
     [SerializeField] private AudioClip cycleDownAudio;
-    [SerializeField] private AudioClip cycleLeftAudio;
-    [SerializeField] private AudioClip cycleRightAudio;
 
     public RectTransform RectTransform => transform as RectTransform;
 
@@ -88,18 +87,18 @@ public class NXEVerticalLayoutGroup : LayoutGroup, IControllableLayout
 
     public void Select()
     {
-        if(enabled)
+        if (enabled)
             Rows[FocusedIndex].Select();
     }
 
     public void SelectAlt()
     {
-        if(enabled)
+        if (enabled)
             Rows[FocusedIndex].SelectAlt();
     }
 
     public void Cancel()
-    { 
+    {
         Rows[FocusedIndex].Cancel();
     }
 
@@ -113,8 +112,7 @@ public class NXEVerticalLayoutGroup : LayoutGroup, IControllableLayout
         if (enabled)
         {
             CollectRows();
-            if (Rows[focusedIndex].MoveLeft(speed))
-                audioSource.PlayOneShot(cycleLeftAudio);
+            Rows[focusedIndex].MoveLeft(speed);
 
             Layout();
         }
@@ -129,8 +127,7 @@ public class NXEVerticalLayoutGroup : LayoutGroup, IControllableLayout
         if (enabled)
         {
             CollectRows();
-            if (Rows[focusedIndex].MoveRight(speed))
-                audioSource.PlayOneShot(cycleRightAudio);
+            Rows[focusedIndex].MoveRight(speed);
 
             Layout();
         }
