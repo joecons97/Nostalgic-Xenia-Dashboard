@@ -19,7 +19,11 @@ public class NXEBladeLayoutGroup : LayoutGroup
     [SerializeField] private int focusedIndex = 0;
     [SerializeField] private float transitionTime = 8f;
     [SerializeField] private Ease transitionEase = Ease.OutQuad;
-    
+
+    [Header("Audio")] [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip cycleLeftAudio;
+    [SerializeField] private AudioClip cycleRightAudio;
+
     private List<RectTransform> tiles = new List<RectTransform>();
     private Vector3[] targetPositions;
     private Vector2[] targetSizes;
@@ -223,6 +227,8 @@ public class NXEBladeLayoutGroup : LayoutGroup
         {
             transitionSpeedMultiplier = speed;
             FocusedIndex = Mathf.Max(0, focusedIndex - 1);
+
+            audioSource.PlayOneShot(cycleLeftAudio);
         }
         
         return enabled;
@@ -239,6 +245,8 @@ public class NXEBladeLayoutGroup : LayoutGroup
         {
             transitionSpeedMultiplier = speed;
             FocusedIndex = Mathf.Min(tiles.Count - 1, focusedIndex + 1);
+
+            audioSource.PlayOneShot(cycleRightAudio);
         }
 
         return enabled;
