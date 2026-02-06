@@ -1,9 +1,10 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class PluginLoader : MonoBehaviour
@@ -13,19 +14,45 @@ public class PluginLoader : MonoBehaviour
         "NXD",
         "Plugins");
 
+    private static string TempPath => Path.Combine(PluginsPath, "Temp");
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         if (Directory.Exists(PluginsPath) == false)
             Directory.CreateDirectory(PluginsPath);
 
+        CleanUpTempFolder();
+
+        if (Directory.Exists(TempPath) == false)
+            Directory.CreateDirectory(TempPath);
+
         Debug.Log($"Plugins Path: {PluginsPath}");
+    }
+
+    private void CleanUpTempFolder()
+    {
+        if (Directory.Exists(TempPath))
+        {
+            try
+            {
+                Directory.Delete(TempPath, true);
+                Debug.Log("Cleaned up temporary plugin folder.");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to clean up temporary plugin folder: {e.Message}");
+            }
+        }
     }
 
     public async UniTask<Library[]> LoadLibraryPluginsAsync()
     {
         var plugins = new List<Library>();
-        var dlls = Directory.GetFiles(PluginsPath, "*.dll", SearchOption.AllDirectories);
+
+        ExtractArchives();
+
+        var dlls = Directory.GetFiles(TempPath, "*.dll", SearchOption.AllDirectories);
 
         // Track plugin directories for dependency resolution
         var pluginDirectories = new HashSet<string>();
@@ -64,7 +91,7 @@ public class PluginLoader : MonoBehaviour
                 if (entry == null) continue;
 
                 var plugin = (LibraryPlugin.LibraryPlugin)Activator.CreateInstance(entry);
-                plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(pluginDir ?? string.Empty, plugin.IconPath), dll, plugin));
+                plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(pluginDir ?? string.Empty, "icon.png"), dll, plugin));
                 await plugin.OnPluginLoaded();
                 Debug.Log($"Loaded Plugin: {asm.GetName()}");
             }
@@ -76,5 +103,36 @@ public class PluginLoader : MonoBehaviour
         }
 
         return plugins.ToArray();
+    }
+
+    private void ExtractArchives()
+    {
+        var archives = Directory.GetFiles(PluginsPath, "*.zip", SearchOption.AllDirectories);
+
+        foreach (var item in archives)
+        {
+            var archiveName = Path.GetFileNameWithoutExtension(item);
+            var directory = Path.Combine(TempPath, archiveName);
+
+            if (Directory.Exists(directory) == false)
+                Directory.CreateDirectory(directory);
+
+            using (ZipArchive archive = ZipFile.OpenRead(item))
+            {
+                // Extract all DLLs
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    string destinationPath = Path.Combine(directory, entry.Name);
+                    entry.ExtractToFile(destinationPath, true);
+                }
+            }
+
+            Debug.Log($"Extracted plugin archive: {item}");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        CleanUpTempFolder();
     }
 }

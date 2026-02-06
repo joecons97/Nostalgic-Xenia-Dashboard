@@ -107,6 +107,7 @@
   <Project Path="Gilzoide.FlexUi.Editor.csproj" />
   <Project Path="Unity.AI.Generators.Chat.csproj" />
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
+  <Project Path="LibraryPlugin.Editor.csproj" />
   <Project Path="Unity.AI.Assistant.Bridge.Editor.csproj" />
   <Project Path="UniTask.Editor.csproj" />
   <Project Path="Unity.AI.Toolkit.Asset.csproj" />
