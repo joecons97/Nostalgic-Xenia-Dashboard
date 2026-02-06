@@ -9,7 +9,6 @@ namespace LibraryPlugin
     {
         public abstract string Name { get; }
         public abstract string Description { get; }
-        public abstract string IconPath { get; }
 
         public Func<string, LibraryPlugin, UniTask> OnEntryProcessEnded;
         public Func<string, string, LibraryPlugin, UniTask> OnEntryInstallationComplete;
