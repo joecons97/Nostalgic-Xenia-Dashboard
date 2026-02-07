@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -114,41 +115,63 @@ public class PluginDefinition : ScriptableObject
 
     private string[] GetAssemblyDependencies()
     {
-        var results = new List<string>();
-
+        var results = new HashSet<string>(); // Use HashSet to avoid duplicates
         var playerAssemblies = CompilationPipeline.GetAssemblies(AssembliesType.Player)
             .FirstOrDefault(x => x.name == assemblyDefinition.name);
 
         if (playerAssemblies != null)
         {
             string dllPath = playerAssemblies.outputPath;
-
-            // Read assembly metadata without loading it
             using (var assemblyDef = AssemblyDefinition.ReadAssembly(dllPath))
             {
-                var references = assemblyDef.MainModule.AssemblyReferences;
-
-                foreach (var reference in references)
-                {
-                    string refName = reference.Name;
-
-                    // Skip Unity assemblies
-                    if (refName.StartsWith("UnityEngine") || refName.StartsWith("UnityEditor"))
-                        continue;
-
-                    // Find the DLL in Assets
-                    string dllName = refName + ".dll";
-                    string[] foundDlls = Directory.GetFiles("Assets/", dllName, SearchOption.AllDirectories);
-
-                    if (foundDlls.Length > 0)
-                    {
-                        results.Add(foundDlls[0]);
-                    }
-                }
+                GetDependenciesRecursive(assemblyDef, results, new HashSet<string>());
             }
         }
 
         return results.ToArray();
+    }
+
+    private void GetDependenciesRecursive(AssemblyDefinition assembly, HashSet<string> results, HashSet<string> visited)
+    {
+        var references = assembly.MainModule.AssemblyReferences;
+
+        foreach (var reference in references)
+        {
+            string refName = reference.Name;
+
+            // Skip if already processed
+            if (visited.Contains(refName))
+                continue;
+
+            visited.Add(refName);
+
+            // Skip Unity assemblies
+            if (refName.StartsWith("UnityEngine") || refName.StartsWith("UnityEditor"))
+                continue;
+
+            // Find the DLL in Assets
+            string dllName = refName + ".dll";
+            string[] foundDlls = Directory.GetFiles("Assets/", dllName, SearchOption.AllDirectories);
+
+            if (foundDlls.Length > 0)
+            {
+                string dllPath = foundDlls[0];
+                results.Add(dllPath);
+
+                // Recursively get dependencies of this DLL
+                try
+                {
+                    using (var refAssemblyDef = AssemblyDefinition.ReadAssembly(dllPath))
+                    {
+                        GetDependenciesRecursive(refAssemblyDef, results, visited);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"Failed to read assembly {dllPath}: {ex.Message}");
+                }
+            }
+        }
     }
 
     private string[] GetAmsDefDependencies()
