@@ -1,13 +1,12 @@
 using Assets.Scripts.PersistentData.Models;
 using Cysharp.Threading.Tasks;
 using LiteDB;
+using Loadables;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
-using Loadables;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -67,7 +66,7 @@ public class LibrariesManager : MonoBehaviour, ILoadable
                 ImportProgress.ReportProgress((float)index / entries.Count, $"({index}/{entries.Count}) Importing {entry.Name}");
 
                 //var artwork = await library.Plugin.GetArtworkCollection(entry.EntryId, token);
-//
+                //
                 //var paths = await UniTask.WhenAll(
                 //    DownloadImage(artwork.Cover, Path.Combine(entry.EntryId, "CoverImage"), token),
                 //    DownloadImage(artwork.Icon, Path.Combine(entry.EntryId, "Icon"), token),
@@ -116,31 +115,40 @@ public class LibrariesManager : MonoBehaviour, ILoadable
 
     public async UniTask<string> DownloadImage(string url, string outputName, CancellationToken token)
     {
-        if (string.IsNullOrEmpty(url))
-            return "";
+        try
+        {
+            if (string.IsNullOrEmpty(url))
+                return "";
 
-        using UnityWebRequest uwr = UnityWebRequest.Get(url);
-        await uwr.SendWebRequest().WithCancellation(token);
+            using UnityWebRequest uwr = UnityWebRequest.Get(url);
+            await uwr.SendWebRequest().WithCancellation(token);
 
-        // Get raw image bytes directly - no decode/encode needed!
-        byte[] imageData = uwr.downloadHandler.data;
+            // Get raw image bytes directly - no decode/encode needed!
+            byte[] imageData = uwr.downloadHandler.data;
 
-        var outputPath = Path.Combine(DatabaseManager.DatabasePath, "Images", $"{outputName}.{GetImageExtension(uwr)}");
-        var directory = Path.GetDirectoryName(outputPath);
+            var outputPath = Path.Combine(DatabaseManager.DatabasePath, "Images", $"{outputName}.{GetImageExtension(uwr)}");
+            var directory = Path.GetDirectoryName(outputPath);
 
-        // Switch to thread pool for I/O operations
-        await UniTask.SwitchToThreadPool();
+            // Switch to thread pool for I/O operations
+            await UniTask.SwitchToThreadPool();
 
-        if (Directory.Exists(directory) == false)
-            Directory.CreateDirectory(directory);
+            if (Directory.Exists(directory) == false)
+                Directory.CreateDirectory(directory);
 
-        await File.WriteAllBytesAsync(outputPath, imageData, token);
+            await File.WriteAllBytesAsync(outputPath, imageData, token);
 
-        await UniTask.SwitchToMainThread();
+            await UniTask.SwitchToMainThread();
 
-        return outputPath;
+            return outputPath;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to download image from {url}: {ex}");
+            throw;
+        }
     }
-    
+
+
     private string GetImageExtension(UnityWebRequest uwr)
     {
         string contentType = uwr.GetResponseHeader("Content-Type");
@@ -148,14 +156,14 @@ public class LibrariesManager : MonoBehaviour, ILoadable
             return ".jpg";
         if (contentType?.Contains("png") == true)
             return ".png";
-        
+
         // Fallback: detect from bytes
         byte[] data = uwr.downloadHandler.data;
         if (data.Length >= 2 && data[0] == 0xFF && data[1] == 0xD8)
             return ".jpg";
         if (data.Length >= 4 && data[0] == 0x89 && data[1] == 0x50)
             return ".png";
-        
+
         return ".png"; // default
     }
 }

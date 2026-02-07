@@ -107,7 +107,13 @@ public class NXELibraryEntryTile : NXETile
     {
         try
         {
-            if (libraryEntry.HasSearchedForArtwork == false)
+            //Were these files deleted for some reason? If so, we should try to redownload them
+            var hasInvalidPath = 
+                (libraryEntry.CoverImagePath != null && File.Exists(libraryEntry.CoverImagePath) == false) ||
+                (libraryEntry.IconPath != null && File.Exists(libraryEntry.IconPath) == false) ||
+                (libraryEntry.BannerImagePath != null && File.Exists(libraryEntry.BannerImagePath) == false);
+
+            if (libraryEntry.HasSearchedForArtwork == false || hasInvalidPath)
             {
                 await UniTask.SwitchToMainThread();
                 Debug.Log("Requesting Artwork for " + libraryEntry.Name);
@@ -119,9 +125,9 @@ public class NXELibraryEntryTile : NXETile
                     var artwork = await lib.Plugin.GetArtworkCollection(libraryEntry.SourceId, cancellationToken);
                     if (artwork != null)
                     {
-                        var cover = await libraryManager.DownloadImage(artwork.Cover, Path.Combine(libraryEntry.SourceId, "CoverImage"), cancellationToken);
-                        var icon = await libraryManager.DownloadImage(artwork.Icon, Path.Combine(libraryEntry.SourceId, "Icon"), cancellationToken);
-                        var banner = await libraryManager.DownloadImage(artwork.Banner, Path.Combine(libraryEntry.SourceId, "BannerImage"), cancellationToken);
+                        var cover = await libraryManager.DownloadImage(artwork.Cover, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "CoverImage"), cancellationToken);
+                        var icon = await libraryManager.DownloadImage(artwork.Icon, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "Icon"), cancellationToken);
+                        var banner = await libraryManager.DownloadImage(artwork.Banner, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "BannerImage"), cancellationToken);
 
                         libraryEntry.CoverImagePath = cover;
                         libraryEntry.IconPath = icon;
