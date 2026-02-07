@@ -59,23 +59,7 @@ public class PluginLoader : MonoBehaviour
         // Track plugin directories for dependency resolution
         var pluginDirectories = new HashSet<string>();
 
-        AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
-        {
-            var assemblyName = new AssemblyName(args.Name);
-
-            // Search in all plugin directories
-            foreach (var dir in pluginDirectories)
-            {
-                var assemblyPath = Path.Combine(dir, assemblyName.Name + ".dll");
-                if (File.Exists(assemblyPath))
-                {
-                    Debug.Log($"Resolved dependency: {assemblyName.Name} from {assemblyPath}");
-                    return Assembly.LoadFile(assemblyPath);
-                }
-            }
-
-            return null;
-        };
+        AppDomain.CurrentDomain.AssemblyResolve += resolveAssembly;
 
         foreach (var dll in dlls)
         {
@@ -103,6 +87,27 @@ public class PluginLoader : MonoBehaviour
                 Debug.LogException(e);
             }
         }
+
+
+        Assembly resolveAssembly(object sender, ResolveEventArgs args)
+        {
+            var assemblyName = new AssemblyName(args.Name);
+
+            // Search in all plugin directories
+            foreach (var dir in pluginDirectories)
+            {
+                var assemblyPath = Path.Combine(dir, assemblyName.Name + ".dll");
+                if (File.Exists(assemblyPath))
+                {
+                    Debug.Log($"Resolved dependency: {assemblyName.Name} from {assemblyPath}");
+                    return Assembly.LoadFile(assemblyPath);
+                }
+            }
+
+            return null;
+        }
+
+        AppDomain.CurrentDomain.AssemblyResolve -= resolveAssembly;
 
         return plugins.ToArray();
     }
