@@ -241,3 +241,19 @@ public class PluginDefinition : ScriptableObject
     }
 #endif
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(PluginDefinition))]
+public class PluginDefinitionEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        var pluginDef = (PluginDefinition)target;
+        if (GUILayout.Button("Export Plugin"))
+        {
+            pluginDef.Export();
+        }
+    }
+}
+#endif
