@@ -31,9 +31,23 @@ public class PluginDefinition : ScriptableObject
     [ContextMenu("Export")]
     public void Export()
     {
+        if(assemblyDefinition == null)
+        {
+            Debug.LogError("Assembly Definition is not assigned.");
+            return;
+        }
+
+        if(icon == null)
+        {
+            Debug.LogError("Icon is not assigned.");
+            return;
+        }
+
         try
         {
             var outPath = EditorUtility.SaveFilePanel("Export Plugin", "", $"{assemblyDefinition.name}.zip", "zip");
+            if(string.IsNullOrEmpty(outPath))
+                return;
 
             EditorUtility.DisplayProgressBar("Exporting Plugin", "Gathering Dependencies", 0.3f);
 
@@ -88,6 +102,11 @@ public class PluginDefinition : ScriptableObject
     {
         using var assemblyDef = AssemblyDefinition.ReadAssembly(path);
         var pluginType = assemblyDef.MainModule.Types.FirstOrDefault(x => x.BaseType?.Name.Contains("LibraryPlugin") == true);
+        if(pluginType == null)
+        {
+            Debug.LogError("No class inheriting from LibraryPlugin found in the assembly.");
+            return null;
+        }
 
         var instance = Activator.CreateInstance(assemblyDef.FullName, pluginType.FullName).Unwrap() as LibraryPlugin.LibraryPlugin;
 
@@ -96,21 +115,16 @@ public class PluginDefinition : ScriptableObject
 
     private List<string> GatherDependencyPaths()
     {
-        var paths = new List<string>();
+        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        paths.AddRange(GetAssemblyDependencies());
+        foreach (var p in GetAssemblyDependencies()) paths.Add(p);
+        foreach (var p in GetAmsDefDependencies()) paths.Add(p);
 
-        paths.AddRange(GetAmsDefDependencies());
+        paths.RemoveWhere(x => x.Contains("unitask", StringComparison.OrdinalIgnoreCase));
+        paths.RemoveWhere(x => x.Contains("libraryplugin", StringComparison.OrdinalIgnoreCase));
 
-        var unitask = paths.FirstOrDefault(x => x.Contains("unitask", System.StringComparison.OrdinalIgnoreCase));
-        if (string.IsNullOrEmpty(unitask) == false)
-            paths.Remove(unitask);
+        return paths.ToList();
 
-        var libraryplugin = paths.FirstOrDefault(x => x.Contains("libraryplugin", System.StringComparison.OrdinalIgnoreCase));
-        if (string.IsNullOrEmpty(libraryplugin) == false)
-            paths.Remove(libraryplugin);
-
-        return paths;
     }
 
     private string[] GetAssemblyDependencies()

@@ -15,6 +15,7 @@ public class PluginLoader : MonoBehaviour
         "Plugins");
 
     private static string TempPath => Path.Combine(PluginsPath, "Temp");
+    private const string ICON_NAME = "icon.png";
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -41,7 +42,8 @@ public class PluginLoader : MonoBehaviour
             }
             catch (Exception e)
             {
-                Debug.LogError($"Failed to clean up temporary plugin folder: {e.Message}");
+                Debug.LogError($"Failed to clean up temporary plugin folder");
+                Debug.LogException(e);
             }
         }
     }
@@ -91,7 +93,7 @@ public class PluginLoader : MonoBehaviour
                 if (entry == null) continue;
 
                 var plugin = (LibraryPlugin.LibraryPlugin)Activator.CreateInstance(entry);
-                plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(pluginDir ?? string.Empty, "icon.png"), dll, plugin));
+                plugins.Add(new Library(plugin.Name, plugin.Description, Path.Combine(pluginDir ?? string.Empty, ICON_NAME), dll, plugin));
                 await plugin.OnPluginLoaded();
                 Debug.Log($"Loaded Plugin: {asm.GetName()}");
             }
@@ -117,15 +119,7 @@ public class PluginLoader : MonoBehaviour
             if (Directory.Exists(directory) == false)
                 Directory.CreateDirectory(directory);
 
-            using (ZipArchive archive = ZipFile.OpenRead(item))
-            {
-                // Extract all DLLs
-                foreach (ZipArchiveEntry entry in archive.Entries)
-                {
-                    string destinationPath = Path.Combine(directory, entry.Name);
-                    entry.ExtractToFile(destinationPath, true);
-                }
-            }
+            ZipFile.ExtractToDirectory(item, directory, overwriteFiles: true);
 
             Debug.Log($"Extracted plugin archive: {item}");
         }
