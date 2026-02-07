@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -31,13 +30,13 @@ public class PluginDefinition : ScriptableObject
     [ContextMenu("Export")]
     public void Export()
     {
-        if(assemblyDefinition == null)
+        if (assemblyDefinition == null)
         {
             Debug.LogError("Assembly Definition is not assigned.");
             return;
         }
 
-        if(icon == null)
+        if (icon == null)
         {
             Debug.LogError("Icon is not assigned.");
             return;
@@ -46,7 +45,7 @@ public class PluginDefinition : ScriptableObject
         try
         {
             var outPath = EditorUtility.SaveFilePanel("Export Plugin", "", $"{assemblyDefinition.name}.zip", "zip");
-            if(string.IsNullOrEmpty(outPath))
+            if (string.IsNullOrEmpty(outPath))
                 return;
 
             EditorUtility.DisplayProgressBar("Exporting Plugin", "Gathering Dependencies", 0.3f);
@@ -102,7 +101,7 @@ public class PluginDefinition : ScriptableObject
     {
         using var assemblyDef = AssemblyDefinition.ReadAssembly(path);
         var pluginType = assemblyDef.MainModule.Types.FirstOrDefault(x => x.BaseType?.Name.Contains("LibraryPlugin") == true);
-        if(pluginType == null)
+        if (pluginType == null)
         {
             Debug.LogError("No class inheriting from LibraryPlugin found in the assembly.");
             return null;
