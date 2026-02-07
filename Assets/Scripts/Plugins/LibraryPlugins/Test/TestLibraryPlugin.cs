@@ -9,10 +9,10 @@ namespace TestLibraryPlugin
     {
         public override string Name { get; } = "My Test Library";
         public override string Description { get; } = "This is just a test plugin for testing purposes. It loads two games and that's it.";
-        public override string IconPath { get; } = "applogo.png";
 
         public override UniTask<ArtworkCollection> GetArtworkCollection(string entryId, CancellationToken cancellationToken)
         {
+            
             return UniTask.FromResult(new ArtworkCollection());
         }
 
