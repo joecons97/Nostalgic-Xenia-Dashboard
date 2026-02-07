@@ -51,6 +51,12 @@ public class PluginDefinition : ScriptableObject
             EditorUtility.DisplayProgressBar("Exporting Plugin", "Gathering Dependencies", 0.3f);
 
             var pluginAssembly = FindCompiledAssembly(assemblyDefinition.name);
+            if(string.IsNullOrEmpty(pluginAssembly))
+            {
+                Debug.LogError("Could not find compiled assembly for the specified Assembly Definition.");
+                return;
+            }
+
             var pluginInstance = GetLibraryPlugin(pluginAssembly);
             if (pluginInstance == null)
             {
