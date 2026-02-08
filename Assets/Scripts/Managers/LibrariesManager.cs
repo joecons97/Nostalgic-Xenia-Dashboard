@@ -4,11 +4,10 @@ using LiteDB;
 using Loadables;
 using System;
 using System.IO;
-using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class LibrariesManager : MonoBehaviour, ILoadable
 {
@@ -21,6 +20,11 @@ public class LibrariesManager : MonoBehaviour, ILoadable
     public event Action<Library> OnLibraryImportCancelled;
     public event Action<Library> OnLibraryImportEnd;
     public event Action<ILoadable> OnLoadComplete;
+
+    private static readonly HttpClient httpClient = new HttpClient
+    {
+        Timeout = TimeSpan.FromSeconds(30)
+    };
 
     public Progress ImportProgress { get; private set; } = new Progress();
 
@@ -113,24 +117,16 @@ public class LibrariesManager : MonoBehaviour, ILoadable
             if (string.IsNullOrEmpty(url))
                 return "";
 
-            using UnityWebRequest uwr = UnityWebRequest.Get(url);
-            await uwr.SendWebRequest().WithCancellation(token);
+            var imageData = await httpClient.GetByteArrayAsync(url);
 
-            // Get raw image bytes directly - no decode/encode needed!
-            byte[] imageData = uwr.downloadHandler.data;
-
-            var outputPath = Path.Combine(DatabaseManager.DatabasePath, "Images", $"{outputName}.{GetImageExtension(uwr)}");
+            var extension = GetImageExtensionFromUrl(url, imageData);
+            var outputPath = Path.Combine(DatabaseManager.DatabasePath, "Images", $"{outputName}.{extension}");
             var directory = Path.GetDirectoryName(outputPath);
 
-            // Switch to thread pool for I/O operations
-            await UniTask.SwitchToThreadPool();
-
-            if (Directory.Exists(directory) == false)
+            if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
             await File.WriteAllBytesAsync(outputPath, imageData, token);
-
-            await UniTask.SwitchToMainThread();
 
             return outputPath;
         }
@@ -141,22 +137,26 @@ public class LibrariesManager : MonoBehaviour, ILoadable
         }
     }
 
-
-    private string GetImageExtension(UnityWebRequest uwr)
+    private string GetImageExtensionFromUrl(string url, byte[] imageData)
     {
-        string contentType = uwr.GetResponseHeader("Content-Type");
-        if (contentType?.Contains("jpeg") == true || contentType?.Contains("jpg") == true)
-            return ".jpg";
-        if (contentType?.Contains("png") == true)
-            return ".png";
+        // Try to get extension from URL first
+        var uri = new Uri(url);
+        var extension = Path.GetExtension(uri.LocalPath).TrimStart('.');
 
-        // Fallback: detect from bytes
-        byte[] data = uwr.downloadHandler.data;
-        if (data.Length >= 2 && data[0] == 0xFF && data[1] == 0xD8)
-            return ".jpg";
-        if (data.Length >= 4 && data[0] == 0x89 && data[1] == 0x50)
-            return ".png";
+        if (!string.IsNullOrEmpty(extension) &&
+            (extension == "png" || extension == "jpg" || extension == "jpeg" || extension == "webp"))
+        {
+            return extension;
+        }
 
-        return ".png"; // default
+        // Fallback: detect from image data (magic bytes)
+        if (imageData.Length >= 4)
+        {
+            if (imageData[0] == 0x89 && imageData[1] == 0x50) return "png";
+            if (imageData[0] == 0xFF && imageData[1] == 0xD8) return "jpg";
+            if (imageData[0] == 0x52 && imageData[1] == 0x49) return "webp";
+        }
+
+        return "png"; // default fallback
     }
 }

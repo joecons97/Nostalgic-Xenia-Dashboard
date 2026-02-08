@@ -22,7 +22,8 @@ public class NXELibraryEntryTile : NXETile
 
     private NXEModal currentModal;
     private GameActionsManager gameActionsManager;
-    private LibrariesManager librariesManager;
+    private static LibrariesManager librariesManager;
+    private static DatabaseManager databaseManager;
 
     private static Queue<NXELibraryEntryTile> artworkRequestQueue = new();
     private static UniTask activeQueueTask = UniTask.CompletedTask;
@@ -32,7 +33,7 @@ public class NXELibraryEntryTile : NXETile
     private bool isOperant;
     private string activeModalId;
 
-    private bool requiresImageDownload => libraryEntry.HasSearchedForArtwork == false || 
+    private bool requiresImageDownload => libraryEntry.HasSearchedForArtwork == false ||
                 (libraryEntry.CoverImagePath != null && File.Exists(libraryEntry.CoverImagePath) == false) ||
                 (libraryEntry.IconPath != null && File.Exists(libraryEntry.IconPath) == false) ||
                 (libraryEntry.BannerImagePath != null && File.Exists(libraryEntry.BannerImagePath) == false);
@@ -41,7 +42,13 @@ public class NXELibraryEntryTile : NXETile
     private void Awake()
     {
         gameActionsManager = FindFirstObjectByType<GameActionsManager>();
-        librariesManager = FindFirstObjectByType<LibrariesManager>();
+
+        if (librariesManager == null)
+            librariesManager = FindFirstObjectByType<LibrariesManager>();
+
+        if (databaseManager == null)
+            databaseManager = FindFirstObjectByType<DatabaseManager>();
+
     }
 
     public void SetLibraryEntry(LibraryEntry entry)
@@ -63,7 +70,7 @@ public class NXELibraryEntryTile : NXETile
 
         text.text = libraryEntry.Name;
 
-        if(requiresImageDownload)
+        if (requiresImageDownload)
             artworkRequestQueue.Enqueue(this);
         else
         {
@@ -105,9 +112,13 @@ public class NXELibraryEntryTile : NXETile
                 return;
 
             var token = result.destroyCancellationToken;
+            Debug.Log("Requesting Artwork for " + libraryEntry.Name);
             activeQueueTask = UniTask.RunOnThreadPool(async () =>
             {
-                var texture = await GetArtworkAsync(result.libraryEntry, token);
+                await LoadArtworkAsync(result.libraryEntry, token);
+
+                var texture = await LoadImageAsync(result.libraryEntry.CoverImagePath, token);
+
                 ApplyTextureTo(result, texture);
             });
         }
@@ -123,23 +134,22 @@ public class NXELibraryEntryTile : NXETile
         }
     }
 
-    private static async UniTask<Texture2D> GetArtworkAsync(LibraryEntry libraryEntry, CancellationToken cancellationToken)
+    private static async UniTask LoadArtworkAsync(LibraryEntry libraryEntry, CancellationToken cancellationToken)
     {
         try
         {
-            await UniTask.SwitchToMainThread();
-            Debug.Log("Requesting Artwork for " + libraryEntry.Name);
-            var libraryManager = FindFirstObjectByType<LibrariesManager>();
-            var databaseManager = FindFirstObjectByType<DatabaseManager>();
-            var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == libraryEntry.Source);
+            var lib = librariesManager.Libraries.FirstOrDefault(x => x.Name == libraryEntry.Source);
+
             if (lib != null)
             {
                 var artwork = await lib.Plugin.GetArtworkCollection(libraryEntry.SourceId, cancellationToken);
                 if (artwork != null)
                 {
-                    var cover = await libraryManager.DownloadImage(artwork.Cover, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "CoverImage"), cancellationToken);
-                    var icon = await libraryManager.DownloadImage(artwork.Icon, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "Icon"), cancellationToken);
-                    var banner = await libraryManager.DownloadImage(artwork.Banner, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "BannerImage"), cancellationToken);
+                    var (cover, icon, banner) = await UniTask.WhenAll(
+                        librariesManager.DownloadImage(artwork.Cover, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "CoverImage"), cancellationToken),
+                        librariesManager.DownloadImage(artwork.Icon, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "Icon"), cancellationToken),
+                        librariesManager.DownloadImage(artwork.Banner, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "BannerImage"), cancellationToken)
+                    );
 
                     libraryEntry.CoverImagePath = cover;
                     libraryEntry.IconPath = icon;
@@ -148,17 +158,14 @@ public class NXELibraryEntryTile : NXETile
             }
 
             if (cancellationToken.IsCancellationRequested)
-                return null;
+                return;
 
             libraryEntry.HasSearchedForArtwork = true;
             databaseManager.LibraryEntries.Update(libraryEntry);
-
-            return await LoadImageAsync(libraryEntry.CoverImagePath, cancellationToken);
         }
         catch (Exception e)
         {
             Debug.LogException(e);
-            return null;
         }
     }
 
@@ -285,11 +292,11 @@ public class NXELibraryEntryTile : NXETile
                             if (imagesTile)
                                 imagesTile.SetLibraryMetadataEntry(data);
                         }
-                        catch(OperationCanceledException)
+                        catch (OperationCanceledException)
                         {
 
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Debug.LogException(ex);
                         }
