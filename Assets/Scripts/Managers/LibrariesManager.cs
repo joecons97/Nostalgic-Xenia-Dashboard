@@ -65,13 +65,6 @@ public class LibrariesManager : MonoBehaviour, ILoadable
 
                 ImportProgress.ReportProgress((float)index / entries.Count, $"({index}/{entries.Count}) Importing {entry.Name}");
 
-                //var artwork = await library.Plugin.GetArtworkCollection(entry.EntryId, token);
-                //
-                //var paths = await UniTask.WhenAll(
-                //    DownloadImage(artwork.Cover, Path.Combine(entry.EntryId, "CoverImage"), token),
-                //    DownloadImage(artwork.Icon, Path.Combine(entry.EntryId, "Icon"), token),
-                //    DownloadImage(artwork.Banner, Path.Combine(entry.EntryId, "BannerImage"), token));
-
                 var libraryEntry = new LibraryEntry()
                 {
                     Id = ObjectId.NewObjectId(),

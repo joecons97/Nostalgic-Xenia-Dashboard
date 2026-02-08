@@ -31,7 +31,12 @@ public class NXELibraryEntryTile : NXETile
     private LibraryEntry libraryEntry;
     private bool isOperant;
     private string activeModalId;
-    private bool isLoadingMetadata;
+
+    private bool requiresImageDownload => libraryEntry.HasSearchedForArtwork == false || 
+                (libraryEntry.CoverImagePath != null && File.Exists(libraryEntry.CoverImagePath) == false) ||
+                (libraryEntry.IconPath != null && File.Exists(libraryEntry.IconPath) == false) ||
+                (libraryEntry.BannerImagePath != null && File.Exists(libraryEntry.BannerImagePath) == false);
+
 
     private void Awake()
     {
@@ -57,7 +62,17 @@ public class NXELibraryEntryTile : NXETile
         installedIcon.SetActive(string.IsNullOrEmpty(libraryEntry.Path));
 
         text.text = libraryEntry.Name;
-        artworkRequestQueue.Enqueue(this);
+
+        if(requiresImageDownload)
+            artworkRequestQueue.Enqueue(this);
+        else
+        {
+            UniTask.Create(async () =>
+            {
+                var texture = await LoadImageAsync(libraryEntry.CoverImagePath, destroyCancellationToken);
+                ApplyTextureTo(this, texture);
+            }).Forget();
+        }
     }
 
     private void Start()
@@ -93,13 +108,18 @@ public class NXELibraryEntryTile : NXETile
             activeQueueTask = UniTask.RunOnThreadPool(async () =>
             {
                 var texture = await GetArtworkAsync(result.libraryEntry, token);
-                if (texture)
-                {
-                    result.image.GetComponent<AspectRatioFitter>().aspectRatio = (float)texture.width / (float)texture.height;
-                    result.image.texture = texture;
-                    result.text.enabled = false;
-                }
+                ApplyTextureTo(result, texture);
             });
+        }
+    }
+
+    private static void ApplyTextureTo(NXELibraryEntryTile tile, Texture2D texture)
+    {
+        if (texture)
+        {
+            tile.image.GetComponent<AspectRatioFitter>().aspectRatio = (float)texture.width / (float)texture.height;
+            tile.image.texture = texture;
+            tile.text.enabled = false;
         }
     }
 
@@ -107,40 +127,31 @@ public class NXELibraryEntryTile : NXETile
     {
         try
         {
-            //Were these files deleted for some reason? If so, we should try to redownload them
-            var hasInvalidPath = 
-                (libraryEntry.CoverImagePath != null && File.Exists(libraryEntry.CoverImagePath) == false) ||
-                (libraryEntry.IconPath != null && File.Exists(libraryEntry.IconPath) == false) ||
-                (libraryEntry.BannerImagePath != null && File.Exists(libraryEntry.BannerImagePath) == false);
-
-            if (libraryEntry.HasSearchedForArtwork == false || hasInvalidPath)
+            await UniTask.SwitchToMainThread();
+            Debug.Log("Requesting Artwork for " + libraryEntry.Name);
+            var libraryManager = FindFirstObjectByType<LibrariesManager>();
+            var databaseManager = FindFirstObjectByType<DatabaseManager>();
+            var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == libraryEntry.Source);
+            if (lib != null)
             {
-                await UniTask.SwitchToMainThread();
-                Debug.Log("Requesting Artwork for " + libraryEntry.Name);
-                var libraryManager = FindFirstObjectByType<LibrariesManager>();
-                var databaseManager = FindFirstObjectByType<DatabaseManager>();
-                var lib = libraryManager.Libraries.FirstOrDefault(x => x.Name == libraryEntry.Source);
-                if (lib != null)
+                var artwork = await lib.Plugin.GetArtworkCollection(libraryEntry.SourceId, cancellationToken);
+                if (artwork != null)
                 {
-                    var artwork = await lib.Plugin.GetArtworkCollection(libraryEntry.SourceId, cancellationToken);
-                    if (artwork != null)
-                    {
-                        var cover = await libraryManager.DownloadImage(artwork.Cover, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "CoverImage"), cancellationToken);
-                        var icon = await libraryManager.DownloadImage(artwork.Icon, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "Icon"), cancellationToken);
-                        var banner = await libraryManager.DownloadImage(artwork.Banner, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "BannerImage"), cancellationToken);
+                    var cover = await libraryManager.DownloadImage(artwork.Cover, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "CoverImage"), cancellationToken);
+                    var icon = await libraryManager.DownloadImage(artwork.Icon, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "Icon"), cancellationToken);
+                    var banner = await libraryManager.DownloadImage(artwork.Banner, Path.Combine(libraryEntry.Source, libraryEntry.SourceId, "BannerImage"), cancellationToken);
 
-                        libraryEntry.CoverImagePath = cover;
-                        libraryEntry.IconPath = icon;
-                        libraryEntry.BannerImagePath = banner;
-                    }
+                    libraryEntry.CoverImagePath = cover;
+                    libraryEntry.IconPath = icon;
+                    libraryEntry.BannerImagePath = banner;
                 }
-
-                if (cancellationToken.IsCancellationRequested)
-                    return null;
-
-                libraryEntry.HasSearchedForArtwork = true;
-                databaseManager.LibraryEntries.Update(libraryEntry);
             }
+
+            if (cancellationToken.IsCancellationRequested)
+                return null;
+
+            libraryEntry.HasSearchedForArtwork = true;
+            databaseManager.LibraryEntries.Update(libraryEntry);
 
             return await LoadImageAsync(libraryEntry.CoverImagePath, cancellationToken);
         }
