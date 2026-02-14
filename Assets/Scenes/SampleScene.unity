@@ -13396,7 +13396,6 @@ GameObject:
   - component: {fileID: 1984616755}
   - component: {fileID: 1984616756}
   - component: {fileID: 1984616757}
-  - component: {fileID: 1984616758}
   - component: {fileID: 1984616759}
   m_Layer: 0
   m_Name: GuideMenuManager
@@ -13434,7 +13433,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GuideMenuManager
   guideMenuContainer: {fileID: 669138902}
   dashboardContainer: {fileID: 1921505677}
-  overlayWindow: {fileID: 1984616758}
+  overlayWindow: {fileID: 0}
   keyboardHook: {fileID: 1984616759}
   guideCanvasGroup: {fileID: 1643184280}
   layoutGroup: {fileID: 250306684}
@@ -13570,21 +13569,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1984616758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1984616754}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2a48863323dd9f43a237cd463d7ae13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TransparentOverlayWindow
-  enableOnStart: 1
-  overlayCamera: {fileID: 330585545}
-  guideMenuContainer: {fileID: 669138903}
 --- !u!114 &1984616759
 MonoBehaviour:
   m_ObjectHideFlags: 0

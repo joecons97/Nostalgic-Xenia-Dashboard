@@ -542,7 +542,7 @@ MonoBehaviour:
     selectAltActionText: 
     showCancelAction: 1
     cancelActionText: Back
-  DefaultSelection: {fileID: 0}
+  DefaultSelection: {fileID: 2492830948733042797}
 --- !u!114 &5680898492666462586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -959,7 +959,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -68632.84}
+  m_AnchoredPosition: {x: 0, y: -93103.8}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5907375413537590089
@@ -1283,7 +1283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScrollSnapMoveHandler
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}

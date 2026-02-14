@@ -811,7 +811,7 @@ MonoBehaviour:
     selectAltActionText: 
     showCancelAction: 1
     cancelActionText: Back
-  DefaultSelection: {fileID: 0}
+  DefaultSelection: {fileID: 5163278055768092875}
 --- !u!114 &-2892218492162868282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1029,7 +1029,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 16, y: -24}
-  m_SizeDelta: {x: 1536, y: 0}
+  m_SizeDelta: {x: 1606, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &7916341824788101510
 CanvasRenderer:
@@ -2026,7 +2026,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Scrollbar
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
