@@ -106,11 +106,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7593284639869550128, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 170
+      value: 1024
       objectReference: {fileID: 0}
     - target: {fileID: 7593284639869550128, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 286
+      value: 1376
+      objectReference: {fileID: 0}
+    - target: {fileID: 7593284639869550128, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7593284639869550128, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7593284639869550128, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7593284639869550128, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -21.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7593284639869550128, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7779528913578956953, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_Text
@@ -153,4 +173,5 @@ MonoBehaviour:
     selectAltActionText: 
     showCancelAction: 0
     cancelActionText: 
+  DefaultSelection: {fileID: 0}
   modal: {fileID: 2058949782104086260, guid: 4c7c7e9c4a29ce2419e0e24fcd74d505, type: 3}
