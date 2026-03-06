@@ -92,6 +92,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 33a088810c0a00545a5965bb72e0e872, type: 3}
+    - target: {fileID: 4407466112110888839, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5353531884984750672, guid: ce963f4fe79a6bb4385853457fc00f1d, type: 3}
       propertyPath: m_Name
       value: Tile_Settings
