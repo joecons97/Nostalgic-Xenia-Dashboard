@@ -2,7 +2,7 @@
 
 A faithful recreation of the **Xbox 360 NXE (New Xbox Experience) dashboard** built in **Unity**, designed to run on PC and provide a console-like experience.
 
-This project is not a launcher skin or front-end wrapper — it is a **standalone dashboard UI system** inspired directly by the Xbox 360 NXE interface, aiming to recreate its navigation flow, visual structure, and overall “console OS” feel.
+This project is not a launcher skin or front-end wrapper - it is a **standalone dashboard UI system** inspired directly by the Xbox 360 NXE interface, aiming to recreate its navigation flow, visual structure, and overall “console OS” feel.
 
 ---
 
@@ -17,7 +17,7 @@ Nostalgic Xenia Dashboard recreates the Xbox 360 NXE experience with a focus on:
 - Game library browsing and launching
 - Extensible plugin architecture
 
-The goal is to capture the feeling of using an Xbox 360 at its peak — not just visually, but structurally and interactively.
+The goal is to capture the feeling of using an Xbox 360 at its peak - not just visually, but structurally and interactively.
 
 ---
 ## 🏞️ Screenshots
@@ -85,7 +85,7 @@ C:\Users\[YourName]\AppData\Roaming\NXD\Plugins
 Restart the dashboard
 The plugin will be automatically detected and loaded at startup
 #### Notes
-Plugins must remain as .zip files — do not extract them.</br>
+Plugins must remain as .zip files - do not extract them.</br>
 Each plugin is loaded directly from its archive.</br>
 To uninstall a plugin, simply remove the .zip file.</br>
 
